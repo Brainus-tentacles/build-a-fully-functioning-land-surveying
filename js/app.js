@@ -1,7 +1,7 @@
 // Main Application Controller & Device Viewport Switcher
 class SurveyApp {
   constructor() {
-    this.currentTab = 'cad'; // 'jobs', 'fieldbook', 'cad', 'aim', 'points'
+    this.currentTab = 'aim'; // 'aim', 'fieldbook', 'jobs', 'cad', 'points'
     this.deviceMode = 'phone'; // 'phone', 'tablet', 'cad-station'
     this.sunlightMode = false;
   }
@@ -10,14 +10,14 @@ class SurveyApp {
     // 1. Initialize Points Manager
     window.pointManager.init(window.SAMPLE_DATA.points);
 
-    // 2. Initialize CAD Linework Engine
+    // 2. Initialize SUE Linework Engine
     window.cadEngine = new window.CadEngine('cad-canvas');
     window.cadEngine.init(window.SAMPLE_DATA.linework);
 
     // 3. Initialize Jobs & Checklist Manager
     window.jobManager.init(window.SAMPLE_DATA.jobs);
 
-    // 4. Initialize Digital Field Book Notes
+    // 4. Initialize Digital Field Book & SUE Notes
     window.fieldBook.init(window.SAMPLE_DATA.fieldNotes);
 
     // 5. Initialize AOL Instant Messenger Chat
@@ -34,8 +34,8 @@ class SurveyApp {
     this.updateClock();
     setInterval(() => this.updateClock(), 1000);
 
-    // Switch to initial tab
-    this.switchTab('cad');
+    // Switch to initial tab: Live AIM Chat linking Office & Field
+    this.switchTab('aim');
   }
 
   switchTab(tabName) {
