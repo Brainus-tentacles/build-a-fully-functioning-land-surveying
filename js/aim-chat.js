@@ -528,4 +528,5 @@ class AimChat {
   }
 }
 
+window.AimChat = AimChat;
 window.aimChat = new AimChat();

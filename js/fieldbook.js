@@ -383,4 +383,5 @@ class FieldBook {
   }
 }
 
+window.FieldBook = FieldBook;
 window.fieldBook = new FieldBook();

@@ -309,4 +309,5 @@ class JobManager {
   }
 }
 
+window.JobManager = JobManager;
 window.jobManager = new JobManager();

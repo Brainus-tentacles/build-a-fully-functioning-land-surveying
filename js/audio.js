@@ -196,4 +196,5 @@ class SoundFX {
   }
 }
 
+window.SoundFX = SoundFX;
 window.soundFX = new SoundFX();

@@ -310,4 +310,5 @@ class DxfManager {
   }
 }
 
+window.DxfManager = DxfManager;
 window.dxfManager = new DxfManager();

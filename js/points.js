@@ -254,4 +254,5 @@ class PointManager {
   }
 }
 
+window.PointManager = PointManager;
 window.pointManager = new PointManager();
