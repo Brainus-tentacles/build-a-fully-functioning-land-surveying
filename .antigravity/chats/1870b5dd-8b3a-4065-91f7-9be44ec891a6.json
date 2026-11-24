@@ -220,6 +220,18 @@
       "created_at": "2026-11-24T12:46:01.322Z",
       "sender": "ios",
       "is_cancelled": false
+    },
+    {
+      "id": "7eb81bc6-8a0e-4c34-bd3f-49aa10c0b9bc",
+      "role": "agent",
+      "content": "The survey linework canvas and live AIM chat have been redesigned into a unified split-screen layout with a strict 2-person direct messaging model.\n\n👉 **[View Updated Live Site](https://antigravity.luch.dev/site/aef3fa0e-ec18-4035-be15-3b34365d52dc/52aed9997b990f4c7798e12e/)**\n\n---\n\n### Key Implementations\n\n1. **Split-Screen Format (3/4 Canvas & 1/4 AIM)** ([`index.html`](https://github.com/Brainus-tentacles/build-a-fully-functioning-land-surveying/blob/main/index.html) & [`css/styles.css`](https://github.com/Brainus-tentacles/build-a-fully-functioning-land-surveying/blob/main/css/styles.css)):\n   - **Desktop / Rugged Tablet / CAD Workstation**: Horizontal split with **75% width** dedicated to the survey linework canvas (`.split-pane-cad`) and **25% width (1/4 of the screen)** dedicated to the AIM chat pane (`.split-pane-aim`).\n   - **Android Phone Mode**: Responsive vertical split with **75% height** for the survey canvas and **25% height (1/4 of the screen)** for the compact 2-person AIM window.\n   - Dynamic canvas resizing via `cadEngine.resizeCanvas()` keeps all drawing coordinates, magnetic snapping, and GNSS HUD overlays properly scaled.\n\n2. **Strict 2-Person Direct Conversation Model** ([`js/aim-chat.js`](https://github.com/Brainus-tentacles/build-a-fully-functioning-land-surveying/blob/main/js/aim-chat.js)):\n   - **Exclusively 1-on-1**: Conversations are strictly between two people (`Person A` ↔ `Person B`).\n   - **Filtered Messaging**: The message log exclusively renders messages exchanged between the active two individuals (`(from === A && to === B) || (from === B && to === A)`). No group chats, third-party messages, or bot noise bleed through.\n   - **2-Person Session Bar**:\n     - **Identity & Role Swap (`⇄`)**: Shows your identity (e.g. `Mike 👷 (Field Chief)`) with one-click swapping to `Dave 🖥️ (Senior CAD Drafter)`.\n     - **Partner Selector**: Dropdown to select the single person you are conversing with (`Dave`, `Sarah`, or `Frank`).\n     - **Privacy Badge**: Displays `🔒 2-Person Private IM`.\n   - **Targeted Responses**: Only the chosen partner auto-replies with realistic context-aware survey/CAD answers.\n\n3. **Compact Survey Actions & Quick CAD Link** ([`css/aim.css`](https://github.com/Brainus-tentacles/build-a-fully-functioning-land-surveying/blob/main/css/aim.css)):\n   - Compact toolbar with 1-tap survey tools (`🎯 Req Shot`, `📍 Send Pt`, `📏 Lines`, `📤 .RW5`, `📤 .FBK`).\n   - Transmitting survey linework or point cards from the canvas now updates right beside the canvas in the AIM pane without switching views.\n   - Updated the Android bottom bar with the unified `📐💬 CAD & AIM` navigation item.",
+      "status": "completed",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": "4c842b99-03ef-4b3a-8d83-755e3e2c8352",
+      "created_at": "2026-11-24T12:54:35.019Z",
+      "sender": "macOS",
+      "is_cancelled": false
     }
   ]
 }
