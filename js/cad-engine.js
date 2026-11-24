@@ -682,6 +682,125 @@ class CadEngine {
     ctx.fillText(`PT #${pt.id} (${pt.code})`, sp.x + 14, sp.y + 4);
     ctx.restore();
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // MAGNET Field Linework Code Auto-Builder
+  // Parses standard MAGNET Field / Topcon / Sokkia field coding conventions
+  // and converts them to Civil 3D-compatible linework layers automatically.
+  //
+  // MAGNET Field Feature Code Conventions (supported):
+  //   EP1 B  or  EP1+   → Begin new string "EP1"
+  //   EP1 E  or  EP1-   → End string "EP1"
+  //   EP1    or  EP1 C  → Continue string "EP1"
+  //   BC     → Begin Curve
+  //   EC     → End Curve
+  //   PCT    → Point on Curve (no special rendering needed here)
+  //
+  // Civil 3D Layer Mapping:
+  //   EP, EOP, ETP, FL → V-ROAD-CURB   (Edge of Pavement / Curb)
+  //   CL, TC, TS       → V-ROAD-CNTR   (Centerline)
+  //   IP, BND, LOT, PROP, ROW → V-PROP-LINE (Boundary / Property Line)
+  //   BLD, BLDG, FFE   → V-BLDG        (Building Footprint)
+  //   WM, WV, GV, SS, MH → V-UTIL-WATR (Utilities)
+  //   TBR, TREE, BUSH  → V-SURV-TOPO   (Topo / Vegetation)
+  //   BM, TBM, CP      → V-NODE-PNT    (Control / Bench Marks)
+  // ─────────────────────────────────────────────────────────────────────────────
+  static magnetCodeToLayer(code) {
+    if (!code) return 'BOUNDARY';
+    const c = code.trim().toUpperCase().replace(/[+\-BC]/g, '').split(/\s+/)[0];
+
+    if (/^(EP|EOP|ETP|FL|CURB|GUTTR)/.test(c)) return 'EOP_CURB';
+    if (/^(CL|TC|TS|CNTR|CNTRL)/.test(c)) return 'CENTERLINE';
+    if (/^(IP|BND|LOT|PROP|ROW|CORNER|FENCE|WALL)/.test(c)) return 'BOUNDARY';
+    if (/^(BLD|BLDG|FFE|STRUC)/.test(c)) return 'BUILDING';
+    if (/^(WM|WV|GV|SS|MH|CO|CB|FH|WTR|GAS|SEWR|STRM|OH|UNK)/.test(c)) return 'UTILITIES';
+    return 'BOUNDARY'; // default fallback for unknown codes
+  }
+
+  // Build linework automatically from an array of survey points with MAGNET Field codes
+  // Points must have: { id, northing, easting, elevation, code }
+  buildLineworkFromMagnetCodes(points) {
+    // Collect active string groups: { stringName -> { vertices: [], layer, closed } }
+    const strings = {};
+    const addedCount = { lines: 0 };
+
+    points.forEach(pt => {
+      const rawCode = (pt.code || '').trim();
+
+      // Parse: code may be "EP1 B", "EP1+", "EP1 E", "EP1-", "EP1", "BC", "EC"
+      // Extract string name + action
+      let stringName = rawCode.replace(/\s*(B|E|C)\s*$/i, '').replace(/[+\-]$/, '').trim().toUpperCase();
+      const isBegin  = /\sB$/i.test(rawCode) || rawCode.endsWith('+');
+      const isEnd    = /\sE$/i.test(rawCode) || rawCode.endsWith('-');
+      // isContinue = neither begin nor end (or explicit 'C')
+
+      if (!stringName) return; // skip empty codes
+
+      // Skip pure geometry keywords without a name
+      if (stringName === 'BC' || stringName === 'EC' || stringName === 'PCT') return;
+
+      const layer = CadEngine.magnetCodeToLayer(stringName);
+      const vertex = { id: pt.id, n: pt.northing, e: pt.easting, z: pt.elevation };
+
+      if (isBegin || !strings[stringName]) {
+        // Start or restart a new string
+        strings[stringName] = { vertices: [vertex], layer };
+      } else {
+        strings[stringName].vertices.push(vertex);
+      }
+
+      if (isEnd && strings[stringName] && strings[stringName].vertices.length >= 2) {
+        // Finish & commit the string as linework
+        const s = strings[stringName];
+        const feat = this.features[s.layer] || this.features.BOUNDARY;
+        this.linework.push({
+          id: `magnet-${stringName}-${Date.now()}-${addedCount.lines}`,
+          layer: s.layer,
+          name: `MAGNET ${stringName}`,
+          color: feat.color,
+          lineWidth: feat.lineWidth,
+          dash: feat.dash || [],
+          closed: false,
+          points: [...s.vertices]
+        });
+        addedCount.lines++;
+        delete strings[stringName];
+      }
+    });
+
+    // Flush any still-open strings (no explicit end code)
+    Object.keys(strings).forEach(sn => {
+      const s = strings[sn];
+      if (s.vertices.length >= 2) {
+        const feat = this.features[s.layer] || this.features.BOUNDARY;
+        this.linework.push({
+          id: `magnet-${sn}-${Date.now()}`,
+          layer: s.layer,
+          name: `MAGNET ${sn}`,
+          color: feat.color,
+          lineWidth: feat.lineWidth,
+          dash: feat.dash || [],
+          closed: false,
+          points: [...s.vertices]
+        });
+        addedCount.lines++;
+      }
+    });
+
+    this.save();
+    this.render();
+
+    const msg = `🗺️ MAGNET Field auto-linework: ${addedCount.lines} strings built from ${points.length} coded points. Layers mapped to Civil 3D (EOP_CURB, CENTERLINE, BOUNDARY, BUILDING, UTILITIES).`;
+    if (window.aimChat) window.aimChat.postSystemMessage(msg);
+    return addedCount.lines;
+  }
+
+  // Build linework from currently loaded points using their field codes
+  buildLineworkFromCurrentPoints() {
+    if (!window.pointManager) return 0;
+    const points = window.pointManager.getAll();
+    return this.buildLineworkFromMagnetCodes(points);
+  }
 }
 
 window.CadEngine = CadEngine;
