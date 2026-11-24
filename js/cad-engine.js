@@ -707,13 +707,17 @@ class CadEngine {
   // ─────────────────────────────────────────────────────────────────────────────
   static magnetCodeToLayer(code) {
     if (!code) return 'BOUNDARY';
-    const c = code.trim().toUpperCase().replace(/[+\-BC]/g, '').split(/\s+/)[0];
+    // Strip begin/end suffix tokens, then isolate the base code word
+    const c = code.trim().toUpperCase()
+      .replace(/\s*[BE]\s*$/, '')  // strip trailing B / E command
+      .replace(/[+\-]$/, '')       // strip trailing + / -
+      .split(/\s+/)[0];            // first word only
 
     if (/^(EP|EOP|ETP|FL|CURB|GUTTR)/.test(c)) return 'EOP_CURB';
-    if (/^(CL|TC|TS|CNTR|CNTRL)/.test(c)) return 'CENTERLINE';
+    if (/^(CL\d*|TC\d*|TS\d*|CNTR|CNTRL)/.test(c)) return 'CENTERLINE';
     if (/^(IP|BND|LOT|PROP|ROW|CORNER|FENCE|WALL)/.test(c)) return 'BOUNDARY';
     if (/^(BLD|BLDG|FFE|STRUC)/.test(c)) return 'BUILDING';
-    if (/^(WM|WV|GV|SS|MH|CO|CB|FH|WTR|GAS|SEWR|STRM|OH|UNK)/.test(c)) return 'UTILITIES';
+    if (/^(WM|WV|GV|SS|MH\d*|CO|CB|FH|WTR|GAS|SEWR|STRM|OH|UNK)/.test(c)) return 'UTILITIES';
     return 'BOUNDARY'; // default fallback for unknown codes
   }
 
