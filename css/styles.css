@@ -78,6 +78,23 @@ body {
   gap: 10px;
 }
 
+.app-logo-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), 0 2px 6px rgba(0, 0, 0, 0.5);
+  border: 1.5px solid rgba(56, 189, 248, 0.6);
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.app-logo-img:hover {
+  transform: scale(1.1) rotate(4deg);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.75), 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
 .app-logo {
   font-size: 24px;
   filter: drop-shadow(0 2px 4px rgba(56, 189, 248, 0.4));
@@ -274,6 +291,23 @@ body {
   padding: 0 14px;
   border-bottom: 1px solid var(--border-color);
   z-index: 40;
+}
+
+.app-bar-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.android-app-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
 }
 
 .app-bar-title {

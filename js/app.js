@@ -469,9 +469,12 @@ class SurveyApp {
       <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
         <div class="survey-modal-card">
           <div class="survey-modal-header">
-            <div>
-              <h3>⚙️ Topcon / Sokkia & Civil 3D Kit</h3>
-              <span class="text-xs text-muted">Configure your field tablet, GNSS receiver, robotic total station & Civil 3D target</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="assets/logo.png" alt="Logo" class="modal-brand-logo" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent-primary); box-shadow: 0 0 8px rgba(56,189,248,0.3);">
+              <div>
+                <h3>⚙️ Topcon / Sokkia & Civil 3D Kit</h3>
+                <span class="text-xs text-muted">Configure your field tablet, GNSS receiver, robotic total station & Civil 3D target</span>
+              </div>
             </div>
             <button class="btn-close" onclick="window.app.closeModal()">×</button>
           </div>
