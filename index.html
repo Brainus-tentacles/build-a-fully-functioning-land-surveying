@@ -153,9 +153,136 @@
         <!-- MAIN APP CONTENT VIEWPORT (SWITCHABLE TABS) -->
         <div class="app-content-viewport">
 
-          <!-- 1. LIVE AOL INSTANT MESSENGER (AIM) CHAT VIEW (PRIMARY OFFICE-FIELD LINK) -->
-          <section id="view-aim" class="app-view active">
-            <div id="aim-container" style="height: 100%;"></div>
+          <!-- 1. SPLIT SCREEN: SURVEY LINEWORK CANVAS (3/4 SCREEN) & AIM 2-PERSON CHAT (1/4 SCREEN) -->
+          <section id="view-cad" class="app-view active">
+            <div class="cad-aim-split-container">
+              <!-- CAD CANVAS VIEWPORT (3/4 OF SCREEN) -->
+              <div class="split-pane-cad">
+                <div class="cad-viewport-layout">
+                  <canvas id="cad-canvas"></canvas>
+
+                  <!-- TOPCON / SOKKIA GNSS & ROBOTIC TS HUD OVERLAY -->
+                  <div class="gnss-hud-overlay" id="gnss-hud">
+                    <div class="gnss-hud-row gnss-hud-title" style="pointer-events:auto; cursor:pointer;" onclick="window.app.openEquipmentModal()" title="Click to switch Topcon / Sokkia gear">
+                      <span class="gnss-brand topcon" id="hud-brand-topcon">TOPCON</span>
+                      <span class="gnss-brand sokkia" id="hud-brand-sokkia">SOKKIA</span>
+                      <span class="gnss-model" id="hud-model">HiPer VR / iX-1200</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">STATUS</span>
+                      <span class="gnss-value gnss-fixed" id="hud-status">RTK FIXED</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">NETWORK</span>
+                      <span class="gnss-value" id="hud-network">TopNET Live VRS</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">SATS</span>
+                      <span class="gnss-value" id="hud-sats">24</span>
+                      <span class="gnss-label" style="margin-left:6px; min-width:30px;">PDOP</span>
+                      <span class="gnss-value" id="hud-pdop">1.05</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">LINK</span>
+                      <span class="gnss-value" id="hud-link">LongLink BT ✔</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">DEVICE</span>
+                      <span class="gnss-value" id="hud-device">Topcon FC-6000</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">SW</span>
+                      <span class="gnss-value" id="hud-sw">MAGNET Field v8.2</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">HRMS</span>
+                      <span class="gnss-value gnss-fixed" id="hud-hrms">0.011 ft</span>
+                      <span class="gnss-label" style="margin-left:4px; min-width:30px;">VRMS</span>
+                      <span class="gnss-value gnss-fixed" id="hud-vrms">0.019 ft</span>
+                    </div>
+                  </div>
+
+                  <!-- Floating Top Survey Feature Bar -->
+                  <div class="cad-floating-topbar">
+                    <div class="sue-utility-bar">
+                      <button class="survey-feat-btn sue-util-btn active" data-feat="BOUNDARY" onclick="window.cadEngine.setFeature('BOUNDARY')">
+                        <span class="sue-util-dot" style="background: #ef4444;"></span> Boundary
+                      </button>
+                      <button class="survey-feat-btn sue-util-btn" data-feat="CENTERLINE" onclick="window.cadEngine.setFeature('CENTERLINE')">
+                        <span class="sue-util-dot" style="background: #eab308;"></span> Centerline
+                      </button>
+                      <button class="survey-feat-btn sue-util-btn" data-feat="EOP_CURB" onclick="window.cadEngine.setFeature('EOP_CURB')">
+                        <span class="sue-util-dot" style="background: #94a3b8;"></span> EOP / Curb
+                      </button>
+                      <button class="survey-feat-btn sue-util-btn" data-feat="BUILDING" onclick="window.cadEngine.setFeature('BUILDING')">
+                        <span class="sue-util-dot" style="background: #a855f7;"></span> Building
+                      </button>
+                      <button class="survey-feat-btn sue-util-btn" data-feat="UTILITIES" onclick="window.cadEngine.setFeature('UTILITIES')">
+                        <span class="sue-util-dot" style="background: #0284c7;"></span> Utilities
+                      </button>
+                    </div>
+
+                    <div class="cad-top-right">
+                      <div id="cad-coord-hud" class="cad-coord-badge">N: <b>10250.00</b> E: <b>10250.00</b></div>
+                      <button class="btn btn-xs btn-success font-bold" onclick="window.cadEngine.finishActiveDrawing()" title="Finish Current Linework">
+                        ⚡ Finish
+                      </button>
+                      <button class="btn btn-xs btn-warning font-bold" onclick="window.app.runMagnetAutoLines()" title="Auto-build Civil 3D linework from MAGNET Field feature codes">
+                        🗺️ MAGNET Auto
+                      </button>
+                      <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.toggleLayerModal()" title="Toggle Civil 3D / MAGNET Layers">
+                        🗂️ Layers
+                      </button>
+                      <button class="btn btn-xs btn-primary font-bold" onclick="window.cadEngine.sendLineworkToAim()" title="Transmit Linework to Civil 3D Office via AIM">
+                        💬 Send CAD
+                      </button>
+                      <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.fitExtents()" title="Fit Extents">
+                        ⛶
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Floating Left Survey Toolbox (Simplistic) -->
+                  <div class="sue-toolbox">
+                    <button class="cad-tool-btn sue-tool-btn active" data-tool="line" onclick="window.cadEngine.setTool('line')" title="Draw Survey Line">
+                      〰️ Draw Line
+                    </button>
+                    <button class="cad-tool-btn sue-tool-btn" data-tool="point" onclick="window.cadEngine.setTool('point')" title="Drop New MAGNET Point">
+                      📍 Add Point
+                    </button>
+                    <button class="cad-tool-btn sue-tool-btn" data-tool="measure" onclick="window.cadEngine.setTool('measure')" title="Measure Bearing & Distance (COGO Inverse)">
+                      📐 Inverse
+                    </button>
+                    <div class="toolbox-divider"></div>
+                    <button class="cad-tool-btn sue-tool-btn" data-tool="pan" onclick="window.cadEngine.setTool('pan')" title="Pan Site">
+                      ✋ Pan
+                    </button>
+                    <button class="cad-tool-btn sue-tool-btn" data-tool="select" onclick="window.cadEngine.setTool('select')" title="Select & Inspect Point">
+                      👆 Select
+                    </button>
+                  </div>
+
+                  <!-- Bottom Tool Hint -->
+                  <div class="sue-tool-hint" id="cad-tool-instruction">
+                    Drawing Boundary line. Tap points on canvas, then click 'Finish'.
+                  </div>
+
+                  <!-- Inspector Card Container -->
+                  <div class="cad-inspector-wrapper" id="cad-inspector"></div>
+
+                  <!-- Measure Results Card Container -->
+                  <div id="cad-measure-results"></div>
+
+                  <!-- Civil 3D Layers Modal Container -->
+                  <div id="cad-layer-modal"></div>
+                </div>
+              </div>
+
+              <!-- AIM CHAT VIEWPORT (1/4 OF SCREEN - STRICTLY 2-PERSON DIRECT IM) -->
+              <div class="split-pane-aim">
+                <div id="aim-container" style="height: 100%;"></div>
+              </div>
+            </div>
           </section>
 
           <!-- 2. DIGITAL FIELD NOTES REPLACEMENT VIEW -->
@@ -166,128 +293,6 @@
           <!-- 3. JOBS & CHECKLIST TRACKER VIEW -->
           <section id="view-jobs" class="app-view">
             <div id="jobs-container"></div>
-          </section>
-
-          <!-- 4. SIMPLISTIC SURVEY LINEWORK CANVAS (MAGNET FIELD CODES → CIVIL 3D LAYERS) -->
-          <section id="view-cad" class="app-view">
-            <div class="cad-viewport-layout">
-              <canvas id="cad-canvas"></canvas>
-
-              <!-- TOPCON / SOKKIA GNSS & ROBOTIC TS HUD OVERLAY -->
-              <div class="gnss-hud-overlay" id="gnss-hud">
-                <div class="gnss-hud-row gnss-hud-title" style="pointer-events:auto; cursor:pointer;" onclick="window.app.openEquipmentModal()" title="Click to switch Topcon / Sokkia gear">
-                  <span class="gnss-brand topcon" id="hud-brand-topcon">TOPCON</span>
-                  <span class="gnss-brand sokkia" id="hud-brand-sokkia">SOKKIA</span>
-                  <span class="gnss-model" id="hud-model">HiPer VR / iX-1200</span>
-                </div>
-                <div class="gnss-hud-row">
-                  <span class="gnss-label">STATUS</span>
-                  <span class="gnss-value gnss-fixed" id="hud-status">RTK FIXED</span>
-                </div>
-                <div class="gnss-hud-row">
-                  <span class="gnss-label">NETWORK</span>
-                  <span class="gnss-value" id="hud-network">TopNET Live VRS</span>
-                </div>
-                <div class="gnss-hud-row">
-                  <span class="gnss-label">SATS</span>
-                  <span class="gnss-value" id="hud-sats">24</span>
-                  <span class="gnss-label" style="margin-left:6px; min-width:30px;">PDOP</span>
-                  <span class="gnss-value" id="hud-pdop">1.05</span>
-                </div>
-                <div class="gnss-hud-row">
-                  <span class="gnss-label">LINK</span>
-                  <span class="gnss-value" id="hud-link">LongLink BT ✔</span>
-                </div>
-                <div class="gnss-hud-row">
-                  <span class="gnss-label">DEVICE</span>
-                  <span class="gnss-value" id="hud-device">Topcon FC-6000</span>
-                </div>
-                <div class="gnss-hud-row">
-                  <span class="gnss-label">SW</span>
-                  <span class="gnss-value" id="hud-sw">MAGNET Field v8.2</span>
-                </div>
-                <div class="gnss-hud-row">
-                  <span class="gnss-label">HRMS</span>
-                  <span class="gnss-value gnss-fixed" id="hud-hrms">0.011 ft</span>
-                  <span class="gnss-label" style="margin-left:4px; min-width:30px;">VRMS</span>
-                  <span class="gnss-value gnss-fixed" id="hud-vrms">0.019 ft</span>
-                </div>
-              </div>
-
-              <!-- Floating Top Survey Feature Bar -->
-              <div class="cad-floating-topbar">
-                <div class="sue-utility-bar">
-                  <button class="survey-feat-btn sue-util-btn active" data-feat="BOUNDARY" onclick="window.cadEngine.setFeature('BOUNDARY')">
-                    <span class="sue-util-dot" style="background: #ef4444;"></span> Boundary
-                  </button>
-                  <button class="survey-feat-btn sue-util-btn" data-feat="CENTERLINE" onclick="window.cadEngine.setFeature('CENTERLINE')">
-                    <span class="sue-util-dot" style="background: #eab308;"></span> Centerline
-                  </button>
-                  <button class="survey-feat-btn sue-util-btn" data-feat="EOP_CURB" onclick="window.cadEngine.setFeature('EOP_CURB')">
-                    <span class="sue-util-dot" style="background: #94a3b8;"></span> EOP / Curb
-                  </button>
-                  <button class="survey-feat-btn sue-util-btn" data-feat="BUILDING" onclick="window.cadEngine.setFeature('BUILDING')">
-                    <span class="sue-util-dot" style="background: #a855f7;"></span> Building
-                  </button>
-                  <button class="survey-feat-btn sue-util-btn" data-feat="UTILITIES" onclick="window.cadEngine.setFeature('UTILITIES')">
-                    <span class="sue-util-dot" style="background: #0284c7;"></span> Utilities
-                  </button>
-                </div>
-
-                <div class="cad-top-right">
-                  <div id="cad-coord-hud" class="cad-coord-badge">N: <b>10250.00</b> E: <b>10250.00</b></div>
-                  <button class="btn btn-xs btn-success font-bold" onclick="window.cadEngine.finishActiveDrawing()" title="Finish Current Linework">
-                    ⚡ Finish
-                  </button>
-                  <button class="btn btn-xs btn-warning font-bold" onclick="window.app.runMagnetAutoLines()" title="Auto-build Civil 3D linework from MAGNET Field feature codes">
-                    🗺️ MAGNET Auto
-                  </button>
-                  <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.toggleLayerModal()" title="Toggle Civil 3D / MAGNET Layers">
-                    🗂️ Layers
-                  </button>
-                  <button class="btn btn-xs btn-primary font-bold" onclick="window.cadEngine.sendLineworkToAim()" title="Transmit Linework to Civil 3D Office via AIM">
-                    💬 Send CAD
-                  </button>
-                  <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.fitExtents()" title="Fit Extents">
-                    ⛶
-                  </button>
-                </div>
-              </div>
-
-              <!-- Floating Left Survey Toolbox (Simplistic) -->
-              <div class="sue-toolbox">
-                <button class="cad-tool-btn sue-tool-btn active" data-tool="line" onclick="window.cadEngine.setTool('line')" title="Draw Survey Line">
-                  〰️ Draw Line
-                </button>
-                <button class="cad-tool-btn sue-tool-btn" data-tool="point" onclick="window.cadEngine.setTool('point')" title="Drop New MAGNET Point">
-                  📍 Add Point
-                </button>
-                <button class="cad-tool-btn sue-tool-btn" data-tool="measure" onclick="window.cadEngine.setTool('measure')" title="Measure Bearing & Distance (COGO Inverse)">
-                  📐 Inverse
-                </button>
-                <div class="toolbox-divider"></div>
-                <button class="cad-tool-btn sue-tool-btn" data-tool="pan" onclick="window.cadEngine.setTool('pan')" title="Pan Site">
-                  ✋ Pan
-                </button>
-                <button class="cad-tool-btn sue-tool-btn" data-tool="select" onclick="window.cadEngine.setTool('select')" title="Select & Inspect Point">
-                  👆 Select
-                </button>
-              </div>
-
-              <!-- Bottom Tool Hint -->
-              <div class="sue-tool-hint" id="cad-tool-instruction">
-                Drawing Boundary line. Tap points on canvas, then click 'Finish'.
-              </div>
-
-              <!-- Inspector Card Container -->
-              <div class="cad-inspector-wrapper" id="cad-inspector"></div>
-
-              <!-- Measure Results Card Container -->
-              <div id="cad-measure-results"></div>
-
-              <!-- Civil 3D Layers Modal Container -->
-              <div id="cad-layer-modal"></div>
-            </div>
           </section>
 
           <!-- 5. POINTS DATABASE & RTK GPS COLLECTOR VIEW -->
@@ -333,9 +338,9 @@
 
         <!-- ANDROID BOTTOM NAVIGATION BAR -->
         <nav class="android-bottom-nav">
-          <button class="android-nav-item active" data-tab="aim" onclick="window.app.switchTab('aim')">
-            <span class="nav-icon">💬</span>
-            <span class="nav-label">AIM Chat</span>
+          <button class="android-nav-item active" data-tab="cad" onclick="window.app.switchTab('cad')">
+            <span class="nav-icon">📐💬</span>
+            <span class="nav-label">CAD &amp; AIM</span>
             <span class="nav-badge-dot"></span>
           </button>
 
@@ -347,11 +352,6 @@
           <button class="android-nav-item" data-tab="jobs" onclick="window.app.switchTab('jobs')">
             <span class="nav-icon">📋</span>
             <span class="nav-label">Checklist</span>
-          </button>
-
-          <button class="android-nav-item" data-tab="cad" onclick="window.app.switchTab('cad')">
-            <span class="nav-icon">📐</span>
-            <span class="nav-label">Linework</span>
           </button>
 
           <button class="android-nav-item" data-tab="points" onclick="window.app.switchTab('points')">
