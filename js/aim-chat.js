@@ -360,10 +360,11 @@ class AimChat {
         <div class="aim-identity-bar">
           <div class="aim-my-profile">
             <span class="status-dot status-${this.currentUser.status}"></span>
-            <span>You are: <b>${this.currentUser.alias}</b> (${this.currentUser.role.toUpperCase()})</span>
+            <span>You: <b>${this.currentUser.alias}</b></span>
+            <button class="btn btn-xs btn-outline-secondary" onclick="window.aimChat.promptSetAway()" title="Set Away Message">Set Away</button>
           </div>
           <div class="aim-role-switch">
-            <span>Switch Role:</span>
+            <span>Switch:</span>
             <button class="btn btn-xs ${this.currentUser.role === 'field' ? 'btn-warning active' : 'btn-outline-warning'}" onclick="window.aimChat.switchUserRole('field')">
               👷 Field Chief
             </button>
@@ -402,8 +403,11 @@ class AimChat {
               <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.promptSendPoint()">
                 📍 Send Point
               </button>
+              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendLineworkSummary()">
+                📏 Share Linework
+              </button>
               <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.promptRequestLinework()">
-                📏 Request Linework
+                📑 Req DXF
               </button>
             </div>
 

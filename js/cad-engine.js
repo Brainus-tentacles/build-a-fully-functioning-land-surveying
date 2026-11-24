@@ -504,6 +504,59 @@ class CadEngine {
     }
   }
 
+  toggleLayerVisibility(layerName) {
+    if (this.layers[layerName]) {
+      this.layers[layerName].visible = !this.layers[layerName].visible;
+      this.render();
+    }
+  }
+
+  togglePointLabels() {
+    this.layers.POINTS.showLabels = !this.layers.POINTS.showLabels;
+    this.render();
+  }
+
+  showLayerManagerModal() {
+    const existing = document.getElementById('cad-layer-modal');
+    if (existing) {
+      existing.remove();
+      return;
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'cad-layer-modal';
+    modal.className = 'cad-layer-modal-dialog';
+
+    modal.innerHTML = `
+      <div class="cad-layer-modal-header">
+        <span>📑 CAD Layer Manager</span>
+        <button class="btn-close" onclick="document.getElementById('cad-layer-modal').remove()">×</button>
+      </div>
+      <div class="cad-layer-list">
+        ${Object.entries(this.layers).map(([key, cfg]) => {
+          const count = key === 'POINTS'
+            ? (window.pointManager ? window.pointManager.getAll().length : 0)
+            : this.linework.filter(l => l.layer === key).length;
+          return `
+            <div class="layer-item-row">
+              <input type="checkbox" ${cfg.visible ? 'checked' : ''} onchange="window.cadEngine.toggleLayerVisibility('${key}')">
+              <span class="layer-color-badge" style="background: ${cfg.color};"></span>
+              <span class="layer-name-label">${cfg.name}</span>
+              <span class="layer-count-badge">${count}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="cad-layer-modal-footer">
+        <button class="btn btn-xs btn-outline-info" onclick="window.cadEngine.togglePointLabels()">
+          🏷️ Toggle Pt Labels (${this.layers.POINTS.showLabels ? 'ON' : 'OFF'})
+        </button>
+      </div>
+    `;
+
+    document.querySelector('.cad-viewport-layout')?.appendChild(modal);
+  }
+
   selectPoint(point) {
     this.selectedEntity = { type: 'point', data: point };
     const inspector = document.getElementById('cad-inspector');

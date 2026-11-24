@@ -308,6 +308,104 @@ class DxfManager {
 
     return parsedPoints;
   }
+
+  // Export GeoJSON features for GIS / web map integration
+  exportGeoJson(filename = "SURVEY_OAK_RIDGE.geojson") {
+    const linework = window.cadEngine ? window.cadEngine.linework : [];
+    const points = window.pointManager ? window.pointManager.getAll() : [];
+
+    const features = [];
+
+    // Points as GeoJSON Feature Point (Easting = Longitude/X, Northing = Latitude/Y)
+    points.forEach(p => {
+      features.push({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [p.easting, p.northing, p.elevation]
+        },
+        properties: {
+          id: p.id,
+          code: p.code,
+          elevation: p.elevation,
+          desc: p.desc || ""
+        }
+      });
+    });
+
+    // Linework as GeoJSON LineString / Polygon
+    linework.forEach(l => {
+      if (!l.points || l.points.length < 2) return;
+
+      if (l.closed || l.type === 'polygon' || l.type === 'parcel') {
+        const ring = l.points.map(pt => [pt.e, pt.n, pt.z || 0]);
+        // Close ring if not closed
+        if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
+          ring.push([...ring[0]]);
+        }
+        features.push({
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: [ring]
+          },
+          properties: {
+            id: l.id,
+            name: l.name,
+            layer: l.layer
+          }
+        });
+      } else {
+        features.push({
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: l.points.map(pt => [pt.e, pt.n, pt.z || 0])
+          },
+          properties: {
+            id: l.id,
+            name: l.name,
+            layer: l.layer
+          }
+        });
+      }
+    });
+
+    const geoJson = {
+      type: "FeatureCollection",
+      properties: {
+        datum: "NAD83 Texas Central (US Survey Feet)",
+        exportedAt: new Date().toISOString()
+      },
+      features
+    };
+
+    const blob = new Blob([JSON.stringify(geoJson, null, 2)], { type: "application/geo+json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    window.soundFX.playShotBeep();
+  }
+
+  // Export high resolution PNG snapshot of CAD drawing
+  exportPngSnapshot(filename = "SURVEY_DRAWING.png") {
+    const canvas = document.getElementById('cad-canvas');
+    if (!canvas) return;
+
+    const dataUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.soundFX.playShotBeep();
+  }
 }
 
 window.DxfManager = DxfManager;
