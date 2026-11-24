@@ -1,14 +1,19 @@
-// Digital Field Book & SUE (Subsurface Utility Engineering) Field Notes Engine
-// Replaces paper field books with SUE Test Hole logs, Level Loops, and Monument Notes
+// Digital Land Surveying Field Book Engine (Transit Book, Level Loop & Boundary Notes)
 class FieldBook {
   constructor() {
     this.notes = null;
     this.sketchCanvas = null;
     this.sketchCtx = null;
-    this.currentSubTab = 'sue'; // 'sue', 'level', 'monuments', 'media'
-    this.testHoles = [];
+    this.currentSubTab = 'book'; // 'book', 'traverse', 'boundary', 'stakeout', 'media'
+    this.activeStakeoutPtId = 10;
     this.photos = [];
     this.voiceMemos = [];
+    this.traverseData = [
+      { from: "CP1", to: "CP2", dist: 305.82, bearing: "N 37° 15' 00\" E", dN: 243.43, dE: 185.12 },
+      { from: "CP2", to: "CP3", dist: 306.15, bearing: "N 59° 48' 20\" E", dN: 153.94, dE: 264.48 },
+      { from: "CP3", to: "CP4", dist: 284.28, bearing: "S 12° 28' 10\" E", dN: -277.58, dE: 61.39 },
+      { from: "CP4", to: "CP1", dist: 524.45, bearing: "S 76° 49' 40\" W", dN: -119.77, dE: -510.98 }
+    ];
   }
 
   init(initialNotes) {
@@ -23,12 +28,43 @@ class FieldBook {
       this.notes = initialNotes ? { ...initialNotes } : {};
     }
 
-    // Load SUE test holes
-    const savedTH = localStorage.getItem('sue_test_holes');
-    if (savedTH) {
-      try { this.testHoles = JSON.parse(savedTH); } catch (e) {}
-    } else if (window.SAMPLE_DATA && window.SAMPLE_DATA.testHoles) {
-      this.testHoles = [...window.SAMPLE_DATA.testHoles];
+    const savedPhotos = localStorage.getItem('survey_field_photos');
+    if (savedPhotos) {
+      try { this.photos = JSON.parse(savedPhotos); } catch (e) {}
+    } else {
+      this.photos = [
+        {
+          id: "photo-1",
+          title: "SW Lot Corner 1/2\" Iron Rod",
+          pointId: 10,
+          bearing: "N 45° E",
+          time: "08:42 AM",
+          notes: "Found 1/2\" iron rod flush with grade, 2.1' east of water meter box."
+        },
+        {
+          id: "photo-2",
+          title: "NW Property Corner 5/8\" Rebar",
+          pointId: 11,
+          bearing: "N 12° W",
+          time: "09:15 AM",
+          notes: "Found 5/8\" iron rod flush with ground in fence line."
+        }
+      ];
+    }
+
+    const savedMemos = localStorage.getItem('survey_voice_memos');
+    if (savedMemos) {
+      try { this.voiceMemos = JSON.parse(savedMemos); } catch (e) {}
+    } else {
+      this.voiceMemos = [
+        {
+          id: "memo-1",
+          title: "SW Corner Water Meter Verification",
+          duration: "0:18",
+          time: "08:44 AM",
+          transcript: "Point 10 is 2.1 feet east of the water meter vault. Encroachment conflict cleared. Boundary line is free of utilities."
+        }
+      ];
     }
 
     this.renderFieldBook();
@@ -36,7 +72,8 @@ class FieldBook {
 
   save() {
     localStorage.setItem('survey_field_notes', JSON.stringify(this.notes));
-    localStorage.setItem('sue_test_holes', JSON.stringify(this.testHoles));
+    localStorage.setItem('survey_field_photos', JSON.stringify(this.photos));
+    localStorage.setItem('survey_voice_memos', JSON.stringify(this.voiceMemos));
   }
 
   setSubTab(tab) {
@@ -52,7 +89,7 @@ class FieldBook {
 
     container.innerHTML = `
       <div class="fieldbook-wrapper">
-        <!-- Field Book Top Bar -->
+        <!-- Field Book Top Navigation Bar -->
         <div class="fieldbook-topbar">
           <div class="fb-title">
             <span class="fb-badge">FIELD BOOK #${n.bookNumber || 'FB-01'}</span>
@@ -60,137 +97,63 @@ class FieldBook {
             <h3>${n.projectName || 'Project Survey Notes'}</h3>
           </div>
 
-          <!-- Section Switcher Buttons -->
+          <!-- Section Switcher Tabs -->
           <div class="fb-subnav-buttons">
-            <button class="btn btn-xs ${this.currentSubTab === 'sue' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('sue')">
-              🕳️ SUE Test Holes (${this.testHoles.length})
+            <button class="btn btn-xs ${this.currentSubTab === 'book' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('book')">
+              📖 Transit & Level Book
             </button>
-            <button class="btn btn-xs ${this.currentSubTab === 'level' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('level')">
-              📖 Level Loop & Math Check
+            <button class="btn btn-xs ${this.currentSubTab === 'traverse' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('traverse')">
+              🔄 Traverse Loop Balance
             </button>
-            <button class="btn btn-xs ${this.currentSubTab === 'monuments' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('monuments')">
-              📍 Monument & Boundary Notes
+            <button class="btn btn-xs ${this.currentSubTab === 'boundary' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('boundary')">
+              📍 Boundary & Monuments
+            </button>
+            <button class="btn btn-xs ${this.currentSubTab === 'stakeout' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('stakeout')">
+              🎯 Stakeout Navigator
             </button>
             <button class="btn btn-xs ${this.currentSubTab === 'media' ? 'btn-primary' : 'btn-outline-light'}" onclick="window.fieldBook.setSubTab('media')">
-              📷 Photos & Audio Notes
+              📷 Photos & Voice Notes
             </button>
           </div>
 
           <div class="fb-actions">
-            <button class="btn btn-xs btn-outline-warning" onclick="window.print()">🖨️ Print Notes</button>
+            <button class="btn btn-xs btn-outline-warning" onclick="window.print()">🖨️ Print Book</button>
             <button class="btn btn-xs btn-success" onclick="window.fieldBook.saveNotesFromForm()">💾 Save</button>
           </div>
         </div>
 
-        <!-- 1. SUE TEST HOLES LOG (Level A Vacuum Excavation) -->
-        ${this.currentSubTab === 'sue' ? this.renderSueTestHoles() : ''}
+        <!-- 1. CLASSIC 2-PAGE YELLOW TRANSIT BOOK SPREAD -->
+        ${this.currentSubTab === 'book' ? this.renderTransitBookSpread() : ''}
 
-        <!-- 2. DIFFERENTIAL LEVEL LOOP (Classic 2-Page Yellow Grid) -->
-        ${this.currentSubTab === 'level' ? this.renderLevelLoopSpread() : ''}
+        <!-- 2. TRAVERSE LOOP BALANCING (COMPASS RULE / BOWDITCH) -->
+        ${this.currentSubTab === 'traverse' ? this.renderTraverseSection() : ''}
 
-        <!-- 3. MONUMENT & BOUNDARY NOTES -->
-        ${this.currentSubTab === 'monuments' ? this.renderMonumentNotes() : ''}
+        <!-- 3. BOUNDARY CORNER & MONUMENT RECOVERY SHEET -->
+        ${this.currentSubTab === 'boundary' ? this.renderBoundarySection() : ''}
 
-        <!-- 4. PHOTOS & VOICE MEMOS -->
-        ${this.currentSubTab === 'media' ? this.renderMediaNotes() : ''}
+        <!-- 4. STAKEOUT NAVIGATOR -->
+        ${this.currentSubTab === 'stakeout' ? this.renderStakeoutSection() : ''}
+
+        <!-- 5. PHOTOS & VOICE MEMOS -->
+        ${this.currentSubTab === 'media' ? this.renderMediaSection() : ''}
       </div>
     `;
 
-    if (this.currentSubTab === 'level' || this.currentSubTab === 'monuments') {
+    if (this.currentSubTab === 'book') {
       this.initSketchCanvas();
     }
   }
 
-  // SUE Test Hole Cards & Table
-  renderSueTestHoles() {
-    return `
-      <div class="sue-field-notes-container">
-        <div class="sue-notes-header">
-          <div>
-            <h4 class="font-bold">SUE Quality Level A: Vacuum Excavation Test Hole Logs</h4>
-            <p class="text-xs text-muted">Direct visual verification of underground utility depth, size, material and condition.</p>
-          </div>
-          <button class="btn btn-xs btn-primary" onclick="window.fieldBook.promptAddTestHole()">+ Log New Test Hole</button>
-        </div>
-
-        <div class="sue-cards-grid">
-          ${this.testHoles.map(th => `
-            <div class="sue-th-card">
-              <div class="sue-th-header">
-                <span class="badge badge-warning">${th.id}</span>
-                <b class="sue-th-util">${th.utilityType}</b>
-                <span class="badge badge-success">${th.status || 'Verified'}</span>
-              </div>
-              <div class="sue-th-depth-banner">
-                <span>DEPTH TO TOP OF PIPE:</span>
-                <b class="depth-val">${th.depthToTop.toFixed(2)} FT</b>
-              </div>
-              <div class="sue-th-grid">
-                <div><span>Pipe OD / Size:</span><b>${th.diameter || '-'}</b></div>
-                <div><span>Material:</span><b>${th.material || '-'}</b></div>
-                <div><span>Ground Elev:</span><b>${th.groundElev ? th.groundElev.toFixed(2) : '-'} ft</b></div>
-                <div><span>Utility Elev:</span><b>${th.utilityElev ? th.utilityElev.toFixed(2) : '-'} ft</b></div>
-                <div><span>Soil Condition:</span><span>${th.soilType || '-'}</span></div>
-                <div><span>Pavement Cut:</span><span>${th.pavementCut || 'None'}</span></div>
-              </div>
-              <div class="sue-th-notes">
-                <i>"${th.notes || 'No remarks.'}"</i>
-              </div>
-              <div class="sue-th-footer">
-                <button class="btn btn-xs btn-outline-primary" onclick="window.aimChat.sendMessage('📋 SUE TEST HOLE UPDATE: [${th.id}] ${th.utilityType} Depth=${th.depthToTop.toFixed(2)}ft, Size=${th.diameter}, Material=${th.material}'); window.app.switchTab('aim');">
-                  💬 Send to CAD Office (AIM)
-                </button>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  promptAddTestHole() {
-    const id = prompt("Test Hole ID (e.g. TH-4):", `TH-${this.testHoles.length + 1}`);
-    if (!id) return;
-    const util = prompt("Utility Type (e.g. 4\" Gas, 8\" Water, Electric Duct Bank):", "4\" Plastic Gas Main");
-    const depthStr = prompt("Depth to top of utility (ft):", "3.80");
-    const depth = parseFloat(depthStr) || 3.8;
-    const material = prompt("Pipe Material (e.g. Polyethylene, Steel, Ductile Iron):", "Polyethylene Yellow");
-    const soil = prompt("Soil Conditions:", "Firm Clay Loam");
-    const notes = prompt("Field Remarks:", "Tracer wire located on top of pipe");
-
-    const curPt = window.pointManager ? window.pointManager.rtkStatus : { curN: 10250, curE: 10030, curZ: 687.0 };
-
-    this.testHoles.push({
-      id,
-      utilityType: util,
-      qualityLevel: "Level A (Vacuum Pothole)",
-      depthToTop: depth,
-      diameter: util,
-      material,
-      soilType: soil,
-      groundElev: curPt.curZ,
-      utilityElev: curPt.curZ - depth,
-      northing: curPt.curN,
-      easting: curPt.curE,
-      status: "Verified Clear",
-      notes
-    });
-
-    this.save();
-    window.soundFX.playShotBeep();
-    this.renderFieldBook();
-  }
-
-  // Differential Level Loop 2-Page Yellow Grid
-  renderLevelLoopSpread() {
+  // Classic 2-Page Yellow Grid Transit & Level Book
+  renderTransitBookSpread() {
     const n = this.notes;
     return `
       <div class="fieldbook-spread">
-        <!-- Left Page: Table & Page Check -->
+        <!-- LEFT PAGE: TABULAR DATA & LEVEL LOOP -->
         <div class="fieldbook-page left-page">
           <div class="page-header-row">
             <span class="page-date">DATE: <input type="date" id="fb-date" value="${n.date || '2026-11-23'}"></span>
-            <span class="page-title-left">DIFFERENTIAL LEVEL RUN (BM-1 TO SITE)</span>
+            <span class="page-title-left">DIFFERENTIAL LEVEL & BENCHMARK TIES</span>
           </div>
 
           <div class="fb-table-container">
@@ -202,7 +165,7 @@ class FieldBook {
                   <th>H.I.</th>
                   <th>FS (-)</th>
                   <th>ELEV (FT)</th>
-                  <th>REMARKS</th>
+                  <th>REMARKS / CODE</th>
                   <th></th>
                 </tr>
               </thead>
@@ -223,7 +186,7 @@ class FieldBook {
           </div>
 
           <div class="fb-table-controls">
-            <button class="btn btn-xs btn-outline-primary" onclick="window.fieldBook.addRow()">+ Add Station</button>
+            <button class="btn btn-xs btn-outline-primary" onclick="window.fieldBook.addRow()">+ Add Turning Point</button>
             <button class="btn btn-xs btn-outline-success" onclick="window.fieldBook.calculateLevelLoop()">⚡ Compute Page Check</button>
           </div>
 
@@ -232,30 +195,32 @@ class FieldBook {
           </div>
         </div>
 
-        <!-- Right Page: Crew, Weather, Instrument -->
+        <!-- RIGHT PAGE: CREW, WEATHER, INSTRUMENT, SKETCH -->
         <div class="fieldbook-page right-page">
           <div class="page-header-row">
-            <span class="page-title-right">CREW & WEATHER NOTES</span>
-            <span class="notes-by">NOTES BY: <input type="text" id="fb-notes-by" value="${n.crew?.notesBy || 'M.K.'}"></span>
+            <span class="page-title-right">CREW & INSTRUMENT ALIGNMENT NOTES</span>
+            <span class="notes-by">RECORDER: <input type="text" id="fb-notes-by" value="${n.crew?.notesBy || 'M.K.'}"></span>
           </div>
 
           <div class="fb-meta-grid">
             <div class="fb-meta-group"><label>Party Chief:</label><input type="text" id="fb-party-chief" value="${n.crew?.partyChief || ''}"></div>
             <div class="fb-meta-group"><label>Instrument Operator:</label><input type="text" id="fb-instrument-op" value="${n.crew?.instrument || ''}"></div>
-            <div class="fb-meta-group"><label>SUE Locator / Rod:</label><input type="text" id="fb-rodperson" value="${n.crew?.rodperson || ''}"></div>
-            <div class="fb-meta-group"><label>Weather:</label><input type="text" id="fb-weather" value="${n.weather?.temp || '72°F'}, ${n.weather?.conditions || 'Clear'}"></div>
+            <div class="fb-meta-group"><label>Rodperson:</label><input type="text" id="fb-rodperson" value="${n.crew?.rodperson || ''}"></div>
+            <div class="fb-meta-group"><label>Weather & Temp:</label><input type="text" id="fb-weather" value="${n.weather?.temp || '72°F'}, ${n.weather?.conditions || 'Clear'}"></div>
+            <div class="fb-meta-group"><label>Barometric Pressure:</label><input type="text" id="fb-pressure" value="${n.weather?.pressure || '30.08 inHg'}"></div>
+            <div class="fb-meta-group"><label>Instrument Check:</label><input type="text" id="fb-instr-check" value="${n.instrumentCheck?.model || ''} - ${n.instrumentCheck?.collimationCheck || 'PASSED'}"></div>
           </div>
 
           <div class="fb-sketch-wrapper">
             <div class="fb-sketch-header">
-              <span>FIELD SKETCH & UTILITY ALIGNMENT (Grid = 10 FT)</span>
+              <span>FIELD SKETCH & MONUMENT TIES (Grid = 10 FT)</span>
               <button class="btn btn-xs btn-outline-danger" onclick="window.fieldBook.clearSketch()">Clear</button>
             </div>
             <canvas id="fb-sketch-canvas" width="460" height="190"></canvas>
           </div>
 
           <div class="fb-remarks-group">
-            <label>Field Remarks:</label>
+            <label>Field Remarks & Monument Recoveries:</label>
             <textarea id="fb-remarks-text" rows="3">${n.remarks || ''}</textarea>
           </div>
         </div>
@@ -263,16 +228,103 @@ class FieldBook {
     `;
   }
 
-  renderMonumentNotes() {
-    const n = this.notes;
+  // Traverse Loop Balancing & Closure Sheet
+  renderTraverseSection() {
+    let sumDist = 0;
+    let sumLat = 0;
+    let sumDep = 0;
+
+    this.traverseData.forEach(leg => {
+      sumDist += leg.dist;
+      sumLat += leg.dN;
+      sumDep += leg.dE;
+    });
+
+    const linearError = Math.hypot(sumLat, sumDep);
+    const precisionRatio = linearError > 0 ? Math.round(sumDist / linearError) : 999999;
+    const isPassing = precisionRatio >= 10000;
+
     return `
-      <div class="monument-notes-container">
+      <div class="traverse-container">
+        <div class="traverse-header-card">
+          <div class="traverse-title-row">
+            <h4>Control Traverse Loop Closure & Bowditch Adjustment (CP1 - CP4)</h4>
+            <span class="badge ${isPassing ? 'badge-success' : 'badge-danger'}">
+              ${isPassing ? '✅ CLASS A BOUNDARY PASSED' : '⚠️ MISCLOSURE HIGH'}
+            </span>
+          </div>
+          <div class="traverse-stats-grid">
+            <div class="t-stat"><span>Perimeter:</span><b>${sumDist.toFixed(2)} ft</b></div>
+            <div class="t-stat"><span>Misclosure North (ΔN):</span><b>${sumLat > 0 ? '+' : ''}${sumLat.toFixed(3)} ft</b></div>
+            <div class="t-stat"><span>Misclosure East (ΔE):</span><b>${sumDep > 0 ? '+' : ''}${sumDep.toFixed(3)} ft</b></div>
+            <div class="t-stat"><span>Linear Misclosure:</span><b class="text-accent">${linearError.toFixed(3)} ft</b></div>
+            <div class="t-stat"><span>Precision Ratio:</span><b class="text-success">1 : ${precisionRatio.toLocaleString()}</b></div>
+            <div class="t-stat"><span>Specification:</span><b>Class A (1:10,000)</b></div>
+          </div>
+        </div>
+
         <div class="table-card">
           <table class="survey-table">
             <thead>
               <tr>
-                <th>CORNER / POINT</th>
-                <th>MONUMENT FOUND</th>
+                <th>TRAVERSE LEG</th>
+                <th>HORIZ DIST</th>
+                <th>QUADRANT BEARING</th>
+                <th>LATITUDE (ΔN)</th>
+                <th>DEPARTURE (ΔE)</th>
+                <th>BALANCED N</th>
+                <th>BALANCED E</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${this.traverseData.map(leg => {
+                const corrN = -(sumLat * (leg.dist / sumDist));
+                const corrE = -(sumDep * (leg.dist / sumDist));
+                const balN = leg.dN + corrN;
+                const balE = leg.dE + corrE;
+                return `
+                  <tr>
+                    <td><b>${leg.from} → ${leg.to}</b></td>
+                    <td class="font-mono">${leg.dist.toFixed(2)}'</td>
+                    <td class="font-mono">${leg.bearing}</td>
+                    <td class="font-mono">${leg.dN.toFixed(2)}'</td>
+                    <td class="font-mono">${leg.dE.toFixed(2)}'</td>
+                    <td class="font-mono font-bold text-success">${balN.toFixed(2)}'</td>
+                    <td class="font-mono font-bold text-success">${balE.toFixed(2)}'</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="traverse-actions-row">
+          <button class="btn btn-sm btn-primary" onclick="window.aimChat.postSystemUpdate('Traverse Loop Adjusted: Precision 1:${precisionRatio.toLocaleString()} (Passed). Balanced coordinates stored.'); window.app.switchTab('aim');">
+            💬 Post Traverse Results to AIM Chat
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Boundary Corner Monuments & Recovery Table
+  renderBoundarySection() {
+    return `
+      <div class="monument-notes-container" style="padding: 12px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="sue-notes-header">
+          <div>
+            <h4 class="font-bold">Lot 14 Boundary Monument Recoveries & Deed Calls</h4>
+            <p class="text-xs text-muted">Comparison of found physical monuments against 1984 record subdivision plat.</p>
+          </div>
+          <button class="btn btn-xs btn-primary" onclick="alert('Monument logged!')">+ Log Monument</button>
+        </div>
+
+        <div class="table-card">
+          <table class="survey-table">
+            <thead>
+              <tr>
+                <th>CORNER / MONUMENT</th>
+                <th>PHYSICAL DESCRIPTION</th>
                 <th>NORTHING</th>
                 <th>EASTING</th>
                 <th>ELEVATION</th>
@@ -287,16 +339,16 @@ class FieldBook {
                 <td class="font-mono">10450.00</td>
                 <td class="font-mono">10050.00</td>
                 <td class="font-mono">690.80'</td>
-                <td>Matches 1984 plat (±0.03')</td>
+                <td>N 00°00'00" E 400.00' (Matches record)</td>
                 <td><span class="badge badge-success">Recovered</span></td>
               </tr>
               <tr>
                 <td><b>Lot 14 NE Corner</b></td>
-                <td>Found 5/8" Iron Rod w/ yellow cap</td>
+                <td>Found 5/8" Iron Rod w/ illegible plastic cap</td>
                 <td class="font-mono">10450.00</td>
                 <td class="font-mono">10550.00</td>
                 <td class="font-mono">692.10'</td>
-                <td>Matches 1984 plat (±0.02')</td>
+                <td>N 90°00'00" E 500.00' (Matches record)</td>
                 <td><span class="badge badge-success">Recovered</span></td>
               </tr>
               <tr>
@@ -305,16 +357,16 @@ class FieldBook {
                 <td class="font-mono">10050.00</td>
                 <td class="font-mono">10550.00</td>
                 <td class="font-mono">686.40'</td>
-                <td>Matches 1984 plat (±0.04')</td>
+                <td>S 00°00'00" W 400.00' (Matches record)</td>
                 <td><span class="badge badge-success">Recovered</span></td>
               </tr>
               <tr>
                 <td><b>Lot 14 SW Corner</b></td>
-                <td>Found 1/2" Iron Rod (Water meter 2.1' W)</td>
+                <td>Found 1/2" Iron Rod (Water meter 2.1' W in ROW)</td>
                 <td class="font-mono">10050.00</td>
                 <td class="font-mono">10050.00</td>
                 <td class="font-mono">685.20'</td>
-                <td>Conflict verified clear</td>
+                <td>S 90°00'00" W 500.00' (Conflict cleared)</td>
                 <td><span class="badge badge-success">Recovered</span></td>
               </tr>
             </tbody>
@@ -324,16 +376,174 @@ class FieldBook {
     `;
   }
 
-  renderMediaNotes() {
+  // Stakeout Navigator
+  renderStakeoutSection() {
+    const points = window.pointManager ? window.pointManager.getAll() : [];
+    const stakeInfo = window.pointManager ? window.pointManager.getStakeoutDelta(this.activeStakeoutPtId) : null;
+
+    return `
+      <div class="stakeout-container">
+        <div class="stakeout-control-bar">
+          <label>Target Point to Stake:</label>
+          <select class="form-select-sm" onchange="window.fieldBook.activeStakeoutPtId = Number(this.value); window.fieldBook.renderFieldBook();">
+            ${points.map(p => `
+              <option value="${p.id}" ${p.id === this.activeStakeoutPtId ? 'selected' : ''}>
+                PT #${p.id} [${p.code}] - N:${p.northing.toFixed(1)} E:${p.easting.toFixed(1)} (${p.desc || 'Point'})
+              </option>
+            `).join('')}
+          </select>
+          <button class="btn btn-xs btn-outline-info" onclick="window.cadEngine.zoomToPoint(${this.activeStakeoutPtId}); window.app.switchTab('cad');">
+            🔍 View on Linework Canvas
+          </button>
+        </div>
+
+        ${stakeInfo ? `
+          <div class="stakeout-display-grid">
+            <div class="stakeout-bullseye-card">
+              <div class="bullseye-ring ring-3">
+                <div class="bullseye-ring ring-2">
+                  <div class="bullseye-ring ring-1">
+                    <div class="bullseye-center"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="bullseye-status ${stakeInfo.inTolerance ? 'text-success' : 'text-accent'}">
+                ${stakeInfo.inTolerance ? '🎯 IN TOLERANCE (SET PIN)' : `DISTANCE: ${stakeInfo.horizDist.toFixed(2)} FT`}
+              </div>
+            </div>
+
+            <div class="stakeout-readout-card">
+              <div class="stake-instruction-item highlight">
+                <span>North / South:</span>
+                <b>${stakeInfo.dirN}</b>
+              </div>
+              <div class="stake-instruction-item highlight">
+                <span>East / West:</span>
+                <b>${stakeInfo.dirE}</b>
+              </div>
+              <div class="stake-instruction-item grade">
+                <span>Cut / Fill Elevation:</span>
+                <b class="${stakeInfo.dZ > 0 ? 'text-accent' : 'text-rose'}">${stakeInfo.cutFill}</b>
+              </div>
+              <div class="stake-meta-row">
+                <div>Target Point: <b>PT #${stakeInfo.target.id} (${stakeInfo.target.code})</b></div>
+                <div>Bearing: <b>${stakeInfo.bearing}</b></div>
+                <div>Target Elev: <b>${stakeInfo.target.elevation.toFixed(2)}'</b></div>
+                <div>Rover Elev: <b>${stakeInfo.curZ.toFixed(2)}'</b></div>
+              </div>
+              <button class="btn btn-sm btn-success w-full mt-3" onclick="window.fieldBook.recordAsStaked(${stakeInfo.target.id})">
+                ✅ Record As Staked & Store Shot
+              </button>
+            </div>
+          </div>
+        ` : `
+          <p class="text-center text-muted mt-4">Select a valid survey point to begin stakeout guidance.</p>
+        `}
+      </div>
+    `;
+  }
+
+  recordAsStaked(pointId) {
+    const pt = window.pointManager.getById(pointId);
+    if (!pt) return;
+    window.pointManager.takeRtkShot(`STK-${pt.code}`, `Staked point #${pt.id}`);
+    window.soundFX.playShotBeep();
+    alert(`Point #${pt.id} recorded as staked! As-staked shot stored in database.`);
+    this.renderFieldBook();
+  }
+
+  // Field Photos & Voice Notes
+  renderMediaSection() {
     return `
       <div class="media-container">
         <div class="media-header-row">
-          <h4>Field Photos & Voice Memos</h4>
-          <button class="btn btn-xs btn-primary" onclick="alert('Photo added!')">+ Add Photo</button>
+          <h4>Field Photos & Voice Field Notes</h4>
+          <div class="media-actions">
+            <button class="btn btn-xs btn-primary" onclick="window.fieldBook.promptAddPhoto()">+ Add Photo</button>
+            <button class="btn btn-xs btn-outline-warning" onclick="window.fieldBook.promptAddVoiceMemo()">🎙️ Record Voice Memo</button>
+          </div>
         </div>
-        <p class="text-xs text-muted">Field photos and recorded audio memos linked to survey points and SUE test holes.</p>
+
+        <div class="media-split-grid">
+          <div class="media-column">
+            <h5>📷 Monument Recovery Photos (${this.photos.length})</h5>
+            <div class="photo-cards-list">
+              ${this.photos.map(p => `
+                <div class="photo-card">
+                  <div class="photo-placeholder">
+                    <span class="photo-watermark">STAMP: ${p.time} | AZ: ${p.bearing}</span>
+                    <span class="photo-icon">📸</span>
+                  </div>
+                  <div class="photo-meta">
+                    <b>${p.title}</b>
+                    <p class="text-xs text-muted">${p.notes}</p>
+                    <span class="badge badge-primary">Linked to PT #${p.pointId}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="media-column">
+            <h5>🎙️ Field Audio Memos (${this.voiceMemos.length})</h5>
+            <div class="voice-cards-list">
+              ${this.voiceMemos.map(v => `
+                <div class="voice-card">
+                  <div class="voice-play-row">
+                    <button class="btn-play" onclick="window.soundFX.playShotBeep(); alert('Playing audio memo: ' + '${v.title}');">▶</button>
+                    <div>
+                      <b>${v.title}</b>
+                      <span class="text-xs text-muted">${v.time} (${v.duration})</span>
+                    </div>
+                  </div>
+                  <div class="voice-transcript">
+                    "${v.transcript}"
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
       </div>
     `;
+  }
+
+  promptAddPhoto() {
+    const title = prompt("Enter Monument Photo Description:", "SW Corner 1/2\" Iron Rod");
+    if (!title) return;
+    const ptId = prompt("Linked Survey Point ID:", "10");
+    const notes = prompt("Field ties / witness marks:", "2.1 ft east of water meter box");
+
+    this.photos.push({
+      id: "photo-" + Date.now(),
+      title,
+      pointId: Number(ptId) || 1,
+      bearing: "N 45° E",
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      notes: notes || "Monument photo"
+    });
+
+    this.save();
+    this.renderFieldBook();
+    window.soundFX.playShotBeep();
+  }
+
+  promptAddVoiceMemo() {
+    const title = prompt("Voice Memo Title:", "Traverse Sightline Note");
+    if (!title) return;
+    const transcript = prompt("Audio Note Transcript:", "Line cleared between CP1 and CP2 through heavy brush.");
+
+    this.voiceMemos.push({
+      id: "voice-" + Date.now(),
+      title,
+      duration: "0:15",
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      transcript: transcript || ""
+    });
+
+    this.save();
+    this.renderFieldBook();
+    window.soundFX.playShotBeep();
   }
 
   initSketchCanvas() {
@@ -415,7 +625,7 @@ class FieldBook {
       hi: null,
       fs: null,
       elev: null,
-      remarks: "Turning Point"
+      remarks: "Field Turning Point"
     });
     this.renderFieldBook();
   }
@@ -469,13 +679,13 @@ class FieldBook {
 
   getLevelLoopSummaryHTML() {
     if (!this.lastLoopStats) {
-      return `<div class="closure-summary"><span>Page Check: <b>Pending calculation</b></span></div>`;
+      return `<div class="closure-summary"><span>Page Check: <b>Pending calculation (Σ BS - Σ FS = End Elev - Start Elev)</b></span></div>`;
     }
     const s = this.lastLoopStats;
     return `
       <div class="closure-summary">
         <div>Σ BS: <b>+${s.sumBS.toFixed(3)}</b> | Σ FS: <b>-${s.sumFS.toFixed(3)}</b></div>
-        <div>Page Check: ${s.pageCheckPassed ? '✅ <span class="text-success font-bold">PASSED</span>' : '❌ <span class="text-danger">MATH ERROR</span>'} (Misclosure: ${s.misclosure.toFixed(3)} ft)</div>
+        <div>Page Check: ${s.pageCheckPassed ? '✅ <span class="text-success font-bold">PASSED</span>' : '❌ <span class="text-danger">MATH ERROR</span>'} (Loop Misclosure: ${s.misclosure.toFixed(3)} ft - Allowable: ±0.024 ft)</div>
       </div>
     `;
   }
@@ -492,7 +702,7 @@ class FieldBook {
 
     this.save();
     window.soundFX.playShotBeep();
-    alert("Field Notes Saved Successfully!");
+    alert("Survey Field Notes Saved Successfully!");
   }
 }
 
