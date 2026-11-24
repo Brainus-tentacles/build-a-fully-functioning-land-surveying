@@ -1,19 +1,19 @@
 // Authentic AOL Instant Messenger (AIM) Live Chat Engine
-// Links CAD Operators and Field Crew in Real-Time
+// Links Civil 3D Office CAD Operators and Topcon/Sokkia MAGNET Field Crew in Real-Time
 class AimChat {
   constructor() {
     this.currentUser = {
-      screenName: "FieldCrew1_Mike",
-      alias: "Mike (Party Chief - Rover 1)",
+      screenName: "TopconCrew_Mike",
+      alias: "Mike (Party Chief - Topcon FC-6000)",
       role: "field",
       status: "online",
-      statusMsg: "On site @ Oak Ridge Estates - GPS Fixed",
+      statusMsg: "MAGNET Field v8.2 Running on Topcon FC-6000 • HiPer VR Fixed",
       warningLevel: 0
     };
 
     this.buddies = [];
     this.messages = [];
-    this.activeBuddy = "AutoCAD_Dave";
+    this.activeBuddy = "Civil3D_Dave";
     this.broadcastChannel = null;
 
     // Formatting state
@@ -21,9 +21,16 @@ class AimChat {
     this.isItalic = false;
     this.isUnderline = false;
     this.textColor = "#000000";
-    this.fontSize = "normal"; // small, normal, large
+    this.fontSize = "normal";
 
     this.initBroadcast();
+  }
+
+  _migrateName(name) {
+    if (name === "AutoCAD_Dave") return "Civil3D_Dave";
+    if (name === "FieldCrew1_Mike") return "TopconCrew_Mike";
+    if (name === "SurveyBot") return "MagnetBot";
+    return name;
   }
 
   init(initialData) {
@@ -32,28 +39,66 @@ class AimChat {
     const savedUser = localStorage.getItem('survey_aim_current_user');
 
     if (savedBuddies) {
-      try { this.buddies = JSON.parse(savedBuddies); } catch (e) { this.buddies = initialData.buddies; }
+      try {
+        this.buddies = JSON.parse(savedBuddies);
+      } catch (e) {
+        this.buddies = initialData.buddies ? [...initialData.buddies] : [];
+      }
     } else {
       this.buddies = initialData.buddies ? [...initialData.buddies] : [];
     }
 
+    // Migrate legacy screen names and ensure required buddies exist
+    const needsReset = this.buddies.some(b =>
+      b.screenName === "AutoCAD_Dave" || b.screenName === "SurveyBot" || b.screenName === "FieldCrew1_Mike"
+    );
+    if (needsReset && initialData.buddies) {
+      this.buddies = [...initialData.buddies];
+    } else if (initialData.buddies) {
+      initialData.buddies.forEach(initB => {
+        if (!this.buddies.some(b => b.screenName === initB.screenName)) {
+          this.buddies.push({ ...initB });
+        }
+      });
+    }
+
     if (savedMessages) {
-      try { this.messages = JSON.parse(savedMessages); } catch (e) { this.messages = initialData.messages; }
+      try {
+        this.messages = JSON.parse(savedMessages).map(m => ({
+          ...m,
+          from: this._migrateName(m.from),
+          to: this._migrateName(m.to)
+        }));
+      } catch (e) {
+        this.messages = initialData.messages ? [...initialData.messages] : [];
+      }
     } else {
       this.messages = initialData.messages ? [...initialData.messages] : [];
     }
 
     if (savedUser) {
-      try { this.currentUser = JSON.parse(savedUser); } catch (e) { this.currentUser = initialData.currentUser; }
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        parsedUser.screenName = this._migrateName(parsedUser.screenName);
+        if (parsedUser.screenName === "TopconCrew_Mike" && parsedUser.alias.includes("Rover 1")) {
+          parsedUser.alias = "Mike (Party Chief - Topcon FC-6000)";
+        } else if (parsedUser.screenName === "Civil3D_Dave" && parsedUser.alias.includes("Senior CAD Drafter")) {
+          parsedUser.alias = "Dave (Senior Civil 3D Drafter)";
+        }
+        this.currentUser = parsedUser;
+      } catch (e) {
+        if (initialData.currentUser) this.currentUser = { ...initialData.currentUser };
+      }
     } else if (initialData.currentUser) {
-      this.currentUser = initialData.currentUser;
+      this.currentUser = { ...initialData.currentUser };
     }
 
+    this.activeBuddy = this.currentUser.role === 'cad' ? "TopconCrew_Mike" : "Civil3D_Dave";
+    this.save();
     this.renderAim();
 
-    // Storage event listener for multi-tab fallback
     window.addEventListener('storage', (e) => {
-      if (e.key === 'survey_aim_last_msg') {
+      if (e.key === 'survey_aim_last_msg' && e.newValue) {
         try {
           const msg = JSON.parse(e.newValue);
           this.handleIncomingExternalMessage(msg);
@@ -78,7 +123,7 @@ class AimChat {
     this.messages.push(msg);
     localStorage.setItem('survey_aim_messages', JSON.stringify(this.messages));
 
-    window.soundFX.playImChime();
+    if (window.soundFX) window.soundFX.playImChime();
     this.renderConversation();
     this.updateBuddyBadge(msg.from);
   }
@@ -89,32 +134,36 @@ class AimChat {
     localStorage.setItem('survey_aim_current_user', JSON.stringify(this.currentUser));
   }
 
-  // Switch identity between Field Crew and CAD Operator
+  // Switch identity between Topcon/Sokkia Field Crew and Civil 3D CAD Operator
   switchUserRole(role) {
+    const equip = (window.app && window.app.equipmentProfile) ? window.app.equipmentProfile : null;
+    const tabletLabel = equip ? equip.tablet : "Topcon FC-6000";
+    const gpsLabel = equip ? equip.gps : "Topcon HiPer VR";
+
     if (role === 'field') {
       this.currentUser = {
-        screenName: "FieldCrew1_Mike",
-        alias: "Mike (Party Chief - Rover 1)",
+        screenName: "TopconCrew_Mike",
+        alias: `Mike (Party Chief - ${tabletLabel})`,
         role: "field",
         status: "online",
-        statusMsg: "On site @ Oak Ridge Estates - GPS Fixed",
+        statusMsg: `MAGNET Field v8.2 on ${tabletLabel} • ${gpsLabel} Fixed`,
         warningLevel: 0
       };
-      this.activeBuddy = "AutoCAD_Dave";
+      this.activeBuddy = "Civil3D_Dave";
     } else {
       this.currentUser = {
-        screenName: "AutoCAD_Dave",
-        alias: "Dave (Senior CAD Drafter)",
+        screenName: "Civil3D_Dave",
+        alias: "Dave (Senior Civil 3D Drafter)",
         role: "cad",
         status: "online",
-        statusMsg: "Drafting Civil 3D Lot 14 - Send shots!",
+        statusMsg: "Civil 3D 2026 Survey Database Open — Send MAGNET .RW5!",
         warningLevel: 0
       };
-      this.activeBuddy = "FieldCrew1_Mike";
+      this.activeBuddy = "TopconCrew_Mike";
     }
 
     this.save();
-    window.soundFX.playDoorOpen();
+    if (window.soundFX) window.soundFX.playDoorOpen();
     this.renderAim();
   }
 
@@ -161,27 +210,25 @@ class AimChat {
     this.messages.push(newMsg);
     this.save();
 
-    // Broadcast to other tabs / devices
     if (this.broadcastChannel) {
       this.broadcastChannel.postMessage({ type: 'CHAT_MESSAGE', payload: newMsg });
     }
     localStorage.setItem('survey_aim_last_msg', JSON.stringify(newMsg));
 
-    window.soundFX.playImSend();
+    if (window.soundFX) window.soundFX.playImSend();
     this.renderConversation();
 
-    // If talking to a bot or standalone simulation, reply automatically
     this.checkAutoReply(text);
   }
 
   promptSetAway() {
-    const msg = prompt("Enter your Custom Away Message:", this.currentUser.statusMsg || "Away: Cutting traverse line");
+    const msg = prompt("Enter your Custom Away Message:", this.currentUser.statusMsg || "Away: Running Topcon HiPer VR static check");
     if (msg !== null) {
       this.currentUser.statusMsg = msg.trim() || "Away";
       this.currentUser.status = "away";
       this.save();
       this.renderAim();
-      window.soundFX.playDoorOpen();
+      if (window.soundFX) window.soundFX.playDoorOpen();
       this.postSystemUpdate(`${this.currentUser.alias} set Away Message: "${this.currentUser.statusMsg}"`);
     }
   }
@@ -207,40 +254,54 @@ class AimChat {
     }, 2000);
   }
 
-  // Automated realistic survey bot & CAD responses when running single-player
+  // Automated realistic Topcon / Sokkia / MAGNET Field / Civil 3D responses
   checkAutoReply(userText) {
-    const buddy = this.buddies.find(b => b.screenName === this.activeBuddy);
-    if (!buddy) return;
+    const buddy = this._getResolvedActiveBuddy();
+    if (!buddy || buddy.screenName === this.currentUser.screenName) return;
 
-    // Show typing indicator after a slight delay
     setTimeout(() => {
       this.showTypingIndicator(buddy.screenName);
-    }, 600);
+    }, 550);
 
     setTimeout(() => {
       let replyText = "";
       const lower = (userText || "").toLowerCase();
+      const equip = (window.app && window.app.equipmentProfile) ? window.app.equipmentProfile : {
+        tablet: "Topcon FC-6000",
+        gps: "Topcon HiPer VR",
+        totalStation: "Sokkia iX-1200",
+        network: "TopNET Live VRS"
+      };
 
-      if (buddy.screenName === "SurveyBot") {
+      if (buddy.screenName === "MagnetBot") {
         if (lower.includes("closure") || lower.includes("traverse") || lower.includes("error")) {
-          replyText = "🤖 SurveyBot Analysis: Traverse loop computed. Linear error: 0.014 ft. Precision Ratio: 1:28,400. Specification standard: Class A Boundary (< 1:10,000). STATUS: PASSED.";
+          replyText = "🤖 MagnetBot QC: Traverse loop adjusted via Compass Rule. Linear error: 0.014 ft (1:28,400 — Class A Passed). Ready to push to Civil 3D Survey DB.";
+        } else if (lower.includes("rw5") || lower.includes("fbk") || lower.includes("dxf")) {
+          replyText = "🤖 MagnetBot Sync: MAGNET Field .RW5 observations translated cleanly to Civil 3D .FBK Survey Figures (V-PROP-LINE, V-ROAD-CNTR, V-ROAD-CURB, V-BLDG).";
         } else if (lower.includes("point") || lower.includes("shot") || lower.includes("bm")) {
-          replyText = "🤖 SurveyBot: Stored Point confirmed in project database. Elevation check matches NAVD88 benchmark datum.";
+          replyText = `🤖 MagnetBot: Point stored via ${equip.software || 'MAGNET Field v8.2'} (${equip.gps} • ${equip.network}). Coordinates match NAD83 Texas Central / NAVD88.`;
         } else {
-          replyText = "🤖 SurveyBot: All 42 survey shots verified. Feature codes EP1, CL1, and BLDG1 ready for field-to-finish CAD generation.";
+          const cnt = window.pointManager ? window.pointManager.getAll().length : 36;
+          replyText = `🤖 MagnetBot: ${cnt} points verified in MAGNET Field DB. Feature codes CL1, EP1, BLDG1, FENCE mapped to Civil 3D layers.`;
         }
-      } else if (buddy.screenName === "AutoCAD_Dave" && this.currentUser.role === "field") {
-        if (lower.includes("corner") || lower.includes("pin") || lower.includes("sw")) {
-          replyText = "Great find Mike! I see Point #10 on the CAD canvas. The boundary lot line is snapping perfectly to your measured coordinates.";
+      } else if ((buddy.screenName === "Civil3D_Dave" || buddy.screenName === "Civil3D_Sarah") && this.currentUser.role === "field") {
+        if (lower.includes("rw5") || lower.includes("fbk") || lower.includes("file") || lower.includes("export")) {
+          replyText = "Got your MAGNET Field data! Importing the .FBK into Civil 3D 2026 Survey Database right now — survey figures are snapping to V-PROP-LINE and V-ROAD-CURB.";
+        } else if (lower.includes("corner") || lower.includes("pin") || lower.includes("sw")) {
+          replyText = "Nice recovery Mike! Point #10 dropped right onto the 1984 record plat corner in Civil 3D. Keep shooting the lot corners and fence ties.";
         } else if (lower.includes("water") || lower.includes("meter") || lower.includes("sewer")) {
-          replyText = "Thanks for the utility ties. I drafted the 8\" water main and sewer linework in Civil 3D. Ready for the next segment!";
+          replyText = "Utility ties received! Updating V-UTIL-WATR and V-UTIL-SSWR pipes in Civil 3D Pipe Network now.";
         } else if (lower.includes("invert") || lower.includes("manhole") || lower.includes("mh")) {
-          replyText = "Invert elevation 675.30' noted on SAN MH-1. Rim-to-invert fall is 9.20 ft. That matches the 1984 city utility records.";
+          replyText = "Invert 675.30' logged in Civil 3D structure properties on SAN MH-1. Rim-to-invert fall (9.20') matches record plan.";
+        } else if (lower.includes("linework") || lower.includes("dxf")) {
+          replyText = "Linework overlay came through cleanly! Civil 3D Figure Prefix DB matched your MAGNET Field codes.";
         } else {
-          replyText = "Got that! I'm updating the CAD linework and checklist right now. Keep the shots coming!";
+          replyText = "Copy that from Civil 3D Office! Updating the Survey Database and checklist now — keep those MAGNET Field shots coming.";
         }
-      } else if (buddy.screenName === "FieldCrew1_Mike" && this.currentUser.role === "cad") {
-        replyText = "Copy that office! Rover 1 is on station with Trimble R12i GNSS Fixed. Moving to stake the next point now.";
+      } else if (buddy.screenName === "TopconCrew_Mike" && this.currentUser.role === "cad") {
+        replyText = `Copy that Civil 3D Office! ${equip.tablet} running MAGNET Field v8.2 with ${equip.gps} (${equip.network} Fixed) & ${equip.totalStation} ready on CP1. Moving to next shot.`;
+      } else if (buddy.screenName === "Office_PM_Frank") {
+        replyText = "Thanks for the update! Let me know once the Civil 3D .FBK and RPLS boundary check are ready for final sign-off.";
       }
 
       if (replyText) {
@@ -253,34 +314,35 @@ class AimChat {
         };
         this.messages.push(botMsg);
         this.save();
-        window.soundFX.playImChime();
+        if (window.soundFX) window.soundFX.playImChime();
         this.renderConversation();
       }
-    }, 1600);
+    }, 1400);
   }
 
-  // Quick action: Send survey point coordinate badge to chat
   sendPointToChat(pointId) {
     const pt = window.pointManager ? window.pointManager.getById(pointId) : null;
-    if (!pt) return;
+    if (!pt) {
+      if (window.app && window.app.showToast) window.app.showToast(`Point #${pointId} not found.`);
+      return;
+    }
 
     const html = `
-      <div class="chat-point-badge" onclick="window.cadEngine.zoomToPoint(${pt.id})">
-        <span class="badge-tag">📍 SURVEY POINT #${pt.id}</span>
+      <div class="chat-point-badge" onclick="window.cadEngine.zoomToPoint(${pt.id}); window.app.switchTab('cad');">
+        <span class="badge-tag">📍 MAGNET POINT #${pt.id}</span>
         <b>${pt.code}</b> (${pt.desc || 'Shot'})
-        <div class="badge-coords">N: ${pt.northing.toFixed(2)} | E: ${pt.easting.toFixed(2)} | Elev: ${pt.elevation.toFixed(2)}'</div>
-        <span class="badge-link">🔍 Click to zoom CAD canvas</span>
+        <div class="badge-coords">N: ${pt.northing.toFixed(2)} | E: ${pt.easting.toFixed(2)} | Elev: ${pt.elevation.toFixed(2)}' | HR: ${(pt.hr || 5.0).toFixed(2)}'</div>
+        <span class="badge-link">🔍 Click to zoom Survey Canvas</span>
       </div>
     `;
 
     this.sendMessage(`Sent Point #${pt.id} (${pt.code})`, html);
   }
 
-  // Quick action: Send Inverse Calculation to chat
   sendInverseToChat(bearing, horizDist, deltaZ) {
     const html = `
       <div class="chat-cogo-badge">
-        <span class="badge-tag">📐 INVERSE CALCULATION</span>
+        <span class="badge-tag">📐 INVERSE CALCULATION (COGO)</span>
         <div>Bearing: <b class="text-accent">${bearing}</b></div>
         <div>Horiz Dist: <b>${horizDist} ft</b> | ΔZ: <b>${deltaZ} ft</b></div>
       </div>
@@ -288,31 +350,56 @@ class AimChat {
     this.sendMessage(`Inverse: ${bearing} ${horizDist}'`, html);
   }
 
-  // Quick action: Send CAD Linework summary to chat
   sendLineworkSummary() {
     const lines = window.cadEngine ? window.cadEngine.linework : [];
     const html = `
       <div class="chat-cogo-badge">
-        <span class="badge-tag">📐 CAD LINEWORK OVERLAY</span>
-        <div>Total Elements: <b>${lines.length}</b></div>
-        <div>Active Layers: <b>BOUNDARY, CENTERLINE, EOP_CURB, UTILITIES</b></div>
-        <span class="badge-link" onclick="window.app.switchTab('cad')">🔍 View on CAD Linework Canvas</span>
+        <span class="badge-tag">📐 MAGNET → CIVIL 3D LINEWORK OVERLAY</span>
+        <div>Total Figures: <b>${lines.length}</b></div>
+        <div>Civil 3D Layers: <b>V-PROP-LINE, V-ROAD-CNTR, V-ROAD-CURB, V-BLDG, V-UTIL-WATR</b></div>
+        <span class="badge-link" onclick="window.app.switchTab('cad')">🔍 View on Linework Canvas</span>
       </div>
     `;
-    this.sendMessage(`Shared CAD Linework (${lines.length} elements)`, html);
+    this.sendMessage(`Shared Civil 3D Linework (${lines.length} figures)`, html);
   }
 
-  // Quick action: Request shot from field crew
+  // Send an interactive downloadable Civil 3D .FBK or MAGNET Field .RW5 packet directly in AIM Chat
+  sendSurveyFilePacket(format) {
+    if (!window.dxfManager) return;
+    if (format === 'fbk') {
+      const res = window.dxfManager.generateCivil3dFbkContent();
+      const html = `
+        <div class="chat-cogo-badge" style="border-color:#f59e0b; background:#fffbeb;">
+          <span class="badge-tag" style="color:#b45309;">📤 CIVIL 3D FIELD BOOK (.FBK)</span>
+          <div><b>${res.filename}</b></div>
+          <div class="badge-coords">${res.pointCount} Points • ${res.figureCount} Civil 3D Survey Figures</div>
+          <span class="badge-link" style="cursor:pointer; color:#b45309; font-weight:bold;" onclick="window.dxfManager.exportCivil3dFbk('${res.filename}')">📥 Download ${res.filename} for Civil 3D</span>
+        </div>
+      `;
+      this.sendMessage(`Sent Civil 3D Field Book ${res.filename} (${res.pointCount} pts, ${res.figureCount} figures)`, html);
+    } else {
+      const res = window.dxfManager.generateMagnetRawContent();
+      const html = `
+        <div class="chat-point-badge" style="border-color:#0284c7; background:#f0f9ff;">
+          <span class="badge-tag" style="color:#0369a1;">📤 MAGNET FIELD RAW (.RW5)</span>
+          <div><b>${res.filename}</b></div>
+          <div class="badge-coords">${res.pointCount} Points • Topcon/Sokkia MAGNET Field v8.2</div>
+          <span class="badge-link" style="cursor:pointer; font-weight:bold;" onclick="window.dxfManager.exportMagnetRaw('${res.filename}')">📥 Download ${res.filename} for MAGNET / Civil 3D</span>
+        </div>
+      `;
+      this.sendMessage(`Sent MAGNET Field raw file ${res.filename} (${res.pointCount} pts)`, html);
+    }
+  }
+
   requestShotFromCrew(feature) {
-    const text = `⚠️ CAD REQUEST: Please take shot on ${feature || 'Boundary Pin / Utility Rim'} with rod height and description.`;
+    const text = `⚠️ CIVIL 3D REQUEST: Please shoot ${feature || 'Boundary Pin / Utility Invert'} in MAGNET Field with rod height & description.`;
     this.sendMessage(text);
   }
 
-  // Post system / checklist update to chat
   postSystemUpdate(announcement) {
     const sysMsg = {
       id: "sys-" + Date.now(),
-      from: "SurveyBot",
+      from: "MagnetBot",
       to: this.currentUser.screenName,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       text: `📢 <b>${announcement}</b>`
@@ -322,24 +409,35 @@ class AimChat {
     this.renderConversation();
   }
 
-  // Classic AIM Warn Button
+  // Alias kept for compatibility with any caller calling postSystemMessage
+  postSystemMessage(announcement) {
+    return this.postSystemUpdate(announcement);
+  }
+
   warnBuddy(screenName) {
     const buddy = this.buddies.find(b => b.screenName === screenName);
     if (!buddy) return;
 
     buddy.warningLevel = (buddy.warningLevel || 0) + 5;
-    window.soundFX.playWarningBeep();
+    if (window.soundFX) window.soundFX.playWarningBeep();
     this.save();
     this.renderAim();
 
     this.sendMessage(`[SYSTEM ALERT] User was WARNED! Warning level increased to ${buddy.warningLevel}%.`);
   }
 
+  _getResolvedActiveBuddy() {
+    return this.buddies.find(b => b.screenName === this.activeBuddy)
+      || this.buddies.find(b => b.screenName !== this.currentUser.screenName)
+      || this.buddies[0];
+  }
+
   renderAim() {
     const container = document.getElementById('aim-container');
     if (!container) return;
 
-    const buddy = this.buddies.find(b => b.screenName === this.activeBuddy) || this.buddies[0];
+    const buddy = this._getResolvedActiveBuddy();
+    if (!buddy) return;
 
     container.innerHTML = `
       <div class="aim-window-frame">
@@ -347,7 +445,7 @@ class AimChat {
         <div class="aim-title-bar">
           <div class="aim-title-left">
             <span class="aim-running-man">🏃</span>
-            <span class="aim-title-text">AOL Instant Messenger - ${buddy.alias}</span>
+            <span class="aim-title-text">AIM Field↔Civil 3D Link - ${buddy.alias}</span>
           </div>
           <div class="aim-window-controls">
             <button class="aim-win-btn" title="Minimize">_</button>
@@ -361,15 +459,15 @@ class AimChat {
           <div class="aim-my-profile">
             <span class="status-dot status-${this.currentUser.status}"></span>
             <span>You: <b>${this.currentUser.alias}</b></span>
-            <button class="btn btn-xs btn-outline-secondary" onclick="window.aimChat.promptSetAway()" title="Set Away Message">Set Away</button>
+            <button class="btn btn-xs btn-outline-secondary" onclick="window.aimChat.promptSetAway()" title="Set Away Message">Away</button>
           </div>
           <div class="aim-role-switch">
-            <span>Switch:</span>
+            <span>Role:</span>
             <button class="btn btn-xs ${this.currentUser.role === 'field' ? 'btn-warning active' : 'btn-outline-warning'}" onclick="window.aimChat.switchUserRole('field')">
               👷 Field Chief
             </button>
             <button class="btn btn-xs ${this.currentUser.role === 'cad' ? 'btn-primary active' : 'btn-outline-primary'}" onclick="window.aimChat.switchUserRole('cad')">
-              🖥️ CAD Operator
+              🖥️ Civil 3D CAD
             </button>
           </div>
         </div>
@@ -398,16 +496,19 @@ class AimChat {
             <!-- Quick Survey Actions Bar -->
             <div class="aim-survey-toolbar">
               <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.requestShotFromCrew('SW Lot Boundary Corner')">
-                🎯 Request Shot
+                🎯 Req Shot
               </button>
               <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.promptSendPoint()">
-                📍 Send Point
+                📍 Send Pt
               </button>
               <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendLineworkSummary()">
-                📏 Share Linework
+                📏 Linework
               </button>
-              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.promptRequestLinework()">
-                📑 Req DXF
+              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendSurveyFilePacket('rw5')" title="Send Topcon/Sokkia MAGNET Field .RW5 in Chat">
+                📤 .RW5
+              </button>
+              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendSurveyFilePacket('fbk')" title="Send Autodesk Civil 3D .FBK in Chat">
+                📤 .FBK
               </button>
             </div>
 
@@ -416,17 +517,17 @@ class AimChat {
               ${this.getConversationHTML(buddy)}
             </div>
 
-            <!-- AIM Rich Formatting Toolbar (90s / 2000s Classic) -->
+            <!-- AIM Rich Formatting Toolbar -->
             <div class="aim-format-toolbar">
               <button class="fmt-btn ${this.isBold ? 'active' : ''}" onclick="window.aimChat.toggleFormat('bold')" title="Bold"><b>B</b></button>
               <button class="fmt-btn ${this.isItalic ? 'active' : ''}" onclick="window.aimChat.toggleFormat('italic')" title="Italic"><i>I</i></button>
               <button class="fmt-btn ${this.isUnderline ? 'active' : ''}" onclick="window.aimChat.toggleFormat('underline')" title="Underline"><u>U</u></button>
               <select class="fmt-select" onchange="window.aimChat.setFontColor(this.value)">
-                <option value="#000000">Color: Black</option>
-                <option value="#0000ff">Color: Blue</option>
-                <option value="#ff0000">Color: Red</option>
-                <option value="#008000">Color: Green</option>
-                <option value="#800080">Color: Purple</option>
+                <option value="#000000">Black</option>
+                <option value="#0000ff">Blue</option>
+                <option value="#ff0000">Red</option>
+                <option value="#008000">Green</option>
+                <option value="#800080">Purple</option>
               </select>
               <button class="fmt-btn" onclick="window.aimChat.insertEmoticon(':-)')">😊</button>
               <button class="fmt-btn" onclick="window.aimChat.insertEmoticon(':-P')">😜</button>
@@ -435,9 +536,9 @@ class AimChat {
 
             <!-- Input Box & Send Bar -->
             <div class="aim-input-box">
-              <textarea id="aim-text-input" placeholder="Type instant message to CAD/Field crew... (Press Enter to Send)" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); window.aimChat.handleSend(); }"></textarea>
+              <textarea id="aim-text-input" placeholder="Message Civil 3D Office / MAGNET Field crew... (Enter to Send)" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); window.aimChat.handleSend(); }"></textarea>
               <div class="aim-send-row">
-                <span class="aim-tip">⚡ Live sync active via Web BroadcastChannel</span>
+                <span class="aim-tip">⚡ MAGNET Field ↔ Civil 3D Live BroadcastChannel</span>
                 <button class="aim-send-btn" onclick="window.aimChat.handleSend()">Send</button>
               </div>
             </div>
@@ -455,13 +556,13 @@ class AimChat {
     const bots = this.buddies.filter(b => b.role === 'bot');
 
     return `
-      <div class="buddy-group-title">▼ CAD Office Drafters</div>
+      <div class="buddy-group-title">▼ Civil 3D Office</div>
       ${cadBuddies.map(b => this.renderBuddyItem(b)).join('')}
 
-      <div class="buddy-group-title mt-2">▼ Field Survey Crews</div>
+      <div class="buddy-group-title mt-2">▼ Topcon/Sokkia Field</div>
       ${fieldBuddies.map(b => this.renderBuddyItem(b)).join('')}
 
-      <div class="buddy-group-title mt-2">▼ Survey Systems & QC</div>
+      <div class="buddy-group-title mt-2">▼ MAGNET Sync & QC</div>
       ${bots.map(b => this.renderBuddyItem(b)).join('')}
     `;
   }
@@ -483,24 +584,28 @@ class AimChat {
   }
 
   getConversationHTML(buddy) {
-    const relevant = this.messages.filter(m =>
-      (m.from === buddy.screenName && m.to === this.currentUser.screenName) ||
-      (m.from === this.currentUser.screenName && m.to === buddy.screenName) ||
-      (m.from === "SurveyBot")
-    );
+    const relevant = this.messages.filter(m => {
+      if (buddy.screenName === "MagnetBot" || buddy.screenName === "SurveyBot") {
+        return m.from === "MagnetBot" || m.from === "SurveyBot" || m.to === "MagnetBot" || m.to === "SurveyBot";
+      }
+      return (m.from === buddy.screenName && m.to === this.currentUser.screenName) ||
+        (m.from === this.currentUser.screenName && m.to === buddy.screenName) ||
+        (m.from === "MagnetBot") ||
+        (m.from === "SurveyBot");
+    });
 
     if (relevant.length === 0) {
       return `
         <div class="aim-conversation-empty">
           <span>Started AIM session with <b>${buddy.alias}</b>.</span>
-          <p class="text-xs text-muted">Links CAD Office & Field Crew for coordinates, linework & field notes.</p>
+          <p class="text-xs text-muted">Links Civil 3D Office & Topcon/Sokkia MAGNET Field Crew.</p>
         </div>
       `;
     }
 
     return relevant.map(m => {
       const isMe = m.from === this.currentUser.screenName;
-      const isBot = m.from === "SurveyBot";
+      const isBot = m.from === "MagnetBot" || m.from === "SurveyBot";
       return `
         <div class="aim-msg-row ${isMe ? 'msg-me' : isBot ? 'msg-bot' : 'msg-them'}">
           <div class="msg-meta">
@@ -545,21 +650,21 @@ class AimChat {
   }
 
   promptSendPoint() {
-    const id = prompt("Enter Survey Point ID to send to CAD operator (e.g. 10):", "10");
+    const id = prompt("Enter Survey Point ID to send to Civil 3D Office (e.g. 10):", "10");
     if (id) {
       this.sendPointToChat(Number(id));
     }
   }
 
   promptRequestLinework() {
-    const feat = prompt("Enter feature linework to request from CAD (e.g. Lot 14 Boundary or Right-of-Way):", "Lot 14 Property Boundary");
+    const feat = prompt("Enter Civil 3D linework to request (e.g. Lot 14 Boundary):", "Lot 14 Property Boundary");
     if (feat) {
-      this.sendMessage(`📏 Requesting CAD linework overlay for: ${feat}. Please send DXF export.`);
+      this.sendMessage(`📏 Requesting Civil 3D linework overlay for: ${feat}. Please send DXF/FBK export.`);
     }
   }
 
   renderConversation() {
-    const buddy = this.buddies.find(b => b.screenName === this.activeBuddy);
+    const buddy = this._getResolvedActiveBuddy();
     const log = document.getElementById('aim-message-log');
     if (log && buddy) {
       log.innerHTML = this.getConversationHTML(buddy);

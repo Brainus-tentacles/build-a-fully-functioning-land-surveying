@@ -628,11 +628,14 @@ class CadEngine {
 
   drawLinework(ctx) {
     this.linework.forEach(elem => {
+      const layerKey = this.normalizeLayerKey(elem.layer);
+      if (this.layers[layerKey] && !this.layers[layerKey].visible) return;
+
       const pts = elem.points;
       if (!pts || pts.length < 2) return;
 
       ctx.save();
-      ctx.strokeStyle = elem.color || "#ef4444";
+      ctx.strokeStyle = elem.color || (this.layers[layerKey]?.color) || "#ef4444";
       ctx.lineWidth = elem.lineWidth || 2.0;
       if (elem.dash && elem.dash.length > 0) ctx.setLineDash(elem.dash);
 
@@ -695,6 +698,7 @@ class CadEngine {
 
   drawPoints(ctx) {
     if (!window.pointManager) return;
+    if (this.layers.POINTS && !this.layers.POINTS.visible) return;
     const points = window.pointManager.getAll();
 
     points.forEach(pt => {
@@ -783,95 +787,119 @@ class CadEngine {
   // ─────────────────────────────────────────────────────────────────────────────
   static magnetCodeToLayer(code) {
     if (!code) return 'BOUNDARY';
-    // Split the raw code into tokens: first token is feature name, rest are MAGNET B/E/C commands
     const upper = code.trim().toUpperCase().replace(/[+\-]$/, '');
     const tokens = upper.split(/\s+/);
-    // The feature code is always the FIRST token
-    const c = tokens[0];
+    const c = (tokens[0] === 'B' || tokens[0] === 'E' || tokens[0] === 'C' || tokens[0] === 'CLS') && tokens[1]
+      ? tokens[1]
+      : tokens[0];
 
     if (/^(EP|EOP|ETP|FL|CURB|GUTTR)/.test(c)) return 'EOP_CURB';
     if (/^(CL\d*|TC\d*|TS\d*|CNTR|CNTRL)/.test(c)) return 'CENTERLINE';
-    if (/^(IP|BND|LOT|PROP|ROW|CORNER|FENCE|WALL)/.test(c)) return 'BOUNDARY';
+    if (/^(IP|BND|LOT|PROP|ROW|CORNER|WALL)/.test(c)) return 'BOUNDARY';
+    if (/^(FENCE|FNC|GATE)/.test(c)) return 'FIELD_SKETCHES';
     if (/^(BLD|BLDG|FFE|STRUC)/.test(c)) return 'BUILDING';
     if (/^(WM|WV|GV|SS|MH\d*|CO|CB|FH|WTR|GAS|SEWR|STRM|OH|UNK)/.test(c)) return 'UTILITIES';
-    return 'BOUNDARY'; // default fallback for unknown codes
+    return 'BOUNDARY';
   }
 
   // Build linework automatically from an array of survey points with MAGNET Field codes
-  // Points must have: { id, northing, easting, elevation, code }
+  // Supports suffix ("EP1 B", "EP1 E", "EP1+", "EP1-", "BLDG1 CLS") and prefix ("B EP1", "E EP1")
   buildLineworkFromMagnetCodes(points) {
-    // Collect active string groups: { stringName -> { vertices: [], layer, closed } }
+    // Replace any prior auto-generated MAGNET strings so re-running stays clean
+    this.linework = this.linework.filter(l => !String(l.id || '').startsWith('magnet-'));
+
     const strings = {};
     const addedCount = { lines: 0 };
 
+    const commitString = (stringName, s, forceClose = false) => {
+      if (!s || s.vertices.length < 2) return;
+      const feat = this.features[s.layer] || this.features.BOUNDARY;
+      const shouldClose = forceClose || s.closed || (s.layer === 'BUILDING' && s.vertices.length >= 3);
+      this.linework.push({
+        id: `magnet-${stringName}-${Date.now()}-${addedCount.lines}`,
+        layer: feat.c3d || s.layer,
+        name: `MAGNET ${stringName}`,
+        color: feat.color,
+        lineWidth: feat.lineWidth,
+        dash: feat.dash || [],
+        closed: shouldClose,
+        points: [...s.vertices]
+      });
+      addedCount.lines++;
+    };
+
     points.forEach(pt => {
       const rawCode = (pt.code || '').trim();
+      if (!rawCode) return;
 
-      // Parse: code may be "EP1 B", "EP1+", "EP1 E", "EP1-", "EP1", "BC", "EC"
-      // Extract string name + action
-      let stringName = rawCode.replace(/\s*(B|E|C)\s*$/i, '').replace(/[+\-]$/, '').trim().toUpperCase();
-      const isBegin  = /\sB$/i.test(rawCode) || rawCode.endsWith('+');
-      const isEnd    = /\sE$/i.test(rawCode) || rawCode.endsWith('-');
-      // isContinue = neither begin nor end (or explicit 'C')
+      const isPlus = rawCode.endsWith('+');
+      const isMinus = rawCode.endsWith('-');
+      const cleaned = rawCode.replace(/[+\-]$/, '').trim().toUpperCase();
+      const tokens = cleaned.split(/\s+/).filter(Boolean);
+      if (tokens.length === 0) return;
 
-      if (!stringName) return; // skip empty codes
+      // Pure curve keywords without string tag
+      if (tokens.length === 1 && (tokens[0] === 'BC' || tokens[0] === 'EC' || tokens[0] === 'PCT')) return;
 
-      // Skip pure geometry keywords without a name
-      if (stringName === 'BC' || stringName === 'EC' || stringName === 'PCT') return;
+      let isBegin = isPlus;
+      let isEnd = isMinus;
+      let isClose = false;
+      let stringTokens = [...tokens];
+
+      // Check suffix action
+      const last = stringTokens[stringTokens.length - 1];
+      if (stringTokens.length > 1 && /^(B|E|C|CLS|CLOSE)$/.test(last)) {
+        if (last === 'B') isBegin = true;
+        if (last === 'E') isEnd = true;
+        if (last === 'CLS' || last === 'CLOSE') { isEnd = true; isClose = true; }
+        stringTokens.pop();
+      } else if (stringTokens.length > 1 && /^(B|E|C|CLS)$/.test(stringTokens[0])) {
+        // Check prefix action
+        const first = stringTokens.shift();
+        if (first === 'B') isBegin = true;
+        if (first === 'E') isEnd = true;
+        if (first === 'CLS') { isEnd = true; isClose = true; }
+      }
+
+      // Remove inline BC/EC curve modifiers while preserving string name
+      stringTokens = stringTokens.filter(t => t !== 'BC' && t !== 'EC' && t !== 'PCT');
+      const stringName = stringTokens.join(' ').trim();
+      if (!stringName) return;
+
+      // Skip isolated monument/control/point-only codes unless explicitly given B/E
+      if (!isBegin && !isEnd && /^(CP\d*|BM-?\d*|IP\b|FFE|WM|WV|FH|TREE)/.test(stringName)) {
+        return;
+      }
 
       const layer = CadEngine.magnetCodeToLayer(stringName);
       const vertex = { id: pt.id, n: pt.northing, e: pt.easting, z: pt.elevation };
 
       if (isBegin || !strings[stringName]) {
-        // Start or restart a new string
-        strings[stringName] = { vertices: [vertex], layer };
+        if (isBegin && strings[stringName] && strings[stringName].vertices.length >= 2) {
+          commitString(stringName, strings[stringName], false);
+        }
+        strings[stringName] = { vertices: [vertex], layer, closed: isClose };
       } else {
         strings[stringName].vertices.push(vertex);
+        if (isClose) strings[stringName].closed = true;
       }
 
       if (isEnd && strings[stringName] && strings[stringName].vertices.length >= 2) {
-        // Finish & commit the string as linework
-        const s = strings[stringName];
-        const feat = this.features[s.layer] || this.features.BOUNDARY;
-        this.linework.push({
-          id: `magnet-${stringName}-${Date.now()}-${addedCount.lines}`,
-          layer: s.layer,
-          name: `MAGNET ${stringName}`,
-          color: feat.color,
-          lineWidth: feat.lineWidth,
-          dash: feat.dash || [],
-          closed: false,
-          points: [...s.vertices]
-        });
-        addedCount.lines++;
+        commitString(stringName, strings[stringName], isClose);
         delete strings[stringName];
       }
     });
 
-    // Flush any still-open strings (no explicit end code)
     Object.keys(strings).forEach(sn => {
-      const s = strings[sn];
-      if (s.vertices.length >= 2) {
-        const feat = this.features[s.layer] || this.features.BOUNDARY;
-        this.linework.push({
-          id: `magnet-${sn}-${Date.now()}`,
-          layer: s.layer,
-          name: `MAGNET ${sn}`,
-          color: feat.color,
-          lineWidth: feat.lineWidth,
-          dash: feat.dash || [],
-          closed: false,
-          points: [...s.vertices]
-        });
-        addedCount.lines++;
-      }
+      commitString(sn, strings[sn], strings[sn].closed);
     });
 
     this.save();
     this.render();
+    this.renderLayerModal();
 
-    const msg = `🗺️ MAGNET Field auto-linework: ${addedCount.lines} strings built from ${points.length} coded points. Layers mapped to Civil 3D (EOP_CURB, CENTERLINE, BOUNDARY, BUILDING, UTILITIES).`;
-    if (window.aimChat) window.aimChat.postSystemMessage(msg);
+    const msg = `🗺️ MAGNET Field auto-linework: ${addedCount.lines} Civil 3D figures built from ${points.length} coded points (V-PROP-LINE, V-ROAD-CNTR, V-ROAD-CURB, V-BLDG, V-SITE-FENC).`;
+    if (window.aimChat) window.aimChat.postSystemUpdate(msg);
     return addedCount.lines;
   }
 

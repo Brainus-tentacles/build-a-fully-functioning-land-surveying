@@ -247,6 +247,7 @@
   padding: 4px 8px;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 5px;
   border-bottom: 1px solid #1a253a;
 }
@@ -427,4 +428,44 @@
   font-size: 9px;
   color: #0284c7;
   text-decoration: underline;
+}
+
+/* Mobile / Android Phone Mode: Compact Top Buddy Strip so Chat Log gets full width */
+#device-wrapper.mode-phone .aim-identity-bar {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+#device-wrapper.mode-phone .aim-body-split {
+  flex-direction: column;
+}
+
+#device-wrapper.mode-phone .aim-buddy-pane {
+  width: 100%;
+  max-height: 78px;
+  border-right: none;
+  border-bottom: 2px solid #808080;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 6px;
+}
+
+#device-wrapper.mode-phone .buddy-group-title {
+  display: none;
+}
+
+#device-wrapper.mode-phone .buddy-item {
+  flex-shrink: 0;
+  max-width: 155px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+#device-wrapper.mode-phone .buddy-item.active {
+  background: #316ac5;
+  border-color: #1d4ed8;
 }

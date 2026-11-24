@@ -292,11 +292,20 @@ window.SAMPLE_DATA = {
         unread: 0
       },
       {
+        screenName: "TopconCrew_Mike",
+        alias: "Mike (Party Chief - Topcon FC-6000)",
+        role: "field",
+        status: "online",
+        statusMsg: "MAGNET Field v8.2 • Topcon HiPer VR Fixed",
+        warningLevel: 0,
+        unread: 0
+      },
+      {
         screenName: "MagnetBot",
         alias: "MagnetBot (MAGNET Field to Civil 3D Sync)",
         role: "bot",
         status: "online",
-        statusMsg: "Auto-translating MAGNET .raw to Civil 3D .fbk",
+        statusMsg: "Auto-translating MAGNET .rw5 to Civil 3D .fbk",
         warningLevel: 0,
         unread: 0
       }
