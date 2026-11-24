@@ -10,7 +10,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
 
   <!-- Core Styles -->
   <link rel="stylesheet" href="css/styles.css">
@@ -23,7 +27,7 @@
   <!-- MASTER TOP BAR: Global Controls & MAGNET Field / Civil 3D Import & Export -->
   <header class="master-header">
     <div class="brand-section">
-      <span class="app-logo">📐</span>
+      <img src="assets/logo.png" alt="JSI Kissimmee Logo" class="app-logo-img">
       <div>
         <div class="brand-title">GeoSurvey Pro</div>
         <div class="brand-sub">Topcon &amp; Sokkia • MAGNET Field • Civil 3D CAD Link</div>
@@ -126,9 +130,12 @@
 
         <!-- ANDROID APP BAR (JOB HEADER & QUICK ACTIONS) -->
         <div class="android-app-bar">
-          <div class="app-bar-title">
-            <h1 id="app-bar-job-name">#2026-104 Oak Ridge Estates</h1>
-            <span id="app-bar-job-sub">Lot 14, Travis County, TX • MAGNET Field v8.2</span>
+          <div class="app-bar-brand-wrap">
+            <img src="assets/logo.png" alt="GeoSurvey Logo" class="android-app-logo">
+            <div class="app-bar-title">
+              <h1 id="app-bar-job-name">#2026-104 Oak Ridge Estates</h1>
+              <span id="app-bar-job-sub">Lot 14, Travis County, TX • MAGNET Field v8.2</span>
+            </div>
           </div>
           <div class="app-bar-actions">
             <button class="btn btn-xs btn-outline-warning" onclick="window.app.openEquipmentModal()" title="Configure Topcon / Sokkia Kit">
