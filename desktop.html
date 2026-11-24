@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" class="desktop-program-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoSurvey Civil 3D Office Workstation - Computer Program</title>
+  <meta name="description" content="Land Surveying Computer Program: Autodesk Civil 3D 2026 Survey Workstation with MAGNET Field link, NCS survey figures, 2-person live AIM field link, and DXF/FBK/RW5 database.">
+  <meta name="theme-color" content="#0f131a">
+
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/aim.css">
+  <link rel="stylesheet" href="css/cad.css">
+  <link rel="stylesheet" href="css/fieldbook.css">
+  <link rel="stylesheet" href="css/platforms.css">
+
+  <style>
+    body {
+      background: #090c12;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    }
+    .desktop-portal-bar {
+      width: 100%;
+      background: #0d1117;
+      border-bottom: 1px solid #21262d;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Suite Portal Bar -->
+  <header class="desktop-portal-bar">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img src="assets/logo.png" alt="Logo" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--accent-primary);">
+      <span style="font-size: 13px; font-weight: 700; color: #ffffff;">GeoSurvey Suite</span>
+      <span style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: 700;">🖥️ Computer Program</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <a href="android.html" class="btn btn-xs btn-outline-light" title="Switch to Android App">🤖 Android</a>
+      <a href="iphone.html" class="btn btn-xs btn-outline-light" title="Switch to iPhone App">🍎 iPhone</a>
+      <a href="index.html" class="btn btn-xs btn-primary" title="Return to Suite Hub">🌐 Hub</a>
+    </div>
+  </header>
+
+  <!-- COMPUTER PROGRAM / CIVIL 3D WORKSTATION APPLICATION WINDOW -->
+  <main class="device-outer-container" style="padding: 12px; max-width: 1420px; width: 100%;">
+    <div id="device-wrapper" class="mode-desktop-app">
+
+      <!-- DESKTOP WINDOW TITLEBAR (Windows 11 / CAD Workstation) -->
+      <div class="desktop-titlebar">
+        <div class="desktop-title-left">
+          <img src="assets/logo.png" alt="Civil 3D" class="desktop-program-logo">
+          <span>Autodesk Civil 3D 2026 - MAGNET Field Link</span>
+          <span class="desktop-doc-name">[#2026-104_Oak_Ridge_Estates.dwg]</span>
+        </div>
+        <div class="desktop-window-controls">
+          <button class="win-control-btn" title="Minimize">🗕</button>
+          <button class="win-control-btn" title="Maximize">🗖</button>
+          <button class="win-control-btn close" title="Close" onclick="window.location.href='index.html'">✕</button>
+        </div>
+      </div>
+
+      <!-- DESKTOP MENU BAR -->
+      <div class="desktop-menubar">
+        <span class="menu-item">File</span>
+        <span class="menu-item">Edit</span>
+        <span class="menu-item">View</span>
+        <span class="menu-item">Insert</span>
+        <span class="menu-item" onclick="window.app.runMagnetAutoLines()">MAGNET Survey</span>
+        <span class="menu-item" onclick="window.cadEngine.toggleLayerModal()">Civil 3D Layers</span>
+        <span class="menu-item" onclick="window.app.switchTab('fieldbook')">Field Book</span>
+        <span class="menu-item" onclick="window.app.switchTab('jobs')">Checklists</span>
+        <span class="menu-item" onclick="window.app.openEquipmentModal()">Equipment Kit</span>
+        <span class="menu-item">Help</span>
+      </div>
+
+      <!-- CIVIL 3D SURVEY RIBBON -->
+      <div class="desktop-ribbon">
+        <div class="ribbon-group">
+          <button class="ribbon-btn" onclick="document.getElementById('file-fbk-import').click()" title="Import Civil 3D Survey Database Field Book">
+            📥 Import .FBK
+          </button>
+          <button class="ribbon-btn" onclick="document.getElementById('file-rw5-import').click()" title="Import Topcon/Sokkia MAGNET Raw">
+            📥 Import .RW5
+          </button>
+          <button class="ribbon-btn" onclick="document.getElementById('file-dxf-import').click()" title="Import AutoCAD / Civil 3D DXF">
+            📥 Import DXF
+          </button>
+        </div>
+
+        <div class="ribbon-group">
+          <button class="ribbon-btn" onclick="window.dxfManager.downloadDxf()" title="Export Civil 3D NCS Layered DXF">
+            📤 Export DXF
+          </button>
+          <button class="ribbon-btn" onclick="window.dxfManager.exportCivil3dFbk()" title="Export Civil 3D .FBK">
+            📤 Export .FBK
+          </button>
+          <button class="ribbon-btn" onclick="window.dxfManager.exportMagnetRaw()" title="Export MAGNET .RW5">
+            📤 Export .RW5
+          </button>
+        </div>
+
+        <div class="ribbon-group">
+          <button class="ribbon-btn" onclick="window.app.runMagnetAutoLines()" title="Auto-build survey figures from MAGNET feature codes">
+            🗺️ MAGNET Auto-Figures
+          </button>
+          <button class="ribbon-btn" onclick="window.cadEngine.toggleLayerModal()" title="Civil 3D NCS Layers">
+            🗂️ NCS Layers
+          </button>
+          <button class="ribbon-btn" onclick="window.cadEngine.finishActiveDrawing()" title="Finish Current Figure">
+            ⚡ Finish Figure
+          </button>
+        </div>
+
+        <div class="ribbon-group">
+          <button class="ribbon-btn" onclick="window.cadEngine.sendLineworkToAim()" title="Transmit Linework to Field Chief Mike via AIM">
+            💬 Transmit to Field
+          </button>
+          <button class="ribbon-btn" onclick="window.app.openEquipmentModal()" title="Field Hardware Kit Config">
+            ⚙️ Hardware Kit
+          </button>
+        </div>
+
+        <!-- Hidden file inputs -->
+        <input type="file" id="file-fbk-import" accept=".fbk,text/plain,application/octet-stream" style="display: none;">
+        <input type="file" id="file-rw5-import" accept=".rw5,.raw,text/plain,application/octet-stream" style="display: none;">
+        <input type="file" id="file-dxf-import" accept=".dxf,text/plain,application/octet-stream" style="display: none;">
+      </div>
+
+      <!-- MAIN PROGRAM VIEWPORT -->
+      <div class="app-content-viewport" style="flex: 1; position: relative;">
+
+        <!-- 1. SPLIT SCREEN: CIVIL 3D DRAFTING STATION (75% / 3/4) & AIM FIELD LINK (25% / 1/4) -->
+        <section id="view-cad" class="app-view active" style="height: 100%;">
+          <div class="cad-aim-split-container">
+            <!-- CIVIL 3D WORKSTATION CANVAS (3/4 SCREEN) -->
+            <div class="split-pane-cad">
+              <div class="cad-viewport-layout">
+                <canvas id="cad-canvas"></canvas>
+
+                <!-- TOPCON / SOKKIA GNSS & ROBOTIC TS HUD OVERLAY -->
+                <div class="gnss-hud-overlay" id="gnss-hud">
+                  <div class="gnss-hud-row gnss-hud-title" style="pointer-events:auto; cursor:pointer;" onclick="window.app.openEquipmentModal()" title="Click to switch gear">
+                    <span class="gnss-brand topcon" id="hud-brand-topcon">TOPCON</span>
+                    <span class="gnss-brand sokkia" id="hud-brand-sokkia">SOKKIA</span>
+                    <span class="gnss-model" id="hud-model">HiPer VR / iX-1200</span>
+                  </div>
+                  <div class="gnss-hud-row">
+                    <span class="gnss-label">STATUS</span>
+                    <span class="gnss-value gnss-fixed" id="hud-status">RTK FIXED</span>
+                  </div>
+                  <div class="gnss-hud-row">
+                    <span class="gnss-label">PLATFORM</span>
+                    <span class="gnss-value" id="hud-device">Civil 3D Workstation (PC)</span>
+                  </div>
+                  <div class="gnss-hud-row">
+                    <span class="gnss-label">HRMS</span>
+                    <span class="gnss-value gnss-fixed" id="hud-hrms">0.011 ft</span>
+                    <span class="gnss-label" style="margin-left:4px; min-width:30px;">VRMS</span>
+                    <span class="gnss-value gnss-fixed" id="hud-vrms">0.019 ft</span>
+                  </div>
+                </div>
+
+                <!-- Floating Top Survey Feature Bar -->
+                <div class="cad-floating-topbar">
+                  <div class="sue-utility-bar">
+                    <button class="survey-feat-btn sue-util-btn active" data-feat="BOUNDARY" onclick="window.cadEngine.setFeature('BOUNDARY')">
+                      <span class="sue-util-dot" style="background: #ef4444;"></span> Boundary (V-PROP-LINE)
+                    </button>
+                    <button class="survey-feat-btn sue-util-btn" data-feat="CENTERLINE" onclick="window.cadEngine.setFeature('CENTERLINE')">
+                      <span class="sue-util-dot" style="background: #eab308;"></span> Centerline (V-ROAD-CNTR)
+                    </button>
+                    <button class="survey-feat-btn sue-util-btn" data-feat="EOP_CURB" onclick="window.cadEngine.setFeature('EOP_CURB')">
+                      <span class="sue-util-dot" style="background: #94a3b8;"></span> Curb (V-ROAD-CURB)
+                    </button>
+                    <button class="survey-feat-btn sue-util-btn" data-feat="BUILDING" onclick="window.cadEngine.setFeature('BUILDING')">
+                      <span class="sue-util-dot" style="background: #a855f7;"></span> Building (V-BLDG)
+                    </button>
+                    <button class="survey-feat-btn sue-util-btn" data-feat="UTILITIES" onclick="window.cadEngine.setFeature('UTILITIES')">
+                      <span class="sue-util-dot" style="background: #0284c7;"></span> Utilities (V-UTIL-WATR)
+                    </button>
+                  </div>
+
+                  <div class="cad-top-right">
+                    <div id="cad-coord-hud" class="cad-coord-badge">N: <b>10250.00</b> E: <b>10250.00</b></div>
+                    <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.fitExtents()" title="Zoom Extents">
+                      ⛶ Fit
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Floating Left Survey Toolbox -->
+                <div class="sue-toolbox">
+                  <button class="cad-tool-btn sue-tool-btn active" data-tool="line" onclick="window.cadEngine.setTool('line')" title="Draw Line">
+                    〰️ Draw
+                  </button>
+                  <button class="cad-tool-btn sue-tool-btn" data-tool="point" onclick="window.cadEngine.setTool('point')" title="Add Point">
+                    📍 Point
+                  </button>
+                  <button class="cad-tool-btn sue-tool-btn" data-tool="measure" onclick="window.cadEngine.setTool('measure')" title="Measure COGO Inverse">
+                    📐 COGO
+                  </button>
+                  <div class="toolbox-divider"></div>
+                  <button class="cad-tool-btn sue-tool-btn" data-tool="pan" onclick="window.cadEngine.setTool('pan')" title="Pan Site">
+                    ✋ Pan
+                  </button>
+                  <button class="cad-tool-btn sue-tool-btn" data-tool="select" onclick="window.cadEngine.setTool('select')" title="Select Point">
+                    👆 Select
+                  </button>
+                </div>
+
+                <div class="cad-inspector-wrapper" id="cad-inspector"></div>
+                <div id="cad-measure-results"></div>
+                <div id="cad-layer-modal"></div>
+              </div>
+            </div>
+
+            <!-- AIM FIELD CHAT DOCKED SIDEBAR (1/4 OF SCREEN - 2-PERSON DIRECT IM) -->
+            <div class="split-pane-aim">
+              <div id="aim-container" style="height: 100%;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. DIGITAL FIELD NOTES -->
+        <section id="view-fieldbook" class="app-view">
+          <div id="fieldbook-container"></div>
+        </section>
+
+        <!-- 3. JOBS & CHECKLIST TRACKER -->
+        <section id="view-jobs" class="app-view">
+          <div id="jobs-container"></div>
+        </section>
+
+        <!-- 4. POINTS DATABASE -->
+        <section id="view-points" class="app-view">
+          <div class="points-view-container">
+            <div class="points-header-row">
+              <div class="search-input-wrap">
+                <input type="text" id="points-search-input" placeholder="Search coordinates, MAGNET codes..." oninput="window.app.renderPointsTable()">
+              </div>
+              <span class="badge badge-primary" id="points-count-badge">36 Shots</span>
+              <button class="btn btn-xs btn-primary" onclick="window.app.promptTakeRtkShot()">
+                + Take Shot
+              </button>
+            </div>
+            <div class="points-table-wrapper">
+              <table class="survey-table">
+                <thead>
+                  <tr>
+                    <th>PT #</th>
+                    <th>CODE</th>
+                    <th>NORTHING</th>
+                    <th>EASTING</th>
+                    <th>ELEV</th>
+                    <th>DESC</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="points-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- AUTOCAD / CIVIL 3D COMMAND LINE BAR -->
+      <div class="desktop-command-line">
+        <span class="cmd-prefix">Command:</span>
+        <input type="text" class="cmd-input" id="cmd-input" placeholder="Type a command (e.g. MAGNET, LINE, ZOOM, LAYERS, EXPORT, AIM)..." onkeydown="
+          if (event.key === 'Enter') {
+            const cmd = this.value.trim().toUpperCase();
+            this.value = '';
+            if (cmd === 'ZOOM' || cmd === 'Z') window.cadEngine.fitExtents();
+            else if (cmd === 'LINE' || cmd === 'L') window.cadEngine.setTool('line');
+            else if (cmd === 'MAGNET') window.app.runMagnetAutoLines();
+            else if (cmd === 'LAYERS') window.cadEngine.toggleLayerModal();
+            else if (cmd === 'EXPORT' || cmd === 'DXF') window.dxfManager.downloadDxf();
+            else if (cmd === 'AIM') window.app.switchTab('cad');
+            else if (cmd === 'BOOK') window.app.switchTab('fieldbook');
+            else if (cmd === 'JOBS') window.app.switchTab('jobs');
+            else if (window.app.showToast) window.app.showToast('Executed: ' + cmd);
+          }
+        ">
+      </div>
+
+    </div>
+  </main>
+
+  <div id="modal-root"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/sample-data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/points.js"></script>
+  <script src="js/cad-engine.js"></script>
+  <script src="js/dxf.js"></script>
+  <script src="js/fieldbook.js"></script>
+  <script src="js/jobs.js"></script>
+  <script src="js/aim-chat.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      window.app.deviceMode = 'cad-station';
+      window.app.init();
+      // CAD Station identity defaults to Dave (Senior Civil 3D Drafter)
+      if (window.aimChat) {
+        window.aimChat.switchUserRole('cad');
+      }
+    });
+  </script>
+</body>
+</html>
