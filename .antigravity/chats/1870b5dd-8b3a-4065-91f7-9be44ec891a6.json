@@ -268,6 +268,18 @@
       "created_at": "2026-11-24T13:15:20.026Z",
       "sender": "macOS",
       "is_cancelled": false
+    },
+    {
+      "id": "79517eaf-2187-4572-b54e-32612f052a7b",
+      "role": "user",
+      "content": "now provide me with three downloadable files to have coworkers test it.",
+      "status": "pending",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-11-24T13:24:09.645Z",
+      "sender": "ios",
+      "is_cancelled": false
     }
   ]
 }
