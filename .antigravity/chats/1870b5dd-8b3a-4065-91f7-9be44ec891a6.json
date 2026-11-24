@@ -16,6 +16,18 @@
       "created_at": "2026-11-24T06:59:30.531Z",
       "sender": "ios",
       "is_cancelled": false
+    },
+    {
+      "id": "737aac8b-86cc-4df9-beb2-76eb1ba9d94b",
+      "role": "user",
+      "content": "build a fully functioning land surveying android application meant to replace field notes, establish a live aol instant messenger style chat that links cad operators and field crew, keeps track of jobs and a checklist of what has been done and what's left to do. as well as uploading, downloading, and drawing line work.",
+      "status": "pending",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-11-24T07:01:48.317Z",
+      "sender": "ios",
+      "is_cancelled": false
     }
   ]
 }
