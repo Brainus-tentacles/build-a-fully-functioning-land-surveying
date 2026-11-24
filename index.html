@@ -72,6 +72,14 @@
       <button class="btn btn-xs btn-secondary" onclick="window.dxfManager.exportCsv('SURVEY_POINTS_OAK_RIDGE.csv')" title="Download CSV PNEZD coordinates">
         📤 Export CSV
       </button>
+
+      <button class="btn btn-xs btn-outline-info" onclick="window.dxfManager.exportGeoJson()" title="Download GeoJSON format vector data">
+        🗺️ GeoJSON
+      </button>
+
+      <button class="btn btn-xs btn-outline-light" onclick="window.dxfManager.exportPngSnapshot()" title="Export High-Resolution Drawing PNG">
+        📸 Snap PNG
+      </button>
     </div>
   </header>
 
@@ -140,6 +148,7 @@
                   </select>
 
                   <!-- Zoom Controls -->
+                  <button class="btn btn-xs btn-outline-primary" onclick="window.cadEngine.showLayerManagerModal()" title="Manage CAD Layers & Point Labels">📑 Layers</button>
                   <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.zoomAt(window.cadEngine.width/2, window.cadEngine.height/2, 1.25)" title="Zoom In">+</button>
                   <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.zoomAt(window.cadEngine.width/2, window.cadEngine.height/2, 0.8)" title="Zoom Out">-</button>
                   <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.fitExtents()" title="Fit Extents">⛶ Extents</button>
