@@ -539,34 +539,56 @@ class SurveyApp {
 
     root.innerHTML = `
       <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
-        <div class="survey-modal-card" style="max-width: 580px;">
+        <div class="survey-modal-card" style="max-width: 620px;">
           <div class="survey-modal-header">
             <div style="display: flex; align-items: center; gap: 10px;">
               <img src="assets/logo.png" alt="Logo" class="modal-brand-logo" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent-primary); box-shadow: 0 0 8px rgba(56,189,248,0.3);">
               <div>
-                <h3>📥 Download Testing Packages for Coworkers</h3>
-                <span class="text-xs text-muted">Standalone offline test packages for Android, iPhone, and Computer Program</span>
+                <h3>📥 Download GeoSurvey Testing Packages</h3>
+                <span class="text-xs text-muted">Fully functioning standalone apps and software for coworkers to download &amp; test</span>
               </div>
             </div>
             <button class="btn-close" onclick="window.app.closeModal()">×</button>
           </div>
 
-          <div class="download-package-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+          <!-- All-in-One Master Bundle -->
+          <div style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1.5px solid #0284c7; border-radius: 8px; padding: 12px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 20px;">📦</span>
+                <b style="color: #ffffff; font-size: 14px;">All-in-One Complete Suite Bundle</b>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 10px;">11.3 MB .ZIP</span>
+              </div>
+              <div class="text-xs text-muted" style="margin-top: 4px;">
+                Contains all 3 platforms in separate folders (Android, iPhone, Civil 3D Desktop) + launchers &amp; test files.
+              </div>
+            </div>
+            <a href="downloads/GeoSurvey-Complete-Suite-All-Platforms.zip" download="GeoSurvey-Complete-Suite-All-Platforms.zip" class="btn btn-sm btn-primary" style="font-weight: 700; white-space: nowrap;">
+              ⬇️ Download All (.zip)
+            </a>
+          </div>
+
+          <div class="download-package-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
             <!-- 1. Android App Package -->
             <div class="download-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
               <div style="padding-right: 12px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 18px;">🤖</span>
-                  <b style="color: #22c55e;">GeoSurvey Android App Package</b>
-                  <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; font-size: 10px;">1.2 MB .ZIP</span>
+                  <b style="color: #22c55e;">Android App</b>
+                  <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; font-size: 10px;">Topcon FC-6000</span>
                 </div>
                 <div class="text-xs text-muted" style="margin-top: 4px;">
-                  For Android phones &amp; Topcon/Sokkia FC-6000 field tablets. Includes local launchers &amp; PWA install guide.
+                  3/4 canvas, 1/4 AIM chat, RTK HUD, and digital field book.
                 </div>
               </div>
-              <a href="downloads/GeoSurvey-Android-App.zip" download="GeoSurvey-Android-App.zip" class="btn btn-sm btn-success" style="font-weight: 700; white-space: nowrap;">
-                ⬇️ Download ZIP
-              </a>
+              <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                <a href="downloads/GeoSurvey-Android-Standalone.html" download="GeoSurvey-Android-Standalone.html" class="btn btn-xs btn-outline-success" title="Self-contained single-file offline app">
+                  📄 App File (.html)
+                </a>
+                <a href="downloads/GeoSurvey-Android-App.zip" download="GeoSurvey-Android-App.zip" class="btn btn-xs btn-success" style="font-weight: 700;">
+                  ⬇️ Package (.zip)
+                </a>
+              </div>
             </div>
 
             <!-- 2. iPhone App Package -->
@@ -574,16 +596,21 @@ class SurveyApp {
               <div style="padding-right: 12px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 18px;">🍎</span>
-                  <b style="color: #38bdf8;">GeoSurvey iPhone / iOS Package</b>
-                  <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 10px;">1.2 MB .ZIP</span>
+                  <b style="color: #38bdf8;">iPhone App</b>
+                  <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 10px;">iPhone 16 Pro</span>
                 </div>
                 <div class="text-xs text-muted" style="margin-top: 4px;">
-                  For Apple iPhone 16/15 Pro (iOS 15+). Includes Dynamic Island, Cupertino tabs &amp; iOS home screen install guide.
+                  Dynamic Island RTK status, Cupertino tabs, and touch zoom.
                 </div>
               </div>
-              <a href="downloads/GeoSurvey-iPhone-App.zip" download="GeoSurvey-iPhone-App.zip" class="btn btn-sm btn-primary" style="font-weight: 700; white-space: nowrap;">
-                ⬇️ Download ZIP
-              </a>
+              <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                <a href="downloads/GeoSurvey-Pro-iOS.mobileconfig" download="GeoSurvey-Pro-iOS.mobileconfig" class="btn btn-xs btn-outline-primary" title="1-Tap install to iPhone home screen">
+                  📲 1-Tap iOS Profile
+                </a>
+                <a href="downloads/GeoSurvey-iPhone-App.zip" download="GeoSurvey-iPhone-App.zip" class="btn btn-xs btn-primary" style="font-weight: 700;">
+                  ⬇️ Package (.zip)
+                </a>
+              </div>
             </div>
 
             <!-- 3. Computer Program Package -->
@@ -591,20 +618,128 @@ class SurveyApp {
               <div style="padding-right: 12px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 18px;">🖥️</span>
-                  <b style="color: #f59e0b;">Civil 3D Workstation Computer Program</b>
-                  <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-size: 10px;">1.2 MB .ZIP</span>
+                  <b style="color: #f59e0b;">Computer Program (Civil 3D)</b>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-size: 10px;">Windows &amp; Mac</span>
                 </div>
                 <div class="text-xs text-muted" style="margin-top: 4px;">
-                  For Windows &amp; Mac CAD drafters. Includes 1-click desktop batch launcher (.bat / .sh) &amp; Civil 3D testing samples.
+                  Civil 3D ribbon, command prompt, 3/4 drafting, 1/4 AIM field link.
                 </div>
               </div>
-              <a href="downloads/GeoSurvey-Computer-Program.zip" download="GeoSurvey-Computer-Program.zip" class="btn btn-sm btn-warning" style="font-weight: 700; white-space: nowrap; color: #0b0f19;">
-                ⬇️ Download ZIP
-              </a>
+              <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                <a href="downloads/GeoSurvey-Civil3D-Workstation.hta" download="GeoSurvey-Civil3D-Workstation.hta" class="btn btn-xs btn-outline-warning" title="Native Windows Application Window">
+                  💻 Windows App (.hta)
+                </a>
+                <a href="downloads/GeoSurvey-Computer-Program.zip" download="GeoSurvey-Computer-Program.zip" class="btn btn-xs btn-warning" style="font-weight: 700; color: #0b0f19;">
+                  ⬇️ Package (.zip)
+                </a>
+              </div>
             </div>
           </div>
 
-          <div style="margin-top: 14px; text-align: right;">
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="downloads.html" class="text-xs" style="color: #38bdf8; text-decoration: none; font-weight: 600;">🌐 Open Full Download Center Portal &rarr;</a>
+            <button class="btn btn-xs btn-outline-light" onclick="window.app.closeModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // App Install Prompt (PWA / iOS WebClip / Native HTA)
+  promptAppInstall() {
+    if (this.deferredInstallPrompt) {
+      this.deferredInstallPrompt.prompt();
+      this.deferredInstallPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          this.showToast('GeoSurvey Pro installed successfully!');
+        }
+        this.deferredInstallPrompt = null;
+      });
+      return;
+    }
+
+    const root = document.getElementById('modal-root');
+    if (!root) return;
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || this.deviceMode === 'iphone';
+    const isAndroid = /android/i.test(navigator.userAgent) || this.deviceMode === 'phone';
+
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
+        <div class="survey-modal-card" style="max-width: 520px;">
+          <div class="survey-modal-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="assets/logo.png" alt="Logo" class="modal-brand-logo" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent-primary); box-shadow: 0 0 8px rgba(56,189,248,0.3);">
+              <div>
+                <h3>📲 Install GeoSurvey Pro</h3>
+                <span class="text-xs text-muted">${isIos ? 'Apple iPhone / iOS Installation' : (isAndroid ? 'Android Phone / FC-6000 Tablet Installation' : 'Desktop / PC Installation')}</span>
+              </div>
+            </div>
+            <button class="btn-close" onclick="window.app.closeModal()">×</button>
+          </div>
+
+          <div style="margin-top: 14px; font-size: 13px; line-height: 1.6; color: #cbd5e1;">
+            ${isIos ? `
+              <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <b style="color: #38bdf8; font-size: 14px;">Method 1: Direct 1-Tap iOS Profile</b><br>
+                Install directly onto your iPhone home screen with the JSI Kissimmee logo icon:
+                <div style="margin-top: 8px;">
+                  <a href="downloads/GeoSurvey-Pro-iOS.mobileconfig" download="GeoSurvey-Pro-iOS.mobileconfig" class="btn btn-sm btn-primary" style="font-weight: 700;">
+                    📲 Download iOS Profile (.mobileconfig)
+                  </a>
+                </div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
+                  After downloading: Open iOS <b>Settings</b> &rarr; tap <b>Profile Downloaded</b> &rarr; tap <b>Install</b>.
+                </div>
+              </div>
+
+              <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px; padding: 12px;">
+                <b style="color: #ffffff; font-size: 14px;">Method 2: Safari Add to Home Screen</b><br>
+                1. Tap the <b>Share</b> button (<span style="font-size: 14px;">⎋</span> square with arrow up) in Safari.<br>
+                2. Scroll down and tap <b>Add to Home Screen</b> (<span style="font-size: 14px;">⊕</span>).<br>
+                3. Tap <b>Add</b> in the top right corner.
+              </div>
+            ` : (isAndroid ? `
+              <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <b style="color: #22c55e; font-size: 14px;">Method 1: Chrome App Install</b><br>
+                1. In Chrome on Android, tap the top menu (<b>&vellip;</b>).<br>
+                2. Tap <b>Install app</b> or <b>Add to Home screen</b>.<br>
+                3. The JSI Kissimmee app icon will be installed directly to your home screen!
+              </div>
+
+              <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px; padding: 12px;">
+                <b style="color: #ffffff; font-size: 14px;">Method 2: Standalone Offline App</b><br>
+                Download the single-file offline app file to run anytime with 0 data/WiFi needed:
+                <div style="margin-top: 8px;">
+                  <a href="downloads/GeoSurvey-Android-Standalone.html" download="GeoSurvey-Android-Standalone.html" class="btn btn-sm btn-success" style="font-weight: 700;">
+                    ⬇️ Download Standalone App (.html)
+                  </a>
+                </div>
+              </div>
+            ` : `
+              <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <b style="color: #f59e0b; font-size: 14px;">Windows Native Software Window (.hta)</b><br>
+                Double-click the HTA executable to run as a standalone Windows application window with no browser URL bar or tabs:
+                <div style="margin-top: 8px;">
+                  <a href="downloads/GeoSurvey-Civil3D-Workstation.hta" download="GeoSurvey-Civil3D-Workstation.hta" class="btn btn-sm btn-warning" style="font-weight: 700; color: #0b0f19;">
+                    💻 Download Windows App (.hta)
+                  </a>
+                </div>
+              </div>
+
+              <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px; padding: 12px;">
+                <b style="color: #ffffff; font-size: 14px;">Standalone Single-File Software (.html)</b><br>
+                Double-click to run immediately on any PC or Mac workstation:
+                <div style="margin-top: 8px;">
+                  <a href="downloads/GeoSurvey-Civil3D-Standalone.html" download="GeoSurvey-Civil3D-Standalone.html" class="btn btn-sm btn-outline-light" style="font-weight: 700;">
+                    ⬇️ Download Standalone Software (.html)
+                  </a>
+                </div>
+              </div>
+            `)}
+          </div>
+
+          <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="downloads.html" class="text-xs" style="color: #38bdf8; text-decoration: none;">📦 Open Full Download Center &rarr;</a>
             <button class="btn btn-xs btn-outline-light" onclick="window.app.closeModal()">Close</button>
           </div>
         </div>
