@@ -406,8 +406,6 @@ class DxfManager {
     document.body.removeChild(a);
     window.soundFX.playShotBeep();
   }
-}
-
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Civil 3D Survey Database Field Book (.FBK) Exporter
