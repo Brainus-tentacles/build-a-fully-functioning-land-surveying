@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoSurvey Pro - Download & Testing Center</title>
+  <meta name="description" content="Download standalone functioning apps and software for Android, iPhone, and Windows/Mac Computer Workstation.">
+  <meta name="theme-color" content="#0f172a">
+
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <style>
+    body {
+      background: #090d16;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .dl-header {
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dl-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px 40px 16px;
+      flex: 1;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .dl-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .dl-card {
+      background: #131b2a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+    .dl-card.android { border-top: 4px solid #22c55e; }
+    .dl-card.iphone { border-top: 4px solid #38bdf8; }
+    .dl-card.desktop { border-top: 4px solid #f59e0b; }
+    .dl-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-dl-primary {
+      background: #0284c7;
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      transition: background 0.15s;
+    }
+    .btn-dl-primary:hover { background: #0369a1; }
+    .btn-dl-secondary {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      transition: all 0.15s;
+    }
+    .btn-dl-secondary:hover { background: #334155; color: #ffffff; }
+    .inst-box {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="dl-header">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="assets/logo.png" alt="Logo" style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--accent-primary);">
+      <div>
+        <div style="font-size: 15px; font-weight: 800; color: #ffffff;">GeoSurvey Pro</div>
+        <div style="font-size: 11px; color: #94a3b8;">Standalone Download &amp; Testing Center</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="index.html" class="btn btn-xs btn-primary">🌐 Open Live Suite Hub</a>
+    </div>
+  </header>
+
+  <div class="dl-container">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto;">
+      <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 6px; color: #ffffff;">Download &amp; Test GeoSurvey Pro</h1>
+      <p style="font-size: 13px; color: #94a3b8; margin: 0;">
+        Three fully functioning, standalone software entities ready for coworkers to test on Android phones, iPhones, and PC/Mac workstations.
+      </p>
+    </div>
+
+    <div class="dl-grid">
+
+      <!-- 1. ANDROID APP -->
+      <div class="dl-card android">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 26px;">🤖</span>
+            <div>
+              <b style="font-size: 16px; color: #22c55e;">Android App</b>
+              <div style="font-size: 10px; color: #94a3b8;">Topcon FC-6000 &amp; Android Phones</div>
+            </div>
+          </div>
+          <span class="dl-badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">Android 8+</span>
+        </div>
+
+        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 16px; flex: 1;">
+          Full land surveying field controller app with RTK GNSS HUD, 3/4 survey canvas with 1/4 live AIM chat, and yellow transit field book.
+        </p>
+
+        <!-- Direct Download Buttons -->
+        <a href="downloads/GeoSurvey-Android-Standalone.html" download="GeoSurvey-Android-Standalone.html" class="btn-dl-primary" style="background: #16a34a;">
+          ⬇️ Download Standalone App (.html)
+        </a>
+        <a href="downloads/GeoSurvey-Android-App.zip" download="GeoSurvey-Android-App.zip" class="btn-dl-secondary">
+          📦 Download Complete Package (.zip)
+        </a>
+        <a href="android.html" class="btn-dl-secondary" target="_blank">
+          🌐 Test Live in Browser / Install PWA
+        </a>
+
+        <div class="inst-box">
+          <b>Testing Instructions:</b><br>
+          1. <b>Standalone:</b> Double-click <code>GeoSurvey-Android-Standalone.html</code> on any device to run 100% offline.<br>
+          2. <b>Install on Android:</b> Open the web link in Chrome on Android &rarr; tap menu (&vellip;) &rarr; <b>Add to Home Screen</b> to install as an APK-equivalent native app!
+        </div>
+      </div>
+
+      <!-- 2. IPHONE APP -->
+      <div class="dl-card iphone">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 26px;">🍎</span>
+            <div>
+              <b style="font-size: 16px; color: #38bdf8;">iPhone App</b>
+              <div style="font-size: 10px; color: #94a3b8;">Apple iPhone 16/15 Pro (iOS)</div>
+            </div>
+          </div>
+          <span class="dl-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;">iOS 15+</span>
+        </div>
+
+        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 16px; flex: 1;">
+          Native-feeling iOS survey app with interactive Dynamic Island, Cupertino navigation, SF Pro typography, and touch pinch-to-zoom canvas.
+        </p>
+
+        <!-- Direct Download Buttons -->
+        <a href="downloads/GeoSurvey-Pro-iOS.mobileconfig" download="GeoSurvey-Pro-iOS.mobileconfig" class="btn-dl-primary" style="background: #0284c7;">
+          📲 1-Tap iPhone Install (.mobileconfig)
+        </a>
+        <a href="downloads/GeoSurvey-iPhone-Standalone.html" download="GeoSurvey-iPhone-Standalone.html" class="btn-dl-secondary">
+          ⬇️ Download Standalone iOS App (.html)
+        </a>
+        <a href="downloads/GeoSurvey-iPhone-App.zip" download="GeoSurvey-iPhone-App.zip" class="btn-dl-secondary">
+          📦 Download Complete iOS Package (.zip)
+        </a>
+        <a href="iphone.html" class="btn-dl-secondary" target="_blank">
+          🌐 Test Live in Safari
+        </a>
+
+        <div class="inst-box">
+          <b>Testing Instructions:</b><br>
+          1. <b>iPhone Install:</b> Download <code>GeoSurvey-Pro-iOS.mobileconfig</code> on iPhone &rarr; Settings &rarr; <b>Profile Downloaded</b> &rarr; tap Install.<br>
+          2. <b>Safari:</b> Open link in Safari &rarr; tap Share &rarr; <b>Add to Home Screen</b>.<br>
+          3. <b>Standalone:</b> Double-click <code>GeoSurvey-iPhone-Standalone.html</code> to test anywhere.
+        </div>
+      </div>
+
+      <!-- 3. COMPUTER PROGRAM -->
+      <div class="dl-card desktop">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 26px;">🖥️</span>
+            <div>
+              <b style="font-size: 16px; color: #f59e0b;">Computer Program</b>
+              <div style="font-size: 10px; color: #94a3b8;">Autodesk Civil 3D Office Workstation</div>
+            </div>
+          </div>
+          <span class="dl-badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">Windows &amp; Mac</span>
+        </div>
+
+        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 16px; flex: 1;">
+          Full-featured desktop software: Windows titlebar, classic menubar, Civil 3D Survey Ribbon, AutoCAD command prompt, and docked AIM field link.
+        </p>
+
+        <!-- Direct Download Buttons -->
+        <a href="downloads/GeoSurvey-Civil3D-Workstation.hta" download="GeoSurvey-Civil3D-Workstation.hta" class="btn-dl-primary" style="background: #d97706;">
+          💻 Download Windows App (.hta)
+        </a>
+        <a href="downloads/GeoSurvey-Civil3D-Standalone.html" download="GeoSurvey-Civil3D-Standalone.html" class="btn-dl-secondary">
+          ⬇️ Download Standalone Software (.html)
+        </a>
+        <a href="downloads/GeoSurvey-Computer-Program.zip" download="GeoSurvey-Computer-Program.zip" class="btn-dl-secondary">
+          📦 Download Full Workstation Package (.zip)
+        </a>
+        <a href="desktop.html" class="btn-dl-secondary" target="_blank">
+          🌐 Open Computer Program Online
+        </a>
+
+        <div class="inst-box">
+          <b>Testing Instructions:</b><br>
+          1. <b>Windows HTA:</b> Double-click <code>GeoSurvey-Civil3D-Workstation.hta</code> to launch directly as a native Windows software window.<br>
+          2. <b>Standalone:</b> Double-click <code>GeoSurvey-Civil3D-Standalone.html</code> in any browser on PC or Mac.<br>
+          3. <b>Command Line:</b> Type <code>MAGNET</code>, <code>LAYERS</code>, <code>ZOOM</code>, <code>LINE</code> in the prompt!
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 30px; text-align: center; color: #64748b; font-size: 11px;">
+      GeoSurvey Pro &bull; Fully functioning cross-platform land surveying software suite &bull; JSI Kissimmee
+    </div>
+  </div>
+
+</body>
+</html>
