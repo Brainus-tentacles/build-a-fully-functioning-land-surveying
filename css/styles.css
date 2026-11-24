@@ -386,12 +386,14 @@ body {
   background: #ece9d8;
 }
 
-/* Phone Mode (440px wide): Vertical 75% Canvas Height / 25% AIM Height Split */
-#device-wrapper.mode-phone .cad-aim-split-container {
+/* Phone Mode (440px wide) and iPhone Mode (420px wide): Vertical 75% Canvas Height / 25% AIM Height Split */
+#device-wrapper.mode-phone .cad-aim-split-container,
+#device-wrapper.mode-iphone .cad-aim-split-container {
   flex-direction: column;
 }
 
-#device-wrapper.mode-phone .split-pane-cad {
+#device-wrapper.mode-phone .split-pane-cad,
+#device-wrapper.mode-iphone .split-pane-cad {
   flex: 0 0 75%;
   width: 100%;
   height: 75%;
@@ -399,10 +401,33 @@ body {
   border-bottom: 2px solid #0055ea;
 }
 
-#device-wrapper.mode-phone .split-pane-aim {
+#device-wrapper.mode-phone .split-pane-aim,
+#device-wrapper.mode-iphone .split-pane-aim {
   flex: 0 0 25%;
   width: 100%;
   height: 25%;
+}
+
+/* Desktop Program Mode: Horizontal 75% Canvas / 25% AIM Split */
+#device-wrapper.mode-desktop-app .cad-aim-split-container,
+#device-wrapper.mode-cad-station .cad-aim-split-container {
+  flex-direction: row;
+}
+
+#device-wrapper.mode-desktop-app .split-pane-cad,
+#device-wrapper.mode-cad-station .split-pane-cad {
+  flex: 0 0 75%;
+  width: 75%;
+  height: 100%;
+  border-right: 2px solid #0055ea;
+  border-bottom: none;
+}
+
+#device-wrapper.mode-desktop-app .split-pane-aim,
+#device-wrapper.mode-cad-station .split-pane-aim {
+  flex: 0 0 25%;
+  width: 25%;
+  height: 100%;
 }
 
 /* Android Bottom Navigation Bar */

@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="css/aim.css">
   <link rel="stylesheet" href="css/cad.css">
   <link rel="stylesheet" href="css/fieldbook.css">
+  <link rel="stylesheet" href="css/platforms.css">
 </head>
 <body>
 
@@ -34,17 +35,24 @@
       </div>
     </div>
 
-    <!-- Viewport Switcher -->
-    <div class="viewport-switcher">
-      <button class="mode-toggle-btn active" data-mode="phone" onclick="window.app.setDeviceMode('phone')">
-        📱 Android Phone
+    <!-- 3 PLATFORM ENTITIES SWITCHER -->
+    <div class="platform-suite-banner">
+      <button class="platform-entity-tab active" id="tab-ent-android" onclick="window.app.switchPlatformEntity('android')" title="Switch to Android Field App Entity">
+        🤖 Android App
       </button>
-      <button class="mode-toggle-btn" data-mode="tablet" onclick="window.app.setDeviceMode('tablet')">
-        📟 Rugged Tablet
+      <button class="platform-entity-tab" id="tab-ent-iphone" onclick="window.app.switchPlatformEntity('iphone')" title="Switch to iPhone iOS App Entity">
+        🍎 iPhone App
       </button>
-      <button class="mode-toggle-btn" data-mode="cad-station" onclick="window.app.setDeviceMode('cad-station')">
-        🖥️ Civil 3D Office
+      <button class="platform-entity-tab" id="tab-ent-desktop" onclick="window.app.switchPlatformEntity('desktop')" title="Switch to Computer Program Entity">
+        🖥️ Computer Program
       </button>
+    </div>
+
+    <!-- Direct Standalone Entity Links -->
+    <div class="header-entity-links" style="display: flex; gap: 4px; align-items: center;">
+      <a href="android.html" class="btn btn-xs btn-outline-light" title="Open Standalone Android App">↗ Android</a>
+      <a href="iphone.html" class="btn btn-xs btn-outline-light" title="Open Standalone iPhone App">↗ iPhone</a>
+      <a href="desktop.html" class="btn btn-xs btn-outline-light" title="Open Standalone Computer Program">↗ PC App</a>
     </div>
 
     <!-- Header Actions (Equipment Kit + Upload / Download) -->

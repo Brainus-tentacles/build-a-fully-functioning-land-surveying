@@ -1,8 +1,11 @@
-// Service Worker for GeoSurvey Pro Android Field Application
-const CACHE_NAME = 'landsurveyor-v3';
+// Service Worker for GeoSurvey Pro Land Surveying Suite (Android, iPhone & PC Workstation)
+const CACHE_NAME = 'landsurveyor-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './android.html',
+  './iphone.html',
+  './desktop.html',
   './manifest.json',
   './assets/icon.svg',
   './assets/logo.png',
@@ -15,6 +18,7 @@ const ASSETS_TO_CACHE = [
   './css/aim.css',
   './css/cad.css',
   './css/fieldbook.css',
+  './css/platforms.css',
   './js/sample-data.js',
   './js/audio.js',
   './js/points.js',

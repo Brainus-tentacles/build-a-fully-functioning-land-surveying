@@ -156,12 +156,73 @@ class SurveyApp {
     }
   }
 
+  switchPlatformEntity(platform) {
+    this.platformEntity = platform; // 'android', 'iphone', 'desktop'
+
+    document.querySelectorAll('.platform-entity-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.id === `tab-ent-${platform}`);
+    });
+
+    const frame = document.getElementById('device-wrapper');
+    if (!frame) return;
+
+    frame.classList.remove('mode-phone', 'mode-iphone', 'mode-tablet', 'mode-cad-station', 'mode-desktop-app');
+
+    // Remove any existing dynamic island before re-adding
+    const existingIsland = frame.querySelector('.iphone-dynamic-island');
+    if (existingIsland) existingIsland.remove();
+
+    if (platform === 'iphone') {
+      frame.classList.add('mode-iphone');
+      const island = document.createElement('div');
+      island.className = 'iphone-dynamic-island';
+      island.onclick = () => window.app.openEquipmentModal();
+      island.title = 'Dynamic Island: Tap to configure GNSS & Total Station';
+      island.innerHTML = `
+        <div class="island-sensor-dot"></div>
+        <div class="island-rtk-indicator">
+          <div class="island-pulse-dot"></div>
+          <span>RTK FIXED</span>
+        </div>
+      `;
+      frame.insertBefore(island, frame.firstChild);
+
+      if (window.aimChat && window.aimChat.currentUser.role !== 'field') {
+        window.aimChat.switchUserRole('field');
+      }
+    } else if (platform === 'android') {
+      frame.classList.add('mode-phone');
+      if (window.aimChat && window.aimChat.currentUser.role !== 'field') {
+        window.aimChat.switchUserRole('field');
+      }
+    } else if (platform === 'desktop') {
+      frame.classList.add('mode-desktop-app');
+      if (window.aimChat && window.aimChat.currentUser.role !== 'cad') {
+        window.aimChat.switchUserRole('cad');
+      }
+    }
+
+    if (window.cadEngine) {
+      setTimeout(() => {
+        window.cadEngine.resizeCanvas();
+        window.cadEngine.render();
+      }, 100);
+    }
+    if (window.aimChat) {
+      window.aimChat.renderAim();
+    }
+  }
+
   setDeviceMode(mode) {
+    if (mode === 'iphone') return this.switchPlatformEntity('iphone');
+    if (mode === 'phone') return this.switchPlatformEntity('android');
+    if (mode === 'cad-station') return this.switchPlatformEntity('desktop');
+
     this.deviceMode = mode;
     const frame = document.getElementById('device-wrapper');
     if (!frame) return;
 
-    frame.classList.remove('mode-phone', 'mode-tablet', 'mode-cad-station');
+    frame.classList.remove('mode-phone', 'mode-iphone', 'mode-tablet', 'mode-cad-station', 'mode-desktop-app');
     frame.classList.add(`mode-${mode}`);
 
     document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
@@ -177,11 +238,6 @@ class SurveyApp {
     if (window.aimChat) {
       window.aimChat.renderAim();
     }
-  }
-
-    setTimeout(() => {
-      if (window.cadEngine) window.cadEngine.resizeCanvas();
-    }, 100);
   }
 
   toggleSunlightMode() {
