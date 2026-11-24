@@ -805,3 +805,91 @@
   padding: 6px;
   border-radius: 4px;
 }
+
+/* SUE Field Notes & Test Hole Cards */
+.sue-field-notes-container {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sue-notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sue-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.sue-th-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.sue-th-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sue-th-util {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.sue-th-depth-banner {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.depth-val {
+  font-size: 14px;
+  color: #f59e0b;
+}
+
+.sue-th-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+
+.sue-th-grid span {
+  color: var(--text-muted);
+}
+
+.sue-th-notes {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(15, 23, 42, 0.5);
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.sue-th-footer {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+}
