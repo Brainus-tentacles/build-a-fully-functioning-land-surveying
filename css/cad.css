@@ -131,26 +131,26 @@
 .cad-inspector-wrapper {
   position: absolute;
   bottom: 45px;
-  right: 12px;
-  width: 250px;
+  right: 14px;
+  width: 270px;
   pointer-events: auto;
   z-index: 25;
 }
 
 .inspector-card {
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(15, 23, 42, 0.96);
   border: 1px solid var(--accent-primary);
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
 }
 
 .inspector-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 4px;
 }
@@ -186,30 +186,42 @@
 /* Measurement Modal Popup */
 .measure-popup {
   position: absolute;
-  top: 55px;
-  right: 10px;
-  width: 240px;
-  background: rgba(15, 23, 42, 0.95);
+  top: 65px;
+  right: 14px;
+  width: 260px;
+  background: rgba(15, 23, 42, 0.96);
   border: 1px solid var(--accent-amber);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 12px;
   z-index: 30;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
 }
 
 .measure-header {
-  font-size: 11px;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-amber);
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+}
+
+.measure-main-val {
+  font-size: 18px;
+  font-weight: 800;
   color: var(--accent-amber);
   margin-bottom: 6px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 3px;
+  font-family: var(--font-mono);
 }
 
 .measure-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   font-size: 11px;
 }
 
