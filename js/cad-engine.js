@@ -1,5 +1,5 @@
-// Simplistic SUE (Subsurface Utility Engineering) Linework & Sketch Engine
-// Clean, touch-friendly utility tracing, pothole recording, and DXF upload/download
+// Simplistic Land Surveying Linework & Field Drawing Engine
+// Clean, touch-friendly linework tool for boundary, road, utilities & buildings with DXF upload/download
 class CadEngine {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
@@ -7,17 +7,17 @@ class CadEngine {
 
     // Viewport transform (World: Northing, Easting in survey feet)
     this.originN = 10250.0;
-    this.originE = 10100.0;
-    this.scale = 1.35; // pixels per foot
-    this.minScale = 0.1;
+    this.originE = 10250.0;
+    this.scale = 1.0;
+    this.minScale = 0.05;
     this.maxScale = 30.0;
 
     // Interaction states
     this.isPanning = false;
     this.lastMouseX = 0;
     this.lastMouseY = 0;
-    this.activeTool = 'sue_line'; // 'sue_line', 'sue_pothole', 'measure', 'pan', 'select'
-    this.currentUtility = 'Water'; // 'Water', 'Gas', 'Electric', 'Telecom', 'Sewer', 'Storm'
+    this.activeTool = 'line'; // 'line', 'point', 'measure', 'pan', 'select'
+    this.currentFeature = 'BOUNDARY'; // 'BOUNDARY', 'CENTERLINE', 'EOP_CURB', 'BUILDING', 'UTILITIES'
 
     // Snapping
     this.snapRadius = 22; // pixels
@@ -26,30 +26,29 @@ class CadEngine {
     // Active linework vertices
     this.activeVertices = [];
     this.mouseWorldN = 10250.0;
-    this.mouseWorldE = 10100.0;
+    this.mouseWorldE = 10250.0;
     this.cursorScreenX = 0;
     this.cursorScreenY = 0;
 
-    // APWA Standard SUE Utility Definitions & Colors
-    this.utilities = {
-      Water: { name: "Water Main (Blue)", color: "#0284c7", layer: "UTILITIES_WATER", dash: [] },
-      Gas: { name: "Gas Pipeline (Yellow)", color: "#eab308", layer: "UTILITIES_GAS", dash: [10, 4] },
-      Electric: { name: "Electric / Power (Red)", color: "#ef4444", layer: "UTILITIES_ELECTRIC", dash: [] },
-      Telecom: { name: "Telecom / Fiber (Orange)", color: "#f97316", layer: "UTILITIES_TELECOM", dash: [8, 3] },
-      Sewer: { name: "Sanitary Sewer (Green)", color: "#22c55e", layer: "UTILITIES_SEWER", dash: [] },
-      Storm: { name: "Storm Drain (Cyan)", color: "#06b6d4", layer: "UTILITIES_STORM", dash: [12, 4] }
+    // Survey Feature Definitions
+    this.features = {
+      BOUNDARY: { name: "Boundary", color: "#ef4444", lineWidth: 2.5, closed: true, dash: [] },
+      CENTERLINE: { name: "Road Centerline", color: "#eab308", lineWidth: 2.0, closed: false, dash: [8, 4] },
+      EOP_CURB: { name: "Edge of Pavement", color: "#94a3b8", lineWidth: 1.8, closed: false, dash: [] },
+      BUILDING: { name: "Building Footprint", color: "#a855f7", lineWidth: 2.0, closed: true, dash: [] },
+      UTILITIES: { name: "Utilities / SUE", color: "#0284c7", lineWidth: 2.0, closed: false, dash: [12, 4] },
+      SKETCH: { name: "Field Sketch", color: "#f97316", lineWidth: 1.5, closed: false, dash: [] }
     };
 
-    // SUE Linework layers
+    // Layer visibility
     this.layers = {
-      UTILITIES_WATER: { name: "Water (Blue)", color: "#0284c7", visible: true },
-      UTILITIES_GAS: { name: "Gas (Yellow)", color: "#eab308", visible: true },
-      UTILITIES_ELECTRIC: { name: "Electric (Red)", color: "#ef4444", visible: true },
-      UTILITIES_TELECOM: { name: "Telecom (Orange)", color: "#f97316", visible: true },
-      UTILITIES_SEWER: { name: "Sewer (Green)", color: "#22c55e", visible: true },
-      UTILITIES_STORM: { name: "Storm (Cyan)", color: "#06b6d4", visible: true },
-      BOUNDARY: { name: "Boundary (White)", color: "#ffffff", visible: true },
-      POINTS: { name: "Survey & SUE Points", color: "#38bdf8", visible: true, showLabels: true }
+      BOUNDARY: { name: "Boundary (Red)", color: "#ef4444", visible: true },
+      CENTERLINE: { name: "Centerline (Yellow)", color: "#eab308", visible: true },
+      EOP_CURB: { name: "EOP / Curb (Gray)", color: "#94a3b8", visible: true },
+      BUILDING: { name: "Building (Purple)", color: "#a855f7", visible: true },
+      UTILITIES: { name: "Utilities / SUE (Blue)", color: "#0284c7", visible: true },
+      FIELD_SKETCHES: { name: "Field Sketches (Orange)", color: "#f97316", visible: true },
+      POINTS: { name: "Survey Points", color: "#ffffff", visible: true, showLabels: true }
     };
 
     this.linework = [];
@@ -114,19 +113,16 @@ class CadEngine {
   }
 
   initEvents() {
-    // Mouse
     this.canvas.addEventListener('mousedown', e => this.handleMouseDown(e));
     this.canvas.addEventListener('mousemove', e => this.handleMouseMove(e));
     this.canvas.addEventListener('mouseup', e => this.handleMouseUp(e));
     this.canvas.addEventListener('wheel', e => this.handleWheel(e), { passive: false });
     this.canvas.addEventListener('dblclick', () => this.finishActiveDrawing());
 
-    // Touch for Android
     this.canvas.addEventListener('touchstart', e => this.handleTouchStart(e), { passive: false });
     this.canvas.addEventListener('touchmove', e => this.handleTouchMove(e), { passive: false });
-    this.canvas.addEventListener('touchend', e => this.handleTouchEnd(e));
+    this.canvas.addEventListener('touchend', () => this.handleTouchEnd());
 
-    // Keyboard
     window.addEventListener('keydown', e => {
       if (e.key === 'Escape') this.cancelActiveDrawing();
       if (e.key === 'Enter') this.finishActiveDrawing();
@@ -309,48 +305,20 @@ class CadEngine {
       if (this.snappedPoint) {
         this.inspectPoint(this.snappedPoint);
       }
-    } else if (this.activeTool === 'sue_line') {
-      // Connect utility line
+    } else if (this.activeTool === 'line') {
       this.activeVertices.push(vertex);
-    } else if (this.activeTool === 'sue_pothole') {
-      // Record SUE Level A Pothole
-      const util = this.currentUtility;
-      const depthStr = prompt(`Enter ${util} depth to top of pipe (ft):`, "3.50");
-      if (depthStr !== null) {
-        const depth = parseFloat(depthStr) || 3.5;
-        const size = prompt("Enter pipe size & material (e.g. 4in Steel, 8in DIP, 2in Plastic):", "4in Steel");
-        const code = `SUE TH ${util.toUpperCase()}`;
-
-        const pt = window.pointManager.addPoint({
+    } else if (this.activeTool === 'point') {
+      const code = prompt("Enter Survey Point Code (e.g. IP, REBAR, EP, CL, BM):", "IP FND");
+      if (code !== null) {
+        const desc = prompt("Enter Description / Notes:", "Survey Monument") || "";
+        window.pointManager.addPoint({
           northing: targetN,
           easting: targetE,
           elevation: targetZ,
-          code: code,
-          desc: `Level A Pothole: ${size || util}, Depth: ${depth.toFixed(2)}ft`,
-          type: "UTIL"
+          code: code.toUpperCase(),
+          desc
         });
-
-        // Add to SUE test holes list
-        if (window.SAMPLE_DATA && window.SAMPLE_DATA.testHoles) {
-          window.SAMPLE_DATA.testHoles.push({
-            id: "TH-" + (window.SAMPLE_DATA.testHoles.length + 1),
-            pointId: pt.id,
-            utilityType: util,
-            qualityLevel: "Level A (Vacuum Pothole)",
-            depthToTop: depth,
-            diameter: size || "Standard",
-            material: size || "Utility",
-            groundElev: targetZ,
-            utilityElev: targetZ - depth,
-            northing: targetN,
-            easting: targetE,
-            status: "Verified Clear",
-            notes: "Recorded on SUE Linework Tool"
-          });
-        }
-
         this.render();
-        alert(`Recorded SUE Test Hole at Depth ${depth.toFixed(2)} ft!`);
       }
     } else if (this.activeTool === 'measure') {
       this.activeVertices.push(vertex);
@@ -368,16 +336,15 @@ class CadEngine {
 
   finishActiveDrawing() {
     if (this.activeVertices.length >= 2) {
-      const utilDef = this.utilities[this.currentUtility] || this.utilities.Water;
+      const feat = this.features[this.currentFeature] || this.features.BOUNDARY;
       const newLine = {
-        id: "sue-line-" + Date.now(),
-        layer: utilDef.layer,
-        utilityType: this.currentUtility,
-        type: "polyline",
-        name: `${this.currentUtility} Utility Line`,
-        color: utilDef.color,
-        lineWidth: 2.5,
-        dash: utilDef.dash || [],
+        id: "line-" + Date.now(),
+        layer: this.currentFeature,
+        name: `${feat.name} Linework`,
+        color: feat.color,
+        lineWidth: feat.lineWidth,
+        dash: feat.dash || [],
+        closed: feat.closed && this.activeVertices.length >= 3,
         points: [...this.activeVertices]
       };
 
@@ -394,9 +361,16 @@ class CadEngine {
     this.render();
   }
 
-  setUtility(utilName) {
-    if (this.utilities[utilName]) {
-      this.currentUtility = utilName;
+  setFeature(featureName) {
+    if (this.features[featureName]) {
+      this.currentFeature = featureName;
+      document.querySelectorAll('.survey-feat-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.feat === featureName);
+      });
+      const hint = document.getElementById('cad-tool-instruction');
+      if (hint) {
+        hint.textContent = `Drawing ${this.features[featureName].name}. Tap points to connect line, then tap 'Finish Line'.`;
+      }
     }
   }
 
@@ -405,42 +379,41 @@ class CadEngine {
     this.activeTool = tool;
     this.canvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
 
-    document.querySelectorAll('.sue-tool-btn').forEach(btn => {
+    document.querySelectorAll('.cad-tool-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tool === tool);
     });
 
-    const hint = document.getElementById('sue-tool-hint');
+    const hint = document.getElementById('cad-tool-instruction');
     if (hint) {
       const map = {
-        sue_line: `Tracing ${this.currentUtility} utility line. Tap points, then click 'Finish Line'.`,
-        sue_pothole: `Tap on map to place SUE Vacuum Pothole / Test Hole with depth & pipe size.`,
-        measure: `Tap two points to calculate utility clearance, bearing & distance.`,
+        line: `Drawing ${this.features[this.currentFeature].name}. Tap points to connect, then click 'Finish Line'.`,
+        point: `Tap anywhere on canvas to set a new coordinate point.`,
+        measure: `Tap two points to calculate Quadrant Bearing & Horizontal Distance (COGO).`,
         pan: `Drag to pan across the survey site.`,
-        select: `Tap any point to inspect utility attributes.`
+        select: `Tap any point to inspect coordinate attributes.`
       };
       hint.textContent = map[tool] || "";
     }
   }
 
-  // Send SUE linework summary directly to Office CAD via AIM
-  sendSueLineworkToAim() {
+  sendLineworkToAim() {
     const count = this.linework.length;
-    const pts = window.pointManager ? window.pointManager.getAll().filter(p => p.type === 'UTIL').length : 0;
+    const bndy = this.linework.filter(l => l.layer === 'BOUNDARY').length;
+    const road = this.linework.filter(l => l.layer === 'CENTERLINE' || l.layer === 'EOP_CURB').length;
 
     const html = `
       <div class="chat-cogo-badge">
-        <span class="badge-tag">⚡ SUE UTILITY LINEWORK SHARED</span>
-        <div>Total SUE Lines: <b>${count}</b> | Utility Points/Potholes: <b>${pts}</b></div>
-        <div>Utilities: <b class="text-accent">Water, Gas, Power, Telecom, Sewer</b></div>
-        <div class="badge-coords">Ready for Civil 3D / AutoCAD import. Standard APWA layer standards applied.</div>
-        <span class="badge-link" onclick="window.app.switchTab('cad')">🔍 Open in SUE Linework Tool</span>
+        <span class="badge-tag">📐 SURVEY LINEWORK SHARED</span>
+        <div>Total Elements: <b>${count}</b> (Boundary: ${bndy}, Road: ${road})</div>
+        <div class="badge-coords">Layers: BOUNDARY, CENTERLINE, EOP_CURB, UTILITIES. Ready for Civil 3D import.</div>
+        <span class="badge-link" onclick="window.app.switchTab('cad')">🔍 View on Survey Linework Canvas</span>
       </div>
     `;
 
     if (window.aimChat) {
-      window.aimChat.sendMessage(`Transmitted SUE Linework (${count} runs, ${pts} potholes/utilities) to CAD Office`, html);
+      window.aimChat.sendMessage(`Transmitted Survey Linework (${count} elements) to CAD Office`, html);
       window.app.switchTab('aim');
-      alert("SUE Linework successfully shared to Office CAD via AIM!");
+      alert("Survey linework shared to Office CAD via AIM!");
     }
   }
 
@@ -449,14 +422,17 @@ class CadEngine {
     if (el) {
       el.innerHTML = `
         <div class="measure-popup">
-          <div class="measure-header">📐 Utility Clearance & Bearing</div>
+          <div class="measure-header">📐 Inverse Calculation (COGO)</div>
           <div class="measure-body">
-            <div class="measure-row"><span>Bearing:</span> <b class="text-accent">${inv.bearing}</b></div>
-            <div class="measure-row"><span>Clearance Dist:</span> <b>${inv.horizDist.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Delta Elev:</span> <b>${inv.deltaZ.toFixed(2)} ft</b></div>
+            <div class="measure-row"><span>Quadrant Bearing:</span> <b class="text-accent">${inv.bearing}</b></div>
+            <div class="measure-row"><span>Horizontal Distance:</span> <b>${inv.horizDist.toFixed(2)} ft</b></div>
+            <div class="measure-row"><span>Slope Distance:</span> <b>${inv.slopeDist.toFixed(2)} ft</b></div>
+            <div class="measure-row"><span>Delta North (ΔN):</span> <b>${inv.deltaN.toFixed(2)} ft</b></div>
+            <div class="measure-row"><span>Delta East (ΔE):</span> <b>${inv.deltaE.toFixed(2)} ft</b></div>
+            <div class="measure-row"><span>Grade (%):</span> <b>${inv.grade.toFixed(2)}%</b></div>
           </div>
           <button class="btn btn-xs btn-primary mt-2 w-full" onclick="window.aimChat.sendInverseToChat('${inv.bearing}', ${inv.horizDist.toFixed(2)}, ${inv.deltaZ.toFixed(2)})">
-            💬 Post Clearance to AIM
+            💬 Post Inverse to AIM Chat
           </button>
         </div>
       `;
@@ -469,13 +445,13 @@ class CadEngine {
       el.innerHTML = `
         <div class="inspector-card">
           <div class="inspector-header">
-            <span class="badge ${pt.type || 'UTIL'}">PT #${pt.id}</span>
+            <span class="badge ${pt.type || 'TOPO'}">PT #${pt.id}</span>
             <span class="inspector-code">${pt.code}</span>
           </div>
           <div class="inspector-grid">
-            <div class="insp-item"><span>Northing:</span><b>${pt.northing.toFixed(2)}</b></div>
-            <div class="insp-item"><span>Easting:</span><b>${pt.easting.toFixed(2)}</b></div>
-            <div class="insp-item"><span>Ground Elev:</span><b>${pt.elevation.toFixed(2)}'</b></div>
+            <div class="insp-item"><span>Northing:</span><b>${pt.northing.toFixed(3)}</b></div>
+            <div class="insp-item"><span>Easting:</span><b>${pt.easting.toFixed(3)}</b></div>
+            <div class="insp-item"><span>Elevation:</span><b>${pt.elevation.toFixed(3)}'</b></div>
             <div class="insp-item"><span>Description:</span><span>${pt.desc || '-'}</span></div>
           </div>
           <div class="inspector-actions">
@@ -501,15 +477,15 @@ class CadEngine {
 
     if (minN === Infinity) {
       this.originN = 10250.0;
-      this.originE = 10100.0;
-      this.scale = 1.35;
+      this.originE = 10250.0;
+      this.scale = 1.0;
       return;
     }
 
     this.originN = (minN + maxN) / 2;
     this.originE = (minE + maxE) / 2;
 
-    const pad = 1.4;
+    const pad = 1.35;
     const rangeN = (maxN - minN) || 200;
     const rangeE = (maxE - minE) || 200;
 
@@ -530,7 +506,7 @@ class CadEngine {
   updateHUD() {
     const el = document.getElementById('cad-coord-hud');
     if (el) {
-      el.innerHTML = `N: <b>${this.mouseWorldN.toFixed(1)}</b> E: <b>${this.mouseWorldE.toFixed(1)}</b> &nbsp; SUE Utility: <b class="text-accent">${this.currentUtility}</b>`;
+      el.innerHTML = `N: <b>${this.mouseWorldN.toFixed(2)}</b> E: <b>${this.mouseWorldE.toFixed(2)}</b> &nbsp; Drawing: <b class="text-accent">${this.features[this.currentFeature]?.name || 'Boundary'}</b>`;
     }
   }
 
@@ -539,26 +515,18 @@ class CadEngine {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
 
-    // 1. Grid
     this.drawGrid(ctx);
-
-    // 2. Linework
     this.drawLinework(ctx);
-
-    // 3. Active in-progress line
     this.drawActive(ctx);
-
-    // 4. Survey & SUE Points
     this.drawPoints(ctx);
 
-    // 5. Snapping indicator
     if (this.snappedPoint) {
       this.drawSnap(ctx, this.snappedPoint);
     }
   }
 
   drawGrid(ctx) {
-    const gridSpacing = this.scale > 1.5 ? 25 : 50; // feet
+    const gridSpacing = this.scale > 1.5 ? 25 : 50;
     const topLeft = this.screenToWorld(0, 0);
     const bottomRight = this.screenToWorld(this.width, this.height);
 
@@ -588,8 +556,8 @@ class CadEngine {
       if (!pts || pts.length < 2) return;
 
       ctx.save();
-      ctx.strokeStyle = elem.color || "#0284c7";
-      ctx.lineWidth = elem.lineWidth || 2.5;
+      ctx.strokeStyle = elem.color || "#ef4444";
+      ctx.lineWidth = elem.lineWidth || 2.0;
       if (elem.dash && elem.dash.length > 0) ctx.setLineDash(elem.dash);
 
       ctx.beginPath();
@@ -603,25 +571,22 @@ class CadEngine {
 
       if (elem.closed) {
         ctx.closePath();
-        ctx.fillStyle = elem.color ? elem.color + "14" : "#ffffff14";
+        ctx.fillStyle = elem.color ? elem.color + "18" : "#ffffff18";
         ctx.fill();
       }
 
       ctx.stroke();
 
-      // Draw utility name & length label
-      if (this.scale > 0.6 && pts.length >= 2) {
+      // Show distance on segments if zoomed
+      if (this.scale > 0.45 && pts.length >= 2) {
         const p1 = pts[0];
         const p2 = pts[1];
-        const midN = (p1.n + p2.n) / 2;
-        const midE = (p1.e + p2.e) / 2;
-        const sp = this.worldToScreen(midN, midE);
-
+        const sp = this.worldToScreen((p1.n + p2.n) / 2, (p1.e + p2.e) / 2);
         const dist = Math.hypot(p2.n - p1.n, p2.e - p1.e);
 
-        ctx.fillStyle = elem.color || "#ffffff";
+        ctx.fillStyle = "#ffffff";
         ctx.font = "bold 9px 'Roboto Mono', monospace";
-        ctx.fillText(`${elem.utilityType || 'LINE'} (${dist.toFixed(0)}')`, sp.x + 4, sp.y - 4);
+        ctx.fillText(`${elem.name || 'LINE'} (${dist.toFixed(1)}')`, sp.x + 4, sp.y - 4);
       }
 
       ctx.restore();
@@ -632,9 +597,9 @@ class CadEngine {
     if (this.activeVertices.length === 0) return;
 
     ctx.save();
-    const utilDef = this.utilities[this.currentUtility] || this.utilities.Water;
-    ctx.strokeStyle = utilDef.color;
-    ctx.lineWidth = 2.5;
+    const feat = this.features[this.currentFeature] || this.features.BOUNDARY;
+    ctx.strokeStyle = feat.color;
+    ctx.lineWidth = 2.0;
     ctx.setLineDash([6, 3]);
 
     ctx.beginPath();
@@ -662,25 +627,39 @@ class CadEngine {
 
       ctx.save();
 
-      // SUE utility points
-      if (pt.type === 'UTIL' || pt.code.includes("SUE") || pt.code.includes("TH")) {
-        ctx.fillStyle = "#f59e0b"; // SUE Pothole Amber
-        ctx.beginPath();
-        ctx.arc(sp.x, sp.y, 5, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      } else if (pt.type === 'BNDY') {
+      if (pt.type === 'BNDY') {
+        // Red circle with cross for boundary corners
         ctx.strokeStyle = "#ef4444";
+        ctx.fillStyle = "#ef4444";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, 4, 0, 2 * Math.PI);
+        ctx.stroke();
+      } else if (pt.type === 'CTRL') {
+        // Amber triangle for traverse control
+        ctx.strokeStyle = "#f59e0b";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(sp.x, sp.y - 5);
+        ctx.lineTo(sp.x + 4, sp.y + 4);
+        ctx.lineTo(sp.x - 4, sp.y + 4);
+        ctx.closePath();
+        ctx.stroke();
+      } else if (pt.type === 'BM') {
+        // Green square for benchmark
+        ctx.strokeStyle = "#10b981";
         ctx.lineWidth = 1.5;
         ctx.strokeRect(sp.x - 4, sp.y - 4, 8, 8);
       } else {
-        ctx.fillStyle = "#38bdf8";
-        ctx.fillRect(sp.x - 2, sp.y - 2, 4, 4);
+        // Standard survey cross
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(sp.x - 3, sp.y - 3); ctx.lineTo(sp.x + 3, sp.y + 3);
+        ctx.moveTo(sp.x - 3, sp.y + 3); ctx.lineTo(sp.x + 3, sp.y - 3);
+        ctx.stroke();
       }
 
-      // Point code label
       ctx.fillStyle = "#ffffff";
       ctx.font = "9px 'Roboto Mono', monospace";
       ctx.fillText(`${pt.code}`, sp.x + 6, sp.y - 3);
@@ -697,10 +676,10 @@ class CadEngine {
     ctx.strokeRect(sp.x - 7, sp.y - 7, 14, 14);
 
     ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
-    ctx.fillRect(sp.x + 10, sp.y - 12, 100, 24);
+    ctx.fillRect(sp.x + 10, sp.y - 12, 110, 24);
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 9px sans-serif";
-    ctx.fillText(`${pt.code}`, sp.x + 14, sp.y + 4);
+    ctx.fillText(`PT #${pt.id} (${pt.code})`, sp.x + 14, sp.y + 4);
     ctx.restore();
   }
 }
