@@ -532,6 +532,86 @@ class SurveyApp {
     this.showToast(`Stored PT #${pt.id} [${pt.code}] @ N:${pt.northing.toFixed(2)} E:${pt.easting.toFixed(2)}`);
   }
 
+  // Modal for Coworkers to Download Android, iPhone, and PC Packages
+  openDownloadModal() {
+    const root = document.getElementById('modal-root');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
+        <div class="survey-modal-card" style="max-width: 580px;">
+          <div class="survey-modal-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="assets/logo.png" alt="Logo" class="modal-brand-logo" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent-primary); box-shadow: 0 0 8px rgba(56,189,248,0.3);">
+              <div>
+                <h3>📥 Download Testing Packages for Coworkers</h3>
+                <span class="text-xs text-muted">Standalone offline test packages for Android, iPhone, and Computer Program</span>
+              </div>
+            </div>
+            <button class="btn-close" onclick="window.app.closeModal()">×</button>
+          </div>
+
+          <div class="download-package-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+            <!-- 1. Android App Package -->
+            <div class="download-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="padding-right: 12px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 18px;">🤖</span>
+                  <b style="color: #22c55e;">GeoSurvey Android App Package</b>
+                  <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; font-size: 10px;">1.2 MB .ZIP</span>
+                </div>
+                <div class="text-xs text-muted" style="margin-top: 4px;">
+                  For Android phones &amp; Topcon/Sokkia FC-6000 field tablets. Includes local launchers &amp; PWA install guide.
+                </div>
+              </div>
+              <a href="downloads/GeoSurvey-Android-App.zip" download="GeoSurvey-Android-App.zip" class="btn btn-sm btn-success" style="font-weight: 700; white-space: nowrap;">
+                ⬇️ Download ZIP
+              </a>
+            </div>
+
+            <!-- 2. iPhone App Package -->
+            <div class="download-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="padding-right: 12px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 18px;">🍎</span>
+                  <b style="color: #38bdf8;">GeoSurvey iPhone / iOS Package</b>
+                  <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 10px;">1.2 MB .ZIP</span>
+                </div>
+                <div class="text-xs text-muted" style="margin-top: 4px;">
+                  For Apple iPhone 16/15 Pro (iOS 15+). Includes Dynamic Island, Cupertino tabs &amp; iOS home screen install guide.
+                </div>
+              </div>
+              <a href="downloads/GeoSurvey-iPhone-App.zip" download="GeoSurvey-iPhone-App.zip" class="btn btn-sm btn-primary" style="font-weight: 700; white-space: nowrap;">
+                ⬇️ Download ZIP
+              </a>
+            </div>
+
+            <!-- 3. Computer Program Package -->
+            <div class="download-card" style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="padding-right: 12px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 18px;">🖥️</span>
+                  <b style="color: #f59e0b;">Civil 3D Workstation Computer Program</b>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-size: 10px;">1.2 MB .ZIP</span>
+                </div>
+                <div class="text-xs text-muted" style="margin-top: 4px;">
+                  For Windows &amp; Mac CAD drafters. Includes 1-click desktop batch launcher (.bat / .sh) &amp; Civil 3D testing samples.
+                </div>
+              </div>
+              <a href="downloads/GeoSurvey-Computer-Program.zip" download="GeoSurvey-Computer-Program.zip" class="btn btn-sm btn-warning" style="font-weight: 700; white-space: nowrap; color: #0b0f19;">
+                ⬇️ Download ZIP
+              </a>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; text-align: right;">
+            <button class="btn btn-xs btn-outline-light" onclick="window.app.closeModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // Topcon / Sokkia / MAGNET Field / Civil 3D Kit Config Modal
   openEquipmentModal() {
     const root = document.getElementById('modal-root');
