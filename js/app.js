@@ -16,6 +16,11 @@ class SurveyApp {
       rodHeight: 6.562,
       prismConstMm: -30
     };
+    this.deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredInstallPrompt = e;
+    });
   }
 
   init() {
