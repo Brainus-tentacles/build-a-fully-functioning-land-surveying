@@ -1,36 +1,40 @@
-// Comprehensive Land Surveying Dataset
-// Oak Ridge Estates Boundary & Topographic Survey
+// Land Surveying Dataset: Topcon & Sokkia MAGNET Field to Autodesk Civil 3D Workflow
 window.SAMPLE_DATA = {
   jobs: [
     {
       id: "JOB-2026-104",
       number: "2026-104",
-      name: "Oak Ridge Estates - Boundary & Topographic Survey",
+      name: "Oak Ridge Estates - Boundary & Topo (Civil 3D & MAGNET Field)",
       client: "Highland Development Partners, LLC",
       location: "Lot 14, Blk 3, Oak Ridge Subd, Travis County, TX",
       datum: "NAD83 Texas Central (US Survey Feet) / NAVD88",
       dateCreated: "2026-11-20",
       status: "In Progress",
       partyChief: "Mike Kowalski (RPLS #5421)",
-      cadOperator: "AutoCAD Dave (Office Civil 3D)",
-      instrument: "Trimble S7 3\" Robotic Total Station & R12i GNSS",
+      cadOperator: "Dave Vance (Senior Civil 3D Drafter)",
+      hardware: {
+        tablet: "Topcon FC-6000 Rugged Field Tablet (Windows/Android)",
+        software: "MAGNET Field v8.2",
+        gpsRover: "Topcon HiPer VR Triple-Frequency GNSS (TopNET Live VRS)",
+        totalStation: "Sokkia iX-1200 1\" Robotic Total Station",
+        cadOffice: "Autodesk Civil 3D 2026 (Survey Database)"
+      },
       weather: "72°F, Clear skies, Wind 4mph S, Baro 30.08 inHg",
-      progress: 72,
+      progress: 75,
       checklist: [
-        { id: "c1", category: "Pre-Field", title: "Deed & Plat Research at Travis County Clerk", done: true, assignedTo: "CAD Office", notes: "Vol 142, Pg 88 Deed of Trust reviewed. Adjoiner deeds checked." },
-        { id: "c2", category: "Pre-Field", title: "Recover TxDOT / NGS Control Benchmark (BM-1)", done: true, assignedTo: "Field Crew", notes: "Found TXDOT brass disc BM-1 elevation 685.50' in culvert headwall." },
-        { id: "c3", category: "Pre-Field", title: "Load Control & Boundary Calcs into Data Collector", done: true, assignedTo: "CAD Office", notes: "Exported project coordinate file 2026-104-CTRL.csv" },
-        { id: "c4", category: "Field Operations", title: "Set Traverse Control Hubs (CP1, CP2, CP3, CP4)", done: true, assignedTo: "Field Crew", notes: "5/8\" iron rods with yellow plastic caps stamped RPLS 5421 set." },
-        { id: "c5", category: "Field Operations", title: "Recover Boundary Corner Monuments (Lot 14 NW, NE, SE, SW)", done: true, assignedTo: "Field Crew", notes: "Found 5/8\" IP at NW, NE, SE corners. Found 1/2\" IP at SW corner 2.1' east of meter." },
-        { id: "c6", category: "Field Operations", title: "Run 3-Wire Differential Level Loop for BM verification", done: true, assignedTo: "Field Crew", notes: "Closed level loop on BM-1 within -0.004 ft (Allowable: 0.024 ft). Page check passed." },
-        { id: "c7", category: "Field Operations", title: "Topographic Grid & Breaklines (Edge of Pavement, Centerline)", done: true, assignedTo: "Field Crew", notes: "Shot road centerline and both edges of pavement with codes CL1 and EP1." },
-        { id: "c8", category: "Field Operations", title: "Locate Surface Utilities & Invert Dips (Water, Sewer, Storm, Gas)", done: true, assignedTo: "Field Crew", notes: "Sanitary sewer MH-1 invert 675.30', storm catch basin invert 681.20'." },
-        { id: "c9", category: "Field Operations", title: "Building Footprint & Finished Floor Elevation Ties", done: true, assignedTo: "Field Crew", notes: "Shot 4 corners of residential brick structure + FFE 691.35'." },
-        { id: "c10", category: "Office CAD", title: "Traverse Angular & Compass Rule Closure Adjustment", done: true, assignedTo: "CAD Office", notes: "Traverse precision 1:28,400. Balanced coordinates stored." },
-        { id: "c11", category: "Office CAD", title: "Field-to-Finish Linework Generation & Boundary Resolution", done: false, assignedTo: "CAD Office", notes: "Resolving deed calls vs measured boundary corners." },
-        { id: "c12", category: "Office CAD", title: "Boundary Resolution & Deed vs Measured Comparison", done: false, assignedTo: "CAD Office", notes: "West line shows 0.14' excess over 1984 record plat. Consistent with block monuments." },
-        { id: "c13", category: "Deliverables & QA", title: "Quality Review & Boundary Certification by RPLS", done: false, assignedTo: "CAD Office", notes: "Awaiting final CAD plat review." },
-        { id: "c14", category: "Deliverables & QA", title: "Signed & Sealed Boundary Plat PDF + Civil 3D DWG", done: false, assignedTo: "CAD Office", notes: "Scheduled for client delivery Friday." }
+        { id: "c1", category: "Pre-Field", title: "Create Civil 3D Survey Project & Coordinate System", done: true, assignedTo: "Civil 3D Office", notes: "Grid TX83-CF (Texas Central Zone). Civil 3D Survey Database initialized." },
+        { id: "c2", category: "Pre-Field", title: "Export Control Coordinates to MAGNET Field (.mjf / .csv)", done: true, assignedTo: "Civil 3D Office", notes: "Transferred control file 2026-104-CTRL.csv to Topcon FC-6000 via MAGNET Enterprise cloud." },
+        { id: "c3", category: "Pre-Field", title: "Recover TxDOT / NGS Control Benchmark (BM-1)", done: true, assignedTo: "Field Crew", notes: "Found TXDOT brass disc BM-1 elevation 685.50' in culvert headwall." },
+        { id: "c4", category: "Field Operations", title: "Set Traverse Control Hubs with Sokkia iX Robotic (CP1 - CP4)", done: true, assignedTo: "Field Crew", notes: "Set 5/8\" rebar with Topcon yellow caps stamped RPLS 5421." },
+        { id: "c5", category: "Field Operations", title: "Topcon HiPer VR Base-Rover / TopNET Live VRS Calibration Check", done: true, assignedTo: "Field Crew", notes: "Checked into BM-1: Delta N=0.008', Delta E=0.005', Delta Z=0.007'. OK!" },
+        { id: "c6", category: "Field Operations", title: "Recover Boundary Corner Monuments (Lot 14 NW, NE, SE, SW)", done: true, assignedTo: "Field Crew", notes: "Recovered 5/8\" IP at NW, NE, SE corners. Recovered 1/2\" IP at SW corner. Clear of water meter." },
+        { id: "c7", category: "Field Operations", title: "3-Wire Differential Level Loop for Vertical Datum Verification", done: true, assignedTo: "Field Crew", notes: "Closed loop on BM-1 within -0.004 ft. Page check math passed." },
+        { id: "c8", category: "Field Operations", title: "MAGNET Field Linework Coding (CL1, EP1, BLDG1, UTIL)", done: true, assignedTo: "Field Crew", notes: "Collected feature codes with MAGNET linework tags (EP1 B, EP1, EP1 E)." },
+        { id: "c9", category: "Office CAD", title: "Import MAGNET Field RAW / RW5 into Civil 3D Survey DB", done: false, assignedTo: "Civil 3D Office", notes: "Awaiting final raw observation file from field tablet." },
+        { id: "c10", category: "Office CAD", title: "Civil 3D Field-to-Finish Linework Code Set Generation", done: false, assignedTo: "Civil 3D Office", notes: "Process figure prefix database and survey figures in Civil 3D." },
+        { id: "c11", category: "Office CAD", title: "Traverse Angular & Compass Rule Balancing Adjustment", done: true, assignedTo: "Civil 3D Office", notes: "Civil 3D traverse analysis: 1:28,400 precision ratio." },
+        { id: "c12", category: "Deliverables & QA", title: "Quality Review & Boundary Certification by RPLS", done: false, assignedTo: "Civil 3D Office", notes: "Awaiting final plat check." },
+        { id: "c13", category: "Deliverables & QA", title: "Export Signed Boundary Plat PDF & Civil 3D DWG/DXF", done: false, assignedTo: "Civil 3D Office", notes: "Scheduled for client delivery Friday." }
       ]
     },
     {
@@ -43,72 +47,83 @@ window.SAMPLE_DATA = {
       dateCreated: "2026-11-22",
       status: "Scheduled",
       partyChief: "Jake Martinez (SIT #1092)",
-      cadOperator: "Civil3D Sarah (Office)",
-      instrument: "Leica TS16 Robotic + GS18T Rover",
+      cadOperator: "Sarah Connor (Civil 3D Office)",
+      hardware: {
+        tablet: "Sokkia SHC6000 Tablet",
+        software: "MAGNET Field v8.2",
+        gpsRover: "Sokkia GRX3 GNSS Receiver",
+        totalStation: "Topcon GT-1200 Robotic",
+        cadOffice: "Autodesk Civil 3D 2026"
+      },
       weather: "68°F, Overcast",
-      progress: 25,
+      progress: 20,
       checklist: [
-        { id: "c201", category: "Pre-Field", title: "Acquire ROW strip maps and NGS control sheets", done: true, assignedTo: "CAD Office", notes: "Loaded TxDOT alignment stations." },
-        { id: "c202", category: "Field Operations", title: "Establish GPS RTK Base on NGS Brass Disc", done: false, assignedTo: "Field Crew", notes: "Scheduled for field crew tomorrow." },
-        { id: "c203", category: "Field Operations", title: "Shoot ROW monuments and boundary pins", done: false, assignedTo: "Field Crew", notes: "Locate all highway boundary markers." }
+        { id: "c201", category: "Pre-Field", title: "Acquire TxDOT alignment stationing and XML surfaces", done: true, assignedTo: "Civil 3D Office", notes: "Loaded centerline alignment into Civil 3D." },
+        { id: "c202", category: "Field Operations", title: "Topcon HiPer VR Network RTK Base Initialization", done: false, assignedTo: "Field Crew", notes: "Scheduled for tomorrow." }
       ]
     }
   ],
 
-  // 36 Realistic Land Survey Shots
+  // 36 Survey Points with Civil 3D & MAGNET Field Raw Descriptions
   points: [
     // Control Points & Benchmarks
-    { id: 1, northing: 10000.00, easting: 10000.00, elevation: 685.50, code: "CP1", desc: "PK Nail in asphalt Control Point 1", hi: 5.12, hr: 5.00, type: "CTRL", locked: true },
-    { id: 2, northing: 10245.80, easting: 10185.35, elevation: 688.15, code: "CP2", desc: "1/2\" Iron Rod w/ cap RPLS 5421", hi: 5.10, hr: 5.00, type: "CTRL", locked: true },
-    { id: 3, northing: 10398.22, easting: 10450.10, elevation: 691.40, code: "CP3", desc: "1/2\" Iron Rod w/ cap RPLS 5421", hi: 5.05, hr: 5.00, type: "CTRL", locked: true },
-    { id: 4, northing: 10120.45, easting: 10510.60, elevation: 687.90, code: "CP4", desc: "Mag Nail in concrete collar", hi: 5.15, hr: 5.00, type: "CTRL", locked: true },
-    { id: 5, northing: 10000.00, easting: 10000.00, elevation: 685.50, code: "BM-1", desc: "TxDOT Brass Disc in culvert headwall", hi: 4.80, hr: 4.50, type: "BM", locked: true },
+    { id: 1, northing: 10000.00, easting: 10000.00, elevation: 685.50, code: "CP1", desc: "PK NAIL IN ASPH CONTROL POINT 1", hi: 5.12, hr: 5.00, type: "CTRL", locked: true },
+    { id: 2, northing: 10245.80, easting: 10185.35, elevation: 688.15, code: "CP2", desc: "1/2IN IR W/ TOPCON CAP RPLS 5421", hi: 5.10, hr: 5.00, type: "CTRL", locked: true },
+    { id: 3, northing: 10398.22, easting: 10450.10, elevation: 691.40, code: "CP3", desc: "1/2IN IR W/ TOPCON CAP RPLS 5421", hi: 5.05, hr: 5.00, type: "CTRL", locked: true },
+    { id: 4, northing: 10120.45, easting: 10510.60, elevation: 687.90, code: "CP4", desc: "MAG NAIL IN CONC COLLAR", hi: 5.15, hr: 5.00, type: "CTRL", locked: true },
+    { id: 5, northing: 10000.00, easting: 10000.00, elevation: 685.50, code: "BM-1", desc: "TXDOT BRASS DISC IN CULVERT HW", hi: 4.80, hr: 4.50, type: "BM", locked: true },
 
-    // Boundary Monuments (Lot 14)
-    { id: 10, northing: 10050.00, easting: 10050.00, elevation: 685.20, code: "IP FND SW", desc: "Found 1/2\" Iron Rod SW corner Lot 14", hi: 5.12, hr: 5.00, type: "BNDY" },
-    { id: 11, northing: 10450.00, easting: 10050.00, elevation: 690.80, code: "IP FND NW", desc: "Found 5/8\" Iron Rod NW corner Lot 14", hi: 5.12, hr: 5.00, type: "BNDY" },
-    { id: 12, northing: 10450.00, easting: 10550.00, elevation: 692.10, code: "IP FND NE", desc: "Found 5/8\" Iron Rod w/ illegible cap NE corner", hi: 5.12, hr: 5.00, type: "BNDY" },
-    { id: 13, northing: 10050.00, easting: 10550.00, elevation: 686.40, code: "IP FND SE", desc: "Found 1/2\" Iron Rod SE corner Lot 14", hi: 5.12, hr: 5.00, type: "BNDY" },
+    // Boundary Monuments (Lot 14 Property Corners)
+    { id: 10, northing: 10050.00, easting: 10050.00, elevation: 685.20, code: "IP FND SW", desc: "FND 1/2IN IR SW COR LOT 14", hi: 5.12, hr: 5.00, type: "BNDY" },
+    { id: 11, northing: 10450.00, easting: 10050.00, elevation: 690.80, code: "IP FND NW", desc: "FND 5/8IN IR NW COR LOT 14", hi: 5.12, hr: 5.00, type: "BNDY" },
+    { id: 12, northing: 10450.00, easting: 10550.00, elevation: 692.10, code: "IP FND NE", desc: "FND 5/8IN IR W/ ILLEGIBLE CAP NE COR", hi: 5.12, hr: 5.00, type: "BNDY" },
+    { id: 13, northing: 10050.00, easting: 10550.00, elevation: 686.40, code: "IP FND SE", desc: "FND 1/2IN IR SE COR LOT 14", hi: 5.12, hr: 5.00, type: "BNDY" },
 
-    // Road Centerline
-    { id: 20, northing: 10020.00, easting: 9980.00, elevation: 684.10, code: "CL1 B", desc: "Centerline asphalt road begin", hi: 5.12, hr: 5.00, type: "ROAD" },
-    { id: 21, northing: 10180.00, easting: 9985.00, elevation: 686.30, code: "CL1", desc: "Centerline asphalt road", hi: 5.12, hr: 5.00, type: "ROAD" },
-    { id: 22, northing: 10340.00, easting: 9988.00, elevation: 688.70, code: "CL1", desc: "Centerline asphalt road", hi: 5.12, hr: 5.00, type: "ROAD" },
-    { id: 23, northing: 10480.00, easting: 9992.00, elevation: 690.40, code: "CL1 E", desc: "Centerline asphalt road end", hi: 5.12, hr: 5.00, type: "ROAD" },
+    // Road Centerline (MAGNET Field Code: CL1)
+    { id: 20, northing: 10020.00, easting: 9980.00, elevation: 684.10, code: "CL1 B", desc: "CENTERLINE ROAD BEGIN", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 21, northing: 10180.00, easting: 9985.00, elevation: 686.30, code: "CL1", desc: "CENTERLINE ROAD", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 22, northing: 10340.00, easting: 9988.00, elevation: 688.70, code: "CL1", desc: "CENTERLINE ROAD", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 23, northing: 10480.00, easting: 9992.00, elevation: 690.40, code: "CL1 E", desc: "CENTERLINE ROAD END", hi: 5.12, hr: 5.00, type: "ROAD" },
 
-    // East Edge of Pavement
-    { id: 24, northing: 10020.00, easting: 10005.00, elevation: 684.35, code: "EP1 B", desc: "Edge of pavement East begin", hi: 5.12, hr: 5.00, type: "ROAD" },
-    { id: 25, northing: 10180.00, easting: 10010.00, elevation: 686.55, code: "EP1", desc: "Edge of pavement East", hi: 5.12, hr: 5.00, type: "ROAD" },
-    { id: 26, northing: 10340.00, easting: 10013.00, elevation: 688.95, code: "EP1", desc: "Edge of pavement East", hi: 5.12, hr: 5.00, type: "ROAD" },
-    { id: 27, northing: 10480.00, easting: 10017.00, elevation: 690.65, code: "EP1 E", desc: "Edge of pavement East end", hi: 5.12, hr: 5.00, type: "ROAD" },
+    // East Edge of Pavement (MAGNET Field Code: EP1)
+    { id: 24, northing: 10020.00, easting: 10005.00, elevation: 684.35, code: "EP1 B", desc: "EDGE OF PAVEMENT EAST BEGIN", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 25, northing: 10180.00, easting: 10010.00, elevation: 686.55, code: "EP1", desc: "EDGE OF PAVEMENT EAST", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 26, northing: 10340.00, easting: 10013.00, elevation: 688.95, code: "EP1", desc: "EDGE OF PAVEMENT EAST", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 27, northing: 10480.00, easting: 10017.00, elevation: 690.65, code: "EP1 E", desc: "EDGE OF PAVEMENT EAST END", hi: 5.12, hr: 5.00, type: "ROAD" },
 
-    // Building Footprint
-    { id: 40, northing: 10220.00, easting: 10200.00, elevation: 690.50, code: "BLDG1 B", desc: "Brick residence SW corner", hi: 5.12, hr: 5.00, type: "BLDG" },
-    { id: 41, northing: 10280.00, easting: 10200.00, elevation: 690.55, code: "BLDG1", desc: "Brick residence NW corner", hi: 5.12, hr: 5.00, type: "BLDG" },
-    { id: 42, northing: 10280.00, easting: 10260.00, elevation: 690.60, code: "BLDG1", desc: "Brick residence NE corner", hi: 5.12, hr: 5.00, type: "BLDG" },
-    { id: 43, northing: 10220.00, easting: 10260.00, elevation: 690.50, code: "BLDG1 E", desc: "Brick residence SE corner", hi: 5.12, hr: 5.00, type: "BLDG" },
-    { id: 44, northing: 10250.00, easting: 10200.00, elevation: 691.35, code: "FFE", desc: "Finished floor elevation front porch", hi: 5.12, hr: 5.00, type: "BLDG" },
+    // West Edge of Pavement (MAGNET Field Code: EP2)
+    { id: 28, northing: 10020.00, easting: 9955.00, elevation: 683.85, code: "EP2 B", desc: "EDGE OF PAVEMENT WEST BEGIN", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 29, northing: 10180.00, easting: 9960.00, elevation: 686.05, code: "EP2", desc: "EDGE OF PAVEMENT WEST", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 30, northing: 10340.00, easting: 9963.00, elevation: 688.45, code: "EP2", desc: "EDGE OF PAVEMENT WEST", hi: 5.12, hr: 5.00, type: "ROAD" },
+    { id: 31, northing: 10480.00, easting: 9967.00, elevation: 690.15, code: "EP2 E", desc: "EDGE OF PAVEMENT WEST END", hi: 5.12, hr: 5.00, type: "ROAD" },
 
-    // Utilities & Topo Features
-    { id: 50, northing: 10100.00, easting: 10025.00, elevation: 685.10, code: "WM", desc: "Water meter box top (2.1' W of IP)", hi: 5.12, hr: 5.00, type: "UTIL" },
-    { id: 51, northing: 10250.00, easting: 10030.00, elevation: 687.20, code: "WV", desc: "Water gate valve in lid", hi: 5.12, hr: 5.00, type: "UTIL" },
-    { id: 52, northing: 10400.00, easting: 10035.00, elevation: 689.80, code: "FH", desc: "Fire Hydrant flange elevation", hi: 5.12, hr: 5.00, type: "UTIL" },
-    { id: 53, northing: 10080.00, easting: 10000.00, elevation: 684.50, code: "MH SAN", desc: "Sanitary sewer rim. Invert = 675.30", hi: 5.12, hr: 5.00, type: "UTIL" },
-    { id: 54, northing: 10320.00, easting: 10008.00, elevation: 687.90, code: "MH SAN", desc: "Sanitary sewer rim. Invert = 678.90", hi: 5.12, hr: 5.00, type: "UTIL" },
-    { id: 55, northing: 10150.00, easting: 10012.00, elevation: 685.80, code: "CB STM", desc: "Curb inlet catch basin rim. Invert = 681.20", hi: 5.12, hr: 5.00, type: "UTIL" },
+    // Building Footprint (MAGNET Field Code: BLDG1)
+    { id: 40, northing: 10220.00, easting: 10200.00, elevation: 690.50, code: "BLDG1 B", desc: "RESIDENCE SW COR", hi: 5.12, hr: 5.00, type: "BLDG" },
+    { id: 41, northing: 10280.00, easting: 10200.00, elevation: 690.55, code: "BLDG1", desc: "RESIDENCE NW COR", hi: 5.12, hr: 5.00, type: "BLDG" },
+    { id: 42, northing: 10280.00, easting: 10260.00, elevation: 690.60, code: "BLDG1", desc: "RESIDENCE NE COR", hi: 5.12, hr: 5.00, type: "BLDG" },
+    { id: 43, northing: 10220.00, easting: 10260.00, elevation: 690.50, code: "BLDG1 E", desc: "RESIDENCE SE COR", hi: 5.12, hr: 5.00, type: "BLDG" },
+    { id: 44, northing: 10250.00, easting: 10200.00, elevation: 691.35, code: "FFE", desc: "FINISHED FLOOR ELEV FRONT PORCH", hi: 5.12, hr: 5.00, type: "BLDG" },
 
-    // Trees & Boundary Fence
-    { id: 60, northing: 10150.00, easting: 10150.00, elevation: 687.40, code: "TREE 36 LIVE OAK", desc: "36\" Live Oak canopy 42'", hi: 5.12, hr: 5.00, type: "TOPO" },
-    { id: 61, northing: 10350.00, easting: 10180.00, elevation: 690.10, code: "TREE 24 POST OAK", desc: "24\" Post Oak canopy 28'", hi: 5.12, hr: 5.00, type: "TOPO" },
-    { id: 62, northing: 10110.00, easting: 10400.00, elevation: 687.10, code: "FENCE B", desc: "Wood privacy fence corner", hi: 5.12, hr: 5.00, type: "TOPO" },
-    { id: 63, northing: 10380.00, easting: 10410.00, elevation: 690.80, code: "FENCE E", desc: "Wood privacy fence corner", hi: 5.12, hr: 5.00, type: "TOPO" }
+    // Utilities & Topo
+    { id: 50, northing: 10100.00, easting: 10025.00, elevation: 685.10, code: "WM", desc: "WATER METER BOX TOP (2.1FT W OF IP)", hi: 5.12, hr: 5.00, type: "UTIL" },
+    { id: 51, northing: 10250.00, easting: 10030.00, elevation: 687.20, code: "WV", desc: "WATER VALVE IN LID", hi: 5.12, hr: 5.00, type: "UTIL" },
+    { id: 52, northing: 10400.00, easting: 10035.00, elevation: 689.80, code: "FH", desc: "FIRE HYDRANT FLANGE", hi: 5.12, hr: 5.00, type: "UTIL" },
+    { id: 53, northing: 10080.00, easting: 10000.00, elevation: 684.50, code: "MH SAN", desc: "SANITARY SEWER RIM INVERT=675.30", hi: 5.12, hr: 5.00, type: "UTIL" },
+    { id: 54, northing: 10320.00, easting: 10008.00, elevation: 687.90, code: "MH SAN", desc: "SANITARY SEWER RIM INVERT=678.90", hi: 5.12, hr: 5.00, type: "UTIL" },
+    { id: 55, northing: 10150.00, easting: 10012.00, elevation: 685.80, code: "CB STM", desc: "STORM INLET RIM INVERT=681.20", hi: 5.12, hr: 5.00, type: "UTIL" },
+
+    // Trees & Fences
+    { id: 60, northing: 10150.00, easting: 10150.00, elevation: 687.40, code: "TREE 36 LIVE OAK", desc: "36IN LIVE OAK CANOPY 42FT", hi: 5.12, hr: 5.00, type: "TOPO" },
+    { id: 61, northing: 10350.00, easting: 10180.00, elevation: 690.10, code: "TREE 24 POST OAK", desc: "24IN POST OAK CANOPY 28FT", hi: 5.12, hr: 5.00, type: "TOPO" },
+    { id: 62, northing: 10110.00, easting: 10400.00, elevation: 687.10, code: "FENCE B", desc: "WOOD PRIVACY FENCE CORNER", hi: 5.12, hr: 5.00, type: "TOPO" },
+    { id: 63, northing: 10380.00, easting: 10410.00, elevation: 690.80, code: "FENCE E", desc: "WOOD PRIVACY FENCE CORNER", hi: 5.12, hr: 5.00, type: "TOPO" }
   ],
 
-  // Simplistic Survey Linework (Boundary, Road, Building, Utilities, Fence)
+  // Linework (Mapped directly to Autodesk Civil 3D Layers)
   linework: [
     {
       id: "line-bndy-1",
-      layer: "BOUNDARY",
+      layer: "V-PROP-LINE",
       type: "polygon",
       name: "Lot 14 Property Boundary (4.591 Acres)",
       color: "#ef4444",
@@ -123,7 +138,7 @@ window.SAMPLE_DATA = {
     },
     {
       id: "line-cl-1",
-      layer: "CENTERLINE",
+      layer: "V-ROAD-CNTR",
       type: "polyline",
       name: "County Road 104 Centerline",
       color: "#eab308",
@@ -138,7 +153,7 @@ window.SAMPLE_DATA = {
     },
     {
       id: "line-ep-1",
-      layer: "EOP_CURB",
+      layer: "V-ROAD-CURB",
       type: "polyline",
       name: "East Edge of Asphalt",
       color: "#94a3b8",
@@ -152,7 +167,7 @@ window.SAMPLE_DATA = {
     },
     {
       id: "line-bldg-1",
-      layer: "BUILDING",
+      layer: "V-BLDG",
       type: "polygon",
       name: "Residential Brick Footprint",
       color: "#a855f7",
@@ -166,10 +181,10 @@ window.SAMPLE_DATA = {
       ]
     },
     {
-      id: "line-util-1",
-      layer: "UTILITIES",
+      id: "line-water-1",
+      layer: "V-UTIL-WATR",
       type: "polyline",
-      name: "8\" Water Main & Locate",
+      name: "8\" Water Main Locate",
       color: "#0284c7",
       lineWidth: 2.0,
       dash: [12, 4],
@@ -181,7 +196,7 @@ window.SAMPLE_DATA = {
     },
     {
       id: "line-fence-1",
-      layer: "FIELD_SKETCHES",
+      layer: "V-SITE-FENC",
       type: "polyline",
       name: "Wood Privacy Fence",
       color: "#f97316",
@@ -193,7 +208,7 @@ window.SAMPLE_DATA = {
     }
   ],
 
-  // Digital Field Notes (Transit notes, Level loop, monument recoveries)
+  // Digital Field Notes: Transit & Differential Level Book
   fieldNotes: {
     pageNumber: 42,
     bookNumber: "FB-2026-08",
@@ -205,13 +220,19 @@ window.SAMPLE_DATA = {
       rodperson: "Tom Miller (Rodperson)",
       notesBy: "M.K."
     },
+    hardware: {
+      tablet: "Topcon FC-6000 (SN 884190)",
+      gps: "Topcon HiPer VR Triple-Frequency GNSS",
+      robot: "Sokkia iX-1200 Robotic Total Station",
+      software: "MAGNET Field v8.2"
+    },
     weather: {
       temp: "72°F",
       conditions: "Clear & Sunny, wind 5mph S",
       pressure: "30.08 inHg"
     },
     instrumentCheck: {
-      model: "Trimble S7 Robotic (SN 884190) & R12i GNSS",
+      model: "Sokkia iX-1200 1\" Robotic & Topcon HiPer VR",
       collimationCheck: "PASSED (0°00'02\")",
       opticalPlummet: "CHECKED",
       tribrachBubble: "CHECKED"
@@ -223,26 +244,26 @@ window.SAMPLE_DATA = {
       { station: "TP-2", bs: 3.890, hi: 693.382, fs: 3.260, elev: 689.492, remarks: "Turning Pin in firm gravel" },
       { station: "BM-1", bs: null, hi: null, fs: 7.886, elev: 685.496, remarks: "Closing on BM-1. Error = -0.004 ft. OK!" }
     ],
-    remarks: "Established boundary control using static GPS on CP1 and CP2, verified with NGS OPUS solution. Set 5/8\" rebar with yellow caps stamped RPLS 5421 on property corners where monuments were missing. Boundary corners match 1984 subdivision plat within 0.12'. Water meter vault found 2.1' west of SW iron pin in road ROW. Invert dips on sanitary sewer and storm catch basin completed. Transmitted shots and linework to office CAD."
+    remarks: "Established boundary control with Sokkia iX robotic on CP1 and CP2, verified with Topcon HiPer VR GNSS on TopNET Live VRS. Set 5/8\" rebar with Topcon yellow caps stamped RPLS 5421 where monuments were missing. Boundary corners match 1984 subdivision plat within 0.12'. Water meter vault found 2.1' west of SW iron pin in road ROW. Invert dips on sanitary sewer and storm catch basin completed. Transmitted MAGNET Field raw observations to Civil 3D office."
   },
 
-  // Live AOL Instant Messenger linking CAD Office & Field Crew
+  // Live AOL Instant Messenger linking Civil 3D Office & Topcon/Sokkia Field Crew
   aim: {
     currentUser: {
-      screenName: "FieldCrew1_Mike",
-      alias: "Mike (Party Chief - Rover 1)",
+      screenName: "TopconCrew_Mike",
+      alias: "Mike (Party Chief - Topcon FC-6000)",
       role: "field",
       status: "Available",
-      statusMsg: "On site @ Oak Ridge Lot 14 - Total Station Active",
+      statusMsg: "MAGNET Field v8.2 Running on Topcon FC-6000 • HiPer VR Fixed",
       warningLevel: 0
     },
     buddies: [
       {
-        screenName: "AutoCAD_Dave",
-        alias: "Dave (Senior CAD Drafter)",
+        screenName: "Civil3D_Dave",
+        alias: "Dave (Senior Civil 3D Drafter)",
         role: "cad",
         status: "online",
-        statusMsg: "Drafting Civil 3D Lot 14 Plat - Send shots!",
+        statusMsg: "Civil 3D 2026 Survey Database Open - Send MAGNET Raw!",
         warningLevel: 0,
         unread: 1
       },
@@ -251,7 +272,7 @@ window.SAMPLE_DATA = {
         alias: "Sarah (Office Surveyor / SIT)",
         role: "cad",
         status: "online",
-        statusMsg: "Checking traverse closure & deed calls",
+        statusMsg: "Running Civil 3D traverse loop adjustment",
         warningLevel: 0,
         unread: 0
       },
@@ -260,16 +281,16 @@ window.SAMPLE_DATA = {
         alias: "Frank (Project Manager / RPLS)",
         role: "office",
         status: "away",
-        statusMsg: "Away: Travis County Commissioners Court",
+        statusMsg: "Away: County Commissioners Court hearing",
         warningLevel: 5,
         unread: 0
       },
       {
-        screenName: "SurveyBot",
-        alias: "SurveyBot (Automated QC)",
+        screenName: "MagnetBot",
+        alias: "MagnetBot (MAGNET Field to Civil 3D Sync)",
         role: "bot",
         status: "online",
-        statusMsg: "Checking traverse closure & point codes",
+        statusMsg: "Auto-translating MAGNET .raw to Civil 3D .fbk",
         warningLevel: 0,
         unread: 0
       }
@@ -277,38 +298,38 @@ window.SAMPLE_DATA = {
     messages: [
       {
         id: "m1",
-        from: "AutoCAD_Dave",
-        to: "FieldCrew1_Mike",
+        from: "Civil3D_Dave",
+        to: "TopconCrew_Mike",
         time: "08:15 AM",
-        text: "Morning Mike! I have the 1984 subdivision plat loaded in Civil 3D for Job #2026-104. Are you on site yet?"
+        text: "Morning Mike! I have the Civil 3D 2026 drawing open with the 1984 record plat xref. Did you load the control file into MAGNET Field on the FC-6000?"
       },
       {
         id: "m2",
-        from: "FieldCrew1_Mike",
-        to: "AutoCAD_Dave",
+        from: "TopconCrew_Mike",
+        to: "Civil3D_Dave",
         time: "08:18 AM",
-        text: "Morning Dave! Yes, backsight initialized on BM-1 and traverse hubs CP1-CP4 set. We just recovered the NE and SE boundary iron pins."
+        text: "Morning Dave! Yes, imported 2026-104-CTRL.csv into MAGNET Field. Topcon HiPer VR rover is initialized on TopNET Live VRS with 24 sats, HRMS 0.011 ft. Sokkia iX robot is set up on CP1."
       },
       {
         id: "m3",
-        from: "AutoCAD_Dave",
-        to: "FieldCrew1_Mike",
+        from: "Civil3D_Dave",
+        to: "TopconCrew_Mike",
         time: "08:24 AM",
-        text: "Awesome. When you get to the SW corner, check out the water meter box—the 1984 plat indicates an easement conflict near Point #10."
+        text: "Great. When you locate Point #10 (SW corner), check if the city water meter encroaches over the property line. The record plat shows an easement conflict."
       },
       {
         id: "m4",
-        from: "FieldCrew1_Mike",
-        to: "AutoCAD_Dave",
+        from: "TopconCrew_Mike",
+        to: "Civil3D_Dave",
         time: "08:42 AM",
         text: "Just shot Point #10 (IP FND SW) at N: 10050.00, E: 10050.00, Z: 685.20. Found 1/2\" iron rod flush with grade. The water meter is 2.1 feet west of the pin inside the road ROW, so the lot is completely clear!"
       },
       {
         id: "m5",
-        from: "AutoCAD_Dave",
-        to: "FieldCrew1_Mike",
+        from: "Civil3D_Dave",
+        to: "TopconCrew_Mike",
         time: "08:50 AM",
-        text: "That is great news! I will snap the property boundary line to Point #10. Can you shoot the invert dips on the sanitary sewer manholes along County Road 104 next?"
+        text: "Perfect! I'm creating the Civil 3D survey figure for V-PROP-LINE now. Shoot the road centerline (CL1) and edge of pavement (EP1) using your MAGNET Field linework codes so Civil 3D auto-drafts the breaklines."
       }
     ]
   }
