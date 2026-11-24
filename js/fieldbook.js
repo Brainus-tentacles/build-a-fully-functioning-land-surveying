@@ -28,6 +28,19 @@ class FieldBook {
       this.notes = initialNotes ? { ...initialNotes } : {};
     }
 
+    // Ensure hardware & monuments exist when migrating older stored field notes
+    if (initialNotes) {
+      if (!this.notes.hardware && initialNotes.hardware) {
+        this.notes.hardware = { ...initialNotes.hardware };
+      }
+      if (!this.notes.monuments && initialNotes.monuments) {
+        this.notes.monuments = [...initialNotes.monuments];
+      }
+      if (!this.notes.instrumentCheck && initialNotes.instrumentCheck) {
+        this.notes.instrumentCheck = { ...initialNotes.instrumentCheck };
+      }
+    }
+
     const savedPhotos = localStorage.getItem('survey_field_photos');
     if (savedPhotos) {
       try { this.photos = JSON.parse(savedPhotos); } catch (e) {}
@@ -67,6 +80,7 @@ class FieldBook {
       ];
     }
 
+    this.computeLevelLoopStatsOnly();
     this.renderFieldBook();
   }
 
@@ -209,6 +223,8 @@ class FieldBook {
             <div class="fb-meta-group"><label>Weather & Temp:</label><input type="text" id="fb-weather" value="${n.weather?.temp || '72°F'}, ${n.weather?.conditions || 'Clear'}"></div>
             <div class="fb-meta-group"><label>Barometric Pressure:</label><input type="text" id="fb-pressure" value="${n.weather?.pressure || '30.08 inHg'}"></div>
             <div class="fb-meta-group"><label>Instrument Check:</label><input type="text" id="fb-instr-check" value="${n.instrumentCheck?.model || ''} - ${n.instrumentCheck?.collimationCheck || 'PASSED'}"></div>
+            <div class="fb-meta-group"><label>Field Tablet & Software:</label><input type="text" id="fb-hw-tablet" value="${(window.app?.equipmentProfile?.tablet || n.hardware?.tablet || 'Topcon FC-6000')} / ${(window.app?.equipmentProfile?.software || n.hardware?.software || 'MAGNET Field v8.2')}"></div>
+            <div class="fb-meta-group"><label>GNSS & Total Station:</label><input type="text" id="fb-hw-gear" value="${(window.app?.equipmentProfile?.gps || n.hardware?.gps || 'Topcon HiPer VR')} • ${(window.app?.equipmentProfile?.totalStation || n.hardware?.robot || 'Sokkia iX-1200')}"></div>
           </div>
 
           <div class="fb-sketch-wrapper">
@@ -309,14 +325,15 @@ class FieldBook {
 
   // Boundary Corner Monuments & Recovery Table
   renderBoundarySection() {
+    const monuments = this.notes.monuments || [];
     return `
       <div class="monument-notes-container" style="padding: 12px; display: flex; flex-direction: column; gap: 12px;">
         <div class="sue-notes-header">
           <div>
             <h4 class="font-bold">Lot 14 Boundary Monument Recoveries & Deed Calls</h4>
-            <p class="text-xs text-muted">Comparison of found physical monuments against 1984 record subdivision plat.</p>
+            <p class="text-xs text-muted">Comparison of found/set monuments (MAGNET Field) against 1984 record plat in Civil 3D.</p>
           </div>
-          <button class="btn btn-xs btn-primary" onclick="alert('Monument logged!')">+ Log Monument</button>
+          <button class="btn btn-xs btn-primary" onclick="window.fieldBook.promptAddMonument()">+ Log Monument</button>
         </div>
 
         <div class="table-card">
@@ -333,47 +350,42 @@ class FieldBook {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><b>Lot 14 NW Corner</b></td>
-                <td>Found 5/8" Iron Rod flush with grade</td>
-                <td class="font-mono">10450.00</td>
-                <td class="font-mono">10050.00</td>
-                <td class="font-mono">690.80'</td>
-                <td>N 00°00'00" E 400.00' (Matches record)</td>
-                <td><span class="badge badge-success">Recovered</span></td>
-              </tr>
-              <tr>
-                <td><b>Lot 14 NE Corner</b></td>
-                <td>Found 5/8" Iron Rod w/ illegible plastic cap</td>
-                <td class="font-mono">10450.00</td>
-                <td class="font-mono">10550.00</td>
-                <td class="font-mono">692.10'</td>
-                <td>N 90°00'00" E 500.00' (Matches record)</td>
-                <td><span class="badge badge-success">Recovered</span></td>
-              </tr>
-              <tr>
-                <td><b>Lot 14 SE Corner</b></td>
-                <td>Found 1/2" Iron Rod in tree root</td>
-                <td class="font-mono">10050.00</td>
-                <td class="font-mono">10550.00</td>
-                <td class="font-mono">686.40'</td>
-                <td>S 00°00'00" W 400.00' (Matches record)</td>
-                <td><span class="badge badge-success">Recovered</span></td>
-              </tr>
-              <tr>
-                <td><b>Lot 14 SW Corner</b></td>
-                <td>Found 1/2" Iron Rod (Water meter 2.1' W in ROW)</td>
-                <td class="font-mono">10050.00</td>
-                <td class="font-mono">10050.00</td>
-                <td class="font-mono">685.20'</td>
-                <td>S 90°00'00" W 500.00' (Conflict cleared)</td>
-                <td><span class="badge badge-success">Recovered</span></td>
-              </tr>
+              ${monuments.map(m => `
+                <tr>
+                  <td><b>${m.corner}</b></td>
+                  <td>${m.physicalDesc}</td>
+                  <td class="font-mono">${Number(m.northing).toFixed(2)}</td>
+                  <td class="font-mono">${Number(m.easting).toFixed(2)}</td>
+                  <td class="font-mono">${Number(m.elevation).toFixed(2)}'</td>
+                  <td>${m.comparison}</td>
+                  <td><span class="badge ${m.status === 'Set' ? 'badge-warning' : 'badge-success'}">${m.status}</span></td>
+                </tr>
+              `).join('')}
             </tbody>
           </table>
         </div>
       </div>
     `;
+  }
+
+  promptAddMonument() {
+    const corner = prompt("Corner / Monument Name (e.g. Lot 14 West Witness Pin):", "Lot 14 Witness Corner");
+    if (!corner) return;
+    const physicalDesc = prompt("Physical Description (e.g. Set 5/8\" rebar w/ Topcon yellow cap):", "Set 5/8\" rebar w/ Topcon yellow cap RPLS 5421") || "Monument";
+    const northing = parseFloat(prompt("Northing (Y):", "10250.00")) || 10250.00;
+    const easting = parseFloat(prompt("Easting (X):", "10050.00")) || 10050.00;
+    const elevation = parseFloat(prompt("Elevation (Z):", "688.00")) || 688.00;
+    const comparison = prompt("Record vs Measured Note:", "Online w/ West Property Line") || "Verified";
+    const status = prompt("Status (Recovered or Set):", "Set") || "Set";
+
+    if (!this.notes.monuments) this.notes.monuments = [];
+    this.notes.monuments.push({ corner, physicalDesc, northing, easting, elevation, comparison, status });
+    this.save();
+    this.renderFieldBook();
+    if (window.soundFX) window.soundFX.playShotBeep();
+    if (window.aimChat) {
+      window.aimChat.postSystemUpdate(`📍 Monument Logged: ${corner} (${physicalDesc}) @ N:${northing.toFixed(2)} E:${easting.toFixed(2)}`);
+    }
   }
 
   // Stakeout Navigator
@@ -636,7 +648,7 @@ class FieldBook {
     this.renderFieldBook();
   }
 
-  calculateLevelLoop() {
+  computeLevelLoopStatsOnly() {
     if (!this.notes.levelLoop || this.notes.levelLoop.length === 0) return;
 
     let currentElev = 685.500;
@@ -647,12 +659,12 @@ class FieldBook {
       const row = this.notes.levelLoop[i];
       if (i === 0 && row.elev) currentElev = row.elev;
 
-      if (row.fs !== null && currentHI !== null) {
+      if (row.fs !== null && row.fs !== undefined && currentHI !== null) {
         currentElev = currentHI - row.fs;
         row.elev = currentElev;
         sumFS += row.fs;
       }
-      if (row.bs !== null) {
+      if (row.bs !== null && row.bs !== undefined) {
         currentHI = currentElev + row.bs;
         row.hi = currentHI;
         sumBS += row.bs;
@@ -671,10 +683,13 @@ class FieldBook {
       pageCheckPassed: Math.abs(bsFsDiff - elevDiff) < 0.001,
       misclosure: endElev - startElev
     };
+  }
 
+  calculateLevelLoop() {
+    this.computeLevelLoopStatsOnly();
     this.save();
     this.renderFieldBook();
-    window.soundFX.playShotBeep();
+    if (window.soundFX) window.soundFX.playShotBeep();
   }
 
   getLevelLoopSummaryHTML() {
@@ -693,16 +708,40 @@ class FieldBook {
   saveNotesFromForm() {
     if (!this.notes) return;
     this.notes.date = document.getElementById('fb-date')?.value || this.notes.date;
-    this.notes.remarks = document.getElementById('fb-remarks-text')?.value || this.notes.remarks;
+    this.notes.remarks = document.getElementById('fb-remarks-text')?.value ?? this.notes.remarks;
     if (!this.notes.crew) this.notes.crew = {};
-    this.notes.crew.partyChief = document.getElementById('fb-party-chief')?.value || this.notes.crew.partyChief;
-    this.notes.crew.instrument = document.getElementById('fb-instrument-op')?.value || this.notes.crew.instrument;
-    this.notes.crew.rodperson = document.getElementById('fb-rodperson')?.value || this.notes.crew.rodperson;
-    this.notes.crew.notesBy = document.getElementById('fb-notes-by')?.value || this.notes.crew.notesBy;
+    this.notes.crew.partyChief = document.getElementById('fb-party-chief')?.value ?? this.notes.crew.partyChief;
+    this.notes.crew.instrument = document.getElementById('fb-instrument-op')?.value ?? this.notes.crew.instrument;
+    this.notes.crew.rodperson = document.getElementById('fb-rodperson')?.value ?? this.notes.crew.rodperson;
+    this.notes.crew.notesBy = document.getElementById('fb-notes-by')?.value ?? this.notes.crew.notesBy;
+
+    const weatherVal = document.getElementById('fb-weather')?.value;
+    if (weatherVal !== undefined) {
+      if (!this.notes.weather) this.notes.weather = {};
+      const parts = weatherVal.split(',');
+      this.notes.weather.temp = (parts[0] || '').trim();
+      this.notes.weather.conditions = parts.slice(1).join(',').trim() || this.notes.weather.conditions;
+    }
+    const pressureVal = document.getElementById('fb-pressure')?.value;
+    if (pressureVal !== undefined) {
+      if (!this.notes.weather) this.notes.weather = {};
+      this.notes.weather.pressure = pressureVal.trim();
+    }
+    const instrVal = document.getElementById('fb-instr-check')?.value;
+    if (instrVal !== undefined) {
+      if (!this.notes.instrumentCheck) this.notes.instrumentCheck = {};
+      const parts = instrVal.split(' - ');
+      this.notes.instrumentCheck.model = (parts[0] || '').trim();
+      if (parts[1]) this.notes.instrumentCheck.collimationCheck = parts.slice(1).join(' - ').trim();
+    }
 
     this.save();
-    window.soundFX.playShotBeep();
-    alert("Survey Field Notes Saved Successfully!");
+    if (window.soundFX) window.soundFX.playShotBeep();
+    if (window.app && window.app.showToast) {
+      window.app.showToast("Survey Field Notes saved!");
+    } else {
+      alert("Survey Field Notes Saved Successfully!");
+    }
   }
 }
 

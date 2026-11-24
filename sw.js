@@ -1,9 +1,10 @@
-// Service Worker for LandSurveyor Android Field Application
-const CACHE_NAME = 'landsurveyor-v1';
+// Service Worker for GeoSurvey Pro Android Field Application
+const CACHE_NAME = 'landsurveyor-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
+  './assets/icon.svg',
   './css/styles.css',
   './css/aim.css',
   './css/cad.css',

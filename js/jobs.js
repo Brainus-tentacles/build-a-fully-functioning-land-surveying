@@ -237,6 +237,16 @@ class JobManager {
             <div><i class="icon">🖥️</i> CAD Operator: <b>${job.cadOperator}</b></div>
           </div>
 
+          ${job.hardware ? `
+            <div class="job-hardware-strip">
+              <span class="hw-chip hw-topcon">📟 ${job.hardware.tablet}</span>
+              <span class="hw-chip hw-magnet">🧭 ${job.hardware.software}</span>
+              <span class="hw-chip hw-gnss">🛰️ ${job.hardware.gpsRover}</span>
+              <span class="hw-chip hw-ts">🔭 ${job.hardware.totalStation}</span>
+              <span class="hw-chip hw-c3d">🖥️ ${job.hardware.cadOffice}</span>
+            </div>
+          ` : ''}
+
           <!-- Progress Bar & Metrics -->
           <div class="job-progress-section">
             <div class="progress-labels">
@@ -292,9 +302,10 @@ class JobManager {
                   <span class="check-title ${task.done ? 'line-through' : ''}">${task.title}</span>
                   <div class="check-badges">
                     <span class="cat-badge cat-${task.category.toLowerCase().replace(/[^a-z]/g, '')}">${task.category}</span>
-                    <span class="assignee-badge ${task.assignedTo === 'CAD Office' ? 'badge-cad' : 'badge-field'}">
-                      ${task.assignedTo === 'CAD Office' ? '🖥️ CAD' : '👷 Field'}
-                    </span>
+                    ${(() => {
+                      const isCad = /cad|civil/i.test(task.assignedTo || '');
+                      return `<span class="assignee-badge ${isCad ? 'badge-cad' : 'badge-field'}">${isCad ? '🖥️ Civil 3D' : '👷 Field'}</span>`;
+                    })()}
                   </div>
                 </div>
 
