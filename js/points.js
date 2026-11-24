@@ -240,7 +240,7 @@ class PointManager {
     );
   }
 
-  // Take rapid shot from RTK Rover
+  // Rapid shot from RTK Rover
   takeRtkShot(code, desc = "") {
     const pt = this.addPoint({
       northing: this.rtkStatus.curN,
@@ -251,6 +251,57 @@ class PointManager {
       hr: this.rtkStatus.rodHeight
     });
     return pt;
+  }
+
+  // Stakeout / Construction Staking Navigation Engine
+  getStakeoutDelta(targetPtId) {
+    const target = this.getById(targetPtId);
+    if (!target) return null;
+
+    const curN = this.rtkStatus.curN;
+    const curE = this.rtkStatus.curE;
+    const curZ = this.rtkStatus.curZ;
+
+    const dN = target.northing - curN;
+    const dE = target.easting - curE;
+    const dZ = target.elevation - curZ;
+
+    const horizDist = Math.hypot(dN, dE);
+    const inv = PointManager.inverse(curN, curE, target.northing, target.easting, curZ, target.elevation);
+
+    // Human navigation directions
+    let dirN = "";
+    if (Math.abs(dN) >= 0.02) {
+      dirN = dN > 0 ? `GO NORTH ${dN.toFixed(2)} ft` : `GO SOUTH ${Math.abs(dN).toFixed(2)} ft`;
+    } else {
+      dirN = "NORTH/SOUTH ON TARGET";
+    }
+
+    let dirE = "";
+    if (Math.abs(dE) >= 0.02) {
+      dirE = dE > 0 ? `GO EAST ${dE.toFixed(2)} ft` : `GO WEST ${Math.abs(dE).toFixed(2)} ft`;
+    } else {
+      dirE = "EAST/WEST ON TARGET";
+    }
+
+    const cutFill = dZ > 0.01 ? `FILL +${dZ.toFixed(2)} ft` : dZ < -0.01 ? `CUT ${dZ.toFixed(2)} ft` : "GRADE ON TARGET (0.00 ft)";
+    const inTolerance = horizDist <= 0.05;
+
+    return {
+      target,
+      curN,
+      curE,
+      curZ,
+      dN,
+      dE,
+      dZ,
+      horizDist,
+      bearing: inv.bearing,
+      dirN,
+      dirE,
+      cutFill,
+      inTolerance
+    };
   }
 }
 
