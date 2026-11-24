@@ -209,11 +209,49 @@ body {
 /* Device Mock Frames */
 .device-outer-container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1500px;
   display: flex;
   justify-content: center;
-  padding: 16px 12px 24px 12px;
+  padding: 12px 16px 20px 16px;
   flex: 1;
+}
+
+/* 0. Responsive Web App Mode (Default) */
+.mode-responsive {
+  width: 100%;
+  max-width: 1440px;
+  height: calc(100vh - 84px);
+  min-height: 640px;
+  background: var(--bg-primary);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.mode-responsive .device-screen {
+  border-radius: 14px;
+}
+
+.mode-responsive::before {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .device-outer-container {
+    padding: 0;
+  }
+  .mode-responsive {
+    border-radius: 0;
+    border: none;
+    height: calc(100vh - 64px);
+  }
+  .mode-responsive .device-screen {
+    border-radius: 0;
+  }
 }
 
 /* 1. Android Phone Mode */
@@ -413,69 +451,29 @@ body {
   background: #090d16;
 }
 
-/* Wide Viewports: Tablets, CAD Workstation, and Desktop (>= 768px): Horizontal 75% / 25% Split */
+/* Full CAD Canvas Viewport */
 .split-pane-cad {
-  flex: 0 0 75%;
-  width: 75%;
+  flex: 1 1 100%;
+  width: 100%;
   height: 100%;
   position: relative;
   overflow: hidden;
-  border-right: 2px solid #0055ea;
+  border-right: none;
 }
 
 .split-pane-aim {
-  flex: 0 0 25%;
-  width: 25%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  background: #ece9d8;
-}
-
-/* Phone Mode (440px wide) and iPhone Mode (420px wide): Vertical 75% Canvas Height / 25% AIM Height Split */
-#device-wrapper.mode-phone .cad-aim-split-container,
-#device-wrapper.mode-iphone .cad-aim-split-container {
-  flex-direction: column;
+  display: none;
 }
 
 #device-wrapper.mode-phone .split-pane-cad,
-#device-wrapper.mode-iphone .split-pane-cad {
-  flex: 0 0 75%;
-  width: 100%;
-  height: 75%;
-  border-right: none;
-  border-bottom: 2px solid #0055ea;
-}
-
-#device-wrapper.mode-phone .split-pane-aim,
-#device-wrapper.mode-iphone .split-pane-aim {
-  flex: 0 0 25%;
-  width: 100%;
-  height: 25%;
-}
-
-/* Desktop Program Mode: Horizontal 75% Canvas / 25% AIM Split */
-#device-wrapper.mode-desktop-app .cad-aim-split-container,
-#device-wrapper.mode-cad-station .cad-aim-split-container {
-  flex-direction: row;
-}
-
+#device-wrapper.mode-iphone .split-pane-cad,
 #device-wrapper.mode-desktop-app .split-pane-cad,
 #device-wrapper.mode-cad-station .split-pane-cad {
-  flex: 0 0 75%;
-  width: 75%;
+  flex: 1 1 100%;
+  width: 100%;
   height: 100%;
-  border-right: 2px solid #0055ea;
+  border-right: none;
   border-bottom: none;
-}
-
-#device-wrapper.mode-desktop-app .split-pane-aim,
-#device-wrapper.mode-cad-station .split-pane-aim {
-  flex: 0 0 25%;
-  width: 25%;
-  height: 100%;
 }
 
 /* Android Bottom Navigation Bar */
@@ -976,6 +974,630 @@ body {
 
 .app-toast.fade-out {
   opacity: 0;
+}
+
+/* ========================================================
+   SIMPLIFIED MODERN DESIGN SYSTEM & COMPONENT ENHANCEMENTS
+   ======================================================== */
+
+/* Header Navigation Tabs */
+.header-nav-tabs {
+  display: flex;
+  align-items: center;
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.nav-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.nav-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-tab-btn.active {
+  background: var(--accent-primary);
+  color: #0b0f19;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
+}
+
+.nav-tab-badge {
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.nav-tab-btn.active .nav-tab-badge {
+  background: rgba(11, 15, 25, 0.25);
+  color: #0b0f19;
+}
+
+/* Header Action Buttons */
+.header-action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.header-cta-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.25);
+}
+
+/* Minimal Project Sub-bar */
+.app-sub-header {
+  height: 38px;
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 11px;
+}
+
+.sub-header-left, .sub-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-pill {
+  font-weight: 700;
+  color: var(--accent-primary);
+  cursor: pointer;
+}
+
+.project-pill:hover {
+  text-decoration: underline;
+}
+
+.datum-tag {
+  color: var(--text-muted);
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Compact Map GPS Status Chip */
+.map-gps-chip {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 6px 12px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  z-index: 30;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.map-gps-chip:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.map-gps-chip-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-gps-chip-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+  line-height: 1.2;
+}
+
+.map-gps-chip-sub {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.map-gps-chevron {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* GPS Details Popover */
+.map-gps-popover {
+  position: absolute;
+  top: 58px;
+  left: 14px;
+  width: 300px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 14px;
+  z-index: 35;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.popover-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.popover-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.popover-row b, .popover-row span:last-child {
+  color: var(--text-main);
+}
+
+.popover-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Map Floating Toolbar */
+.map-floating-toolbar {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 4px 6px;
+  gap: 3px;
+  z-index: 30;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.map-tool-group, .map-action-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.map-tool-btn, .map-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.map-tool-btn:hover, .map-action-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.map-tool-btn.active {
+  background: var(--accent-primary);
+  color: #0b0f19;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
+}
+
+.btn-finish-draw {
+  background: var(--accent-emerald) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+.map-tool-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-color);
+  margin: 0 3px;
+}
+
+/* Feature Sub-bar for Drawing */
+.map-feature-subbar {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 3px 8px;
+  gap: 4px;
+  z-index: 29;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.feature-bar-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.feat-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.feat-chip:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.feat-chip.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.feat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Instruction Pill */
+.map-instruction-pill {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 12px;
+  color: var(--text-main);
+  z-index: 25;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  text-align: center;
+  max-width: 90%;
+}
+
+/* Floating Chat Button */
+.map-chat-float-btn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 7px 14px;
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 28;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.map-chat-float-btn:hover {
+  background: var(--accent-primary);
+  color: #0b0f19;
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+/* Import/Export Modal Styles */
+.io-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 12px 0;
+}
+
+@media (max-width: 768px) {
+  .io-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.io-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.io-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.io-card-icon {
+  font-size: 20px;
+}
+
+.io-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.io-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.io-action-btn:hover {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: var(--accent-primary);
+}
+
+.io-btn-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.io-btn-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.io-btn-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.io-btn-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.io-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Guide Modal Steps */
+.guide-steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.guide-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.guide-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: #0b0f19;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guide-text {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+.guide-text b {
+  color: var(--accent-primary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.guide-text p {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.guide-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Team Chat View Container */
+.aim-view-container {
+  width: 100%;
+  height: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.aim-view-container .aim-window-frame {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  flex: 1;
+}
+
+/* Points Filter Chips */
+.points-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.pts-filter-btn {
+  padding: 4px 11px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pts-filter-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pts-filter-btn.active {
+  background: var(--accent-primary);
+  color: #0b0f19;
+  border-color: var(--accent-primary);
+}
+
+/* Button close sm */
+.btn-close-sm {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.btn-close-sm:hover {
+  color: #ffffff;
+}
+
+/* Header & Tab Responsive Adjustments */
+@media (max-width: 960px) {
+  .header-nav-tabs .nav-tab-text {
+    display: none;
+  }
+  .nav-tab-btn {
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-nav-tabs {
+    display: none;
+  }
+  .map-floating-toolbar {
+    width: 95%;
+    overflow-x: auto;
+  }
 }
 
 /* --- css/aim.css --- */
@@ -1714,26 +2336,26 @@ body {
 .cad-inspector-wrapper {
   position: absolute;
   bottom: 45px;
-  right: 12px;
-  width: 250px;
+  right: 14px;
+  width: 270px;
   pointer-events: auto;
   z-index: 25;
 }
 
 .inspector-card {
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(15, 23, 42, 0.96);
   border: 1px solid var(--accent-primary);
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
 }
 
 .inspector-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 4px;
 }
@@ -1769,30 +2391,42 @@ body {
 /* Measurement Modal Popup */
 .measure-popup {
   position: absolute;
-  top: 55px;
-  right: 10px;
-  width: 240px;
-  background: rgba(15, 23, 42, 0.95);
+  top: 65px;
+  right: 14px;
+  width: 260px;
+  background: rgba(15, 23, 42, 0.96);
   border: 1px solid var(--accent-amber);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 12px;
   z-index: 30;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
 }
 
 .measure-header {
-  font-size: 11px;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-amber);
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+}
+
+.measure-main-val {
+  font-size: 18px;
+  font-weight: 800;
   color: var(--accent-amber);
   margin-bottom: 6px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 3px;
+  font-family: var(--font-mono);
 }
 
 .measure-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   font-size: 11px;
 }
 
@@ -4385,6 +5019,10 @@ class PointManager {
     return this.points.find(p => p.id === Number(id) || p.id === String(id));
   }
 
+  getPointById(id) {
+    return this.getById(id);
+  }
+
   getNextId() {
     if (this.points.length === 0) return 1;
     const maxId = Math.max(...this.points.map(p => Number(p.id) || 0));
@@ -5013,12 +5651,12 @@ class CadEngine {
   setFeature(featureName) {
     if (this.features[featureName]) {
       this.currentFeature = featureName;
-      document.querySelectorAll('.survey-feat-btn').forEach(btn => {
+      document.querySelectorAll('.survey-feat-btn, .feat-chip, .sue-util-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.feat === featureName);
       });
       const hint = document.getElementById('cad-tool-instruction');
-      if (hint) {
-        hint.textContent = `Drawing ${this.features[featureName].name}. Tap points to connect line, then tap 'Finish Line'.`;
+      if (hint && this.activeTool === 'line') {
+        hint.textContent = `Drawing ${this.features[featureName].name}. Tap or click points to connect, then click 'Finish'.`;
       }
     }
   }
@@ -5028,18 +5666,24 @@ class CadEngine {
     this.activeTool = tool;
     this.canvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
 
-    document.querySelectorAll('.cad-tool-btn').forEach(btn => {
+    document.querySelectorAll('.cad-tool-btn, .map-tool-btn, .sue-tool-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tool === tool);
     });
+
+    const finishBtn = document.getElementById('btn-finish-drawing');
+    if (finishBtn) finishBtn.style.display = tool === 'line' ? 'inline-flex' : 'none';
+
+    const featBar = document.getElementById('map-feature-bar');
+    if (featBar) featBar.style.display = tool === 'line' ? 'flex' : 'none';
 
     const hint = document.getElementById('cad-tool-instruction');
     if (hint) {
       const map = {
-        line: `Drawing ${this.features[this.currentFeature].name}. Tap points to connect, then click 'Finish Line'.`,
-        point: `Tap anywhere on canvas to set a new coordinate point.`,
-        measure: `Tap two points to calculate Quadrant Bearing & Horizontal Distance (COGO).`,
-        pan: `Drag to pan across the survey site.`,
-        select: `Tap any point to inspect coordinate attributes.`
+        select: "Click any survey marker or boundary line to inspect its details.",
+        measure: "Click any two points on the map to calculate distance and heading angle.",
+        line: `Drawing ${this.features[this.currentFeature]?.name || 'Line'}. Click points to connect, then click 'Finish'.`,
+        point: "Click anywhere on the map to place a new coordinate point.",
+        pan: "Click and drag to pan across the survey site."
       };
       hint.textContent = map[tool] || "";
     }
@@ -5141,18 +5785,23 @@ class CadEngine {
     if (el) {
       el.innerHTML = `
         <div class="measure-popup">
-          <div class="measure-header">📐 Inverse Calculation (COGO)</div>
-          <div class="measure-body">
-            <div class="measure-row"><span>Quadrant Bearing:</span> <b class="text-accent">${inv.bearing}</b></div>
-            <div class="measure-row"><span>Horizontal Distance:</span> <b>${inv.horizDist.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Slope Distance:</span> <b>${inv.slopeDist.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Delta North (ΔN):</span> <b>${inv.deltaN.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Delta East (ΔE):</span> <b>${inv.deltaE.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Grade (%):</span> <b>${inv.grade.toFixed(2)}%</b></div>
+          <div class="measure-header">
+            <span>📐 Distance &amp; Direction</span>
+            <button class="btn-close-sm" onclick="document.getElementById('cad-measure-results').innerHTML=''">✕</button>
           </div>
-          <button class="btn btn-xs btn-primary mt-2 w-full" onclick="window.aimChat.sendInverseToChat('${inv.bearing}', ${inv.horizDist.toFixed(2)}, ${inv.deltaZ.toFixed(2)})">
-            💬 Post Inverse to AIM Chat
-          </button>
+          <div class="measure-body">
+            <div class="measure-main-val"><b>${inv.horizDist.toFixed(2)} ft</b> <small style="color:var(--text-muted); font-size:12px;">(${ (inv.horizDist / 3).toFixed(1) } yds)</small></div>
+            <div class="measure-row"><span>Quadrant Bearing:</span> <b class="text-accent">${inv.bearing}</b></div>
+            <div class="measure-row"><span>Slope Distance:</span> <span>${inv.slopeDist.toFixed(2)} ft</span></div>
+            <div class="measure-row"><span>Elevation Delta (ΔZ):</span> <span>${inv.deltaZ >= 0 ? '+' : ''}${inv.deltaZ.toFixed(2)} ft</span></div>
+            <div class="measure-row"><span>Grade / Slope:</span> <span>${inv.grade.toFixed(1)}%</span></div>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button class="btn btn-xs btn-outline-light" onclick="document.getElementById('cad-measure-results').innerHTML=''">Clear</button>
+            <button class="btn btn-xs btn-primary" style="flex:1;" onclick="window.aimChat.sendInverseToChat('${inv.bearing}', ${inv.horizDist.toFixed(2)}, ${inv.deltaZ.toFixed(2)})">
+              💬 Share in Chat
+            </button>
+          </div>
         </div>
       `;
     }
@@ -5161,24 +5810,48 @@ class CadEngine {
   inspectPoint(pt) {
     const el = document.getElementById('cad-inspector');
     if (el) {
+      let friendlyName = pt.desc || pt.code;
+      if (/IP|REBAR|PIN|CORNER|MON/i.test(pt.code)) friendlyName = "Property Corner / Boundary Pin";
+      else if (/EP|CURB|EOP/i.test(pt.code)) friendlyName = "Road Edge / Pavement Curb";
+      else if (/CL/i.test(pt.code)) friendlyName = "Road Centerline";
+      else if (/BLDG/i.test(pt.code)) friendlyName = "Building Footprint Corner";
+      else if (/BM/i.test(pt.code)) friendlyName = "Benchmark Elevation Control";
+      else if (/UTIL|WM|MH|SAN|WAT/i.test(pt.code)) friendlyName = "Utility Feature";
+
       el.innerHTML = `
         <div class="inspector-card">
           <div class="inspector-header">
-            <span class="badge ${pt.type || 'TOPO'}">PT #${pt.id}</span>
-            <span class="inspector-code">${pt.code}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="badge ${pt.type || 'TOPO'}">PT #${pt.id}</span>
+              <span class="inspector-code font-bold">${pt.code}</span>
+            </div>
+            <button class="btn-close-sm" onclick="document.getElementById('cad-inspector').innerHTML=''">✕</button>
           </div>
+          <div style="font-size:12px; color:var(--text-muted); margin: 3px 0 6px 0;">${friendlyName}</div>
           <div class="inspector-grid">
-            <div class="insp-item"><span>Northing:</span><b>${pt.northing.toFixed(3)}</b></div>
-            <div class="insp-item"><span>Easting:</span><b>${pt.easting.toFixed(3)}</b></div>
-            <div class="insp-item"><span>Elevation:</span><b>${pt.elevation.toFixed(3)}'</b></div>
-            <div class="insp-item"><span>Description:</span><span>${pt.desc || '-'}</span></div>
+            <div class="insp-item"><span>Northing (Y):</span><b>${pt.northing.toFixed(2)}'</b></div>
+            <div class="insp-item"><span>Easting (X):</span><b>${pt.easting.toFixed(2)}'</b></div>
+            <div class="insp-item"><span>Elevation (Z):</span><b>${pt.elevation.toFixed(2)}'</b></div>
+            <div class="insp-item"><span>Rod Height:</span><span>${pt.hr ? pt.hr.toFixed(2) + "'" : "6.56'"}</span></div>
           </div>
           <div class="inspector-actions">
-            <button class="btn btn-xs btn-primary" onclick="window.aimChat.sendPointToChat(${pt.id})">💬 Send to AIM</button>
+            <button class="btn btn-xs btn-primary" onclick="window.cadEngine.startMeasureFromPoint(${pt.id})">📐 Measure From Here</button>
             <button class="btn btn-xs btn-secondary" onclick="window.cadEngine.zoomToPoint(${pt.id})">🔍 Zoom</button>
+            <button class="btn btn-xs btn-outline-danger" onclick="window.app.deletePoint(${pt.id})">🗑️ Delete</button>
           </div>
         </div>
       `;
+    }
+  }
+
+  startMeasureFromPoint(ptId) {
+    const pt = window.pointManager.getById(ptId);
+    if (!pt) return;
+    this.setTool('measure');
+    this.measureStart = { northing: pt.northing, easting: pt.easting, elevation: pt.elevation, ptId: pt.id };
+    const hint = document.getElementById('cad-tool-instruction');
+    if (hint) {
+      hint.textContent = `Measuring from PT #${pt.id} (${pt.code}). Tap any second point to calculate distance and heading.`;
     }
   }
 
@@ -7389,6 +8062,11 @@ class JobManager {
     const doneTasks = checklist.filter(t => t.done).length;
     const pendingTasks = totalTasks - doneTasks;
 
+    const checklistCountEl = document.getElementById('header-checklist-count');
+    if (checklistCountEl) {
+      checklistCountEl.textContent = `${doneTasks}/${totalTasks}`;
+    }
+
     // Filter checklist
     let filteredTasks = checklist;
     if (this.currentCategoryFilter !== "all") {
@@ -8198,8 +8876,9 @@ window.aimChat = new AimChat();
 // Main Application Controller, Topcon/Sokkia Equipment Profiles & Device Viewport Switcher
 class SurveyApp {
   constructor() {
-    this.currentTab = 'aim'; // 'aim', 'fieldbook', 'jobs', 'cad', 'points'
-    this.deviceMode = 'phone'; // 'phone', 'tablet', 'cad-station'
+    this.currentTab = 'cad'; // 'cad', 'points', 'fieldbook', 'jobs', 'aim'
+    this.deviceMode = 'responsive'; // 'responsive', 'phone', 'tablet', 'cad-station'
+    this.pointsFilter = 'all';
     this.sunlightMode = false;
     this.equipmentProfile = {
       brandPreset: 'topcon', // 'topcon', 'sokkia', 'mixed'
@@ -8256,8 +8935,8 @@ class SurveyApp {
     // Start Topcon / Sokkia GNSS & Robotic TS HUD live readout
     this.startGnssHudTick();
 
-    // Switch to initial tab: Live AIM Chat linking Civil 3D Office & Field Crew
-    this.switchTab('aim');
+    // Switch to initial tab: Survey Map
+    this.switchTab('cad');
   }
 
   loadEquipmentProfile() {
@@ -8326,13 +9005,18 @@ class SurveyApp {
   }
 
   switchTab(tabName) {
-    const resolvedTab = (tabName === 'aim' || tabName === 'cad') ? 'cad' : tabName;
+    const validTabs = ['cad', 'points', 'fieldbook', 'jobs', 'aim'];
+    const resolvedTab = validTabs.includes(tabName) ? tabName : 'cad';
     this.currentTab = resolvedTab;
 
     document.querySelectorAll('.android-nav-item').forEach(item => {
       const itemTab = item.dataset.tab;
-      const isActive = itemTab === resolvedTab || (resolvedTab === 'cad' && (itemTab === 'cad' || itemTab === 'aim'));
-      item.classList.toggle('active', isActive);
+      item.classList.toggle('active', itemTab === resolvedTab);
+    });
+
+    document.querySelectorAll('.nav-tab-btn').forEach(tab => {
+      const tabKey = tab.dataset.tab;
+      tab.classList.toggle('active', tabKey === resolvedTab);
     });
 
     document.querySelectorAll('.app-view').forEach(view => {
@@ -8346,6 +9030,7 @@ class SurveyApp {
           window.cadEngine.render();
         }, 50);
       }
+    } else if (resolvedTab === 'aim') {
       if (window.aimChat) {
         window.aimChat.renderAim();
       }
@@ -8424,7 +9109,7 @@ class SurveyApp {
     const frame = document.getElementById('device-wrapper');
     if (!frame) return;
 
-    frame.classList.remove('mode-phone', 'mode-iphone', 'mode-tablet', 'mode-cad-station', 'mode-desktop-app');
+    frame.classList.remove('mode-responsive', 'mode-phone', 'mode-iphone', 'mode-tablet', 'mode-cad-station', 'mode-desktop-app');
     frame.classList.add(`mode-${mode}`);
 
     document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
@@ -8595,21 +9280,48 @@ class SurveyApp {
     e.target.value = "";
   }
 
+  setPointsFilter(filter) {
+    this.pointsFilter = filter;
+    document.querySelectorAll('.pts-filter-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    this.renderPointsTable();
+  }
+
   renderPointsTable() {
     const tbody = document.getElementById('points-table-body');
     const countEl = document.getElementById('points-count-badge');
+    const headerPtsCount = document.getElementById('header-points-count');
     if (!tbody || !window.pointManager) return;
 
     const points = window.pointManager.getAll();
     if (countEl) countEl.textContent = `${points.length} Shots`;
+    if (headerPtsCount) headerPtsCount.textContent = String(points.length);
 
     const filterVal = (document.getElementById('points-search-input')?.value || "").toLowerCase();
+    const cat = this.pointsFilter || 'all';
 
-    const filtered = points.filter(p =>
-      String(p.id).includes(filterVal) ||
-      (p.code || "").toLowerCase().includes(filterVal) ||
-      (p.desc || "").toLowerCase().includes(filterVal)
-    );
+    const filtered = points.filter(p => {
+      if (cat === 'pins') {
+        const isPin = ['BNDY', 'CTRL', 'BM'].includes(p.type) || /IP|PIN|REBAR|MON|CORNER|BM|CP/i.test(p.code);
+        if (!isPin) return false;
+      } else if (cat === 'curbs') {
+        const isRoad = p.type === 'ROAD' || /CL|EP|CURB|ROAD/i.test(p.code);
+        if (!isRoad) return false;
+      } else if (cat === 'buildings') {
+        const isBldg = p.type === 'BLDG' || /BLDG|HOUSE|FFE/i.test(p.code);
+        if (!isBldg) return false;
+      } else if (cat === 'utilities') {
+        const isUtil = p.type === 'UTIL' || /MH|CB|WM|WV|FH|UTIL/i.test(p.code);
+        if (!isUtil) return false;
+      }
+
+      return (
+        String(p.id).includes(filterVal) ||
+        (p.code || "").toLowerCase().includes(filterVal) ||
+        (p.desc || "").toLowerCase().includes(filterVal)
+      );
+    });
 
     tbody.innerHTML = filtered.map(p => `
       <tr class="point-row">
@@ -8621,12 +9333,255 @@ class SurveyApp {
         <td class="text-sm text-muted">${p.desc || '-'}</td>
         <td class="text-sm">${(p.hr || 5.0).toFixed(2)}'</td>
         <td>
-          <button class="btn btn-xs btn-outline-info" onclick="window.cadEngine.zoomToPoint(${p.id}); window.app.switchTab('cad');" title="Zoom on Canvas">🔍</button>
-          <button class="btn btn-xs btn-outline-primary" onclick="window.aimChat.sendPointToChat(${p.id}); window.app.switchTab('aim');" title="Send to AIM">💬</button>
+          <button class="btn btn-xs btn-outline-info" onclick="window.cadEngine.zoomToPoint(${p.id}); window.app.switchTab('cad');" title="Zoom on Map">🔍 Map</button>
+          <button class="btn btn-xs btn-outline-primary" onclick="window.aimChat.sendPointToChat(${p.id}); window.app.switchTab('aim');" title="Share in Chat">💬 Chat</button>
           <button class="btn btn-xs btn-outline-danger" onclick="window.app.deletePoint(${p.id})" title="Delete Point">🗑️</button>
         </td>
       </tr>
     `).join('');
+  }
+
+  toggleGpsDetailsPopover() {
+    const popover = document.getElementById('popover-gps-details');
+    if (!popover) return;
+    const isVisible = popover.style.display === 'block';
+    popover.style.display = isVisible ? 'none' : 'block';
+  }
+
+  openImportExportModal() {
+    const root = document.getElementById('modal-root');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
+        <div class="survey-modal-card modal-lg">
+          <div class="survey-modal-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:24px;">📁</span>
+              <div>
+                <h3 style="margin:0;">Import &amp; Export Survey Data</h3>
+                <span class="text-xs text-muted">AutoCAD Civil 3D • Topcon &amp; Sokkia MAGNET Field • CSV / GIS</span>
+              </div>
+            </div>
+            <button class="btn-close" onclick="window.app.closeModal()">×</button>
+          </div>
+
+          <div class="io-modal-grid">
+            <!-- Left: Import -->
+            <div class="io-card">
+              <div class="io-card-header">
+                <span class="io-card-icon">📥</span>
+                <div>
+                  <h4 style="margin:0;">Import into Map</h4>
+                  <p class="text-xs text-muted" style="margin:2px 0 0 0;">Upload files from your computer or data collector</p>
+                </div>
+              </div>
+              <div class="io-action-list">
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">📄</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Points Spreadsheet (.CSV / .TXT)</div>
+                    <div class="io-btn-sub">PNEZD format coordinates from Excel or GPS</div>
+                  </div>
+                  <input type="file" accept=".csv,.txt" onchange="window.app.handleCsvFileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">📐</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">CAD Drawing Linework (.DXF)</div>
+                    <div class="io-btn-sub">AutoCAD / Civil 3D layers, boundaries, curbs</div>
+                  </div>
+                  <input type="file" accept=".dxf" onchange="window.app.handleDxfFileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">📟</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">MAGNET Field Raw (.RW5 / .RAW)</div>
+                    <div class="io-btn-sub">Topcon &amp; Sokkia field controller observations</div>
+                  </div>
+                  <input type="file" accept=".rw5,.raw" onchange="window.app.handleRw5FileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">🏛️</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Civil 3D Field Book (.FBK)</div>
+                    <div class="io-btn-sub">Autodesk Civil 3D Survey Database raw book</div>
+                  </div>
+                  <input type="file" accept=".fbk" onchange="window.app.handleFbkFileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+              </div>
+            </div>
+
+            <!-- Right: Export -->
+            <div class="io-card">
+              <div class="io-card-header">
+                <span class="io-card-icon">📤</span>
+                <div>
+                  <h4 style="margin:0;">Export from Map</h4>
+                  <p class="text-xs text-muted" style="margin:2px 0 0 0;">Download ready-to-use survey deliverables</p>
+                </div>
+              </div>
+              <div class="io-action-list">
+                <button class="io-action-btn" onclick="window.dxfManager.downloadDxf(); window.app.closeModal();">
+                  <span class="io-btn-icon">📐</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">AutoCAD / Civil 3D (.DXF)</div>
+                    <div class="io-btn-sub">NCS layered boundary, road, curb &amp; building CAD drawing</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportCsv(); window.app.closeModal();">
+                  <span class="io-btn-icon">📊</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Points Spreadsheet (.CSV)</div>
+                    <div class="io-btn-sub">Point #, Northing, Easting, Elevation &amp; Code table</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportGeoJson(); window.app.closeModal();">
+                  <span class="io-btn-icon">🗺️</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">GIS Map Data (.GeoJSON)</div>
+                    <div class="io-btn-sub">Standard vector geometry for GIS, Google Earth &amp; web maps</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportCivil3dFbk(); window.app.closeModal();">
+                  <span class="io-btn-icon">🏛️</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Civil 3D Survey Field Book (.FBK)</div>
+                    <div class="io-btn-sub">Survey database figures with BEG/CONT/END linework</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportMagnetRaw(); window.app.closeModal();">
+                  <span class="io-btn-icon">💾</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">MAGNET Field Raw (.RW5)</div>
+                    <div class="io-btn-sub">Topcon &amp; Sokkia field raw records for data collectors</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standalone links & Download Center -->
+          <div class="io-footer-bar">
+            <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span><b>📦 Standalone Testing Apps:</b></span>
+              <a href="downloads.html" class="btn btn-xs btn-outline-warning">Download Center</a>
+              <a href="desktop.html" class="btn btn-xs btn-outline-light">Civil 3D PC App</a>
+              <a href="android.html" class="btn btn-xs btn-outline-light">Android App</a>
+              <a href="iphone.html" class="btn btn-xs btn-outline-light">iPhone App</a>
+              <button class="btn btn-xs btn-outline-primary" onclick="window.app.promptAppInstall()">📲 Install App</button>
+            </div>
+            <button class="btn btn-xs btn-secondary" onclick="window.app.closeModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  openHowToUseModal() {
+    const root = document.getElementById('modal-root');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
+        <div class="survey-modal-card" style="max-width: 640px;">
+          <div class="survey-modal-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:24px;">❓</span>
+              <div>
+                <h3 style="margin:0;">How to Use GeoSurvey</h3>
+                <span class="text-xs text-muted">A friendly guide to land surveying and mapping with this app</span>
+              </div>
+            </div>
+            <button class="btn-close" onclick="window.app.closeModal()">×</button>
+          </div>
+
+          <div class="guide-steps-container">
+            <div class="guide-step-card">
+              <div class="guide-num">1</div>
+              <div class="guide-text">
+                <b>🗺️ View the Map &amp; Boundaries</b>
+                <p>Drag the canvas to pan; use your mouse wheel or pinch to zoom. Click any survey point (like corner pins) or boundary line to see coordinates and elevations.</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">2</div>
+              <div class="guide-text">
+                <b>📐 Measure Distance &amp; Angles</b>
+                <p>Click <b>Measure</b> on the map toolbar, then click two survey points. The app instantly shows the exact horizontal distance in feet and the heading angle (bearing).</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">3</div>
+              <div class="guide-text">
+                <b>➕ Add Survey Points &amp; Draw Lines</b>
+                <p>Click <b>+ Add Point</b> at the top or tap anywhere on the canvas to record property pins, curbs, or trees. Click <b>Draw Line</b> to connect points into boundaries or roads.</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">4</div>
+              <div class="guide-text">
+                <b>📒 Field Notes &amp; Checklist</b>
+                <p>Check the <b>Field Notes</b> tab for elevation leveling checks and monument recovery logs. Use the <b>Checklist</b> tab to track what's completed and what's left to do.</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">5</div>
+              <div class="guide-text">
+                <b>📁 Save &amp; Export Anywhere</b>
+                <p>Click <b>Import &amp; Export</b> to download an AutoCAD/Civil 3D drawing (.DXF), an Excel spreadsheet (.CSV), or GIS map (.GeoJSON).</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-footer-bar">
+            <button class="btn btn-xs btn-outline-warning" onclick="window.app.resetSampleData()">
+              ↺ Reset to Sample Property
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="window.app.closeModal()">
+              Explore GeoSurvey
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  resetSampleData() {
+    if (confirm('Reset project back to original Oak Ridge Estates sample data? Any unsaved edits will be replaced.')) {
+      localStorage.removeItem('survey_points');
+      localStorage.removeItem('survey_linework');
+      localStorage.removeItem('survey_field_notes');
+      localStorage.removeItem('survey_jobs');
+      localStorage.removeItem('survey_aim_messages');
+      localStorage.removeItem('survey_aim_buddies');
+      
+      window.pointManager.init(window.SAMPLE_DATA.points);
+      window.cadEngine.init(window.SAMPLE_DATA.linework);
+      window.jobManager.init(window.SAMPLE_DATA.jobs);
+      window.fieldBook.init(window.SAMPLE_DATA.fieldNotes);
+      window.aimChat.init(window.SAMPLE_DATA.aim);
+      
+      this.renderPointsTable();
+      this.syncActiveJobHeader();
+      this.closeModal();
+      this.showToast('✅ Reset to Oak Ridge Estates sample property!');
+      if (this.currentTab === 'cad' && window.cadEngine) {
+        window.cadEngine.fitExtents();
+        window.cadEngine.render();
+      }
+    }
   }
 
   deletePoint(id) {
