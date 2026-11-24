@@ -109,7 +109,7 @@ class AimChat {
 
   initBroadcast() {
     if (window.BroadcastChannel) {
-      this.broadcastChannel = new BroadcastChannel('survey_aim_channel');
+      this.broadcastChannel = new window.BroadcastChannel('survey_aim_channel');
       this.broadcastChannel.onmessage = (ev) => {
         if (ev.data && ev.data.type === 'CHAT_MESSAGE') {
           this.handleIncomingExternalMessage(ev.data.payload);
