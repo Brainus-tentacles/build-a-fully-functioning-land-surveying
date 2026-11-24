@@ -32,24 +32,26 @@ class CadEngine {
 
     // Survey Feature Definitions
     this.features = {
-      BOUNDARY: { name: "Boundary", color: "#ef4444", lineWidth: 2.5, closed: true, dash: [] },
-      CENTERLINE: { name: "Road Centerline", color: "#eab308", lineWidth: 2.0, closed: false, dash: [8, 4] },
-      EOP_CURB: { name: "Edge of Pavement", color: "#94a3b8", lineWidth: 1.8, closed: false, dash: [] },
-      BUILDING: { name: "Building Footprint", color: "#a855f7", lineWidth: 2.0, closed: true, dash: [] },
-      UTILITIES: { name: "Utilities / SUE", color: "#0284c7", lineWidth: 2.0, closed: false, dash: [12, 4] },
-      SKETCH: { name: "Field Sketch", color: "#f97316", lineWidth: 1.5, closed: false, dash: [] }
+      BOUNDARY: { name: "Boundary", c3d: "V-PROP-LINE", color: "#ef4444", lineWidth: 2.5, closed: true, dash: [] },
+      CENTERLINE: { name: "Road Centerline", c3d: "V-ROAD-CNTR", color: "#eab308", lineWidth: 2.0, closed: false, dash: [8, 4] },
+      EOP_CURB: { name: "Edge of Pavement", c3d: "V-ROAD-CURB", color: "#94a3b8", lineWidth: 1.8, closed: false, dash: [] },
+      BUILDING: { name: "Building Footprint", c3d: "V-BLDG", color: "#a855f7", lineWidth: 2.0, closed: true, dash: [] },
+      UTILITIES: { name: "Utilities / SUE", c3d: "V-UTIL-WATR", color: "#0284c7", lineWidth: 2.0, closed: false, dash: [12, 4] },
+      FIELD_SKETCHES: { name: "Fence / Sketch", c3d: "V-SITE-FENC", color: "#f97316", lineWidth: 1.5, closed: false, dash: [] },
+      SKETCH: { name: "Field Sketch", c3d: "V-SITE-FENC", color: "#f97316", lineWidth: 1.5, closed: false, dash: [] }
     };
 
-    // Layer visibility
+    // Layer visibility (paired with Autodesk Civil 3D NCS Layers)
     this.layers = {
-      BOUNDARY: { name: "Boundary (Red)", color: "#ef4444", visible: true },
-      CENTERLINE: { name: "Centerline (Yellow)", color: "#eab308", visible: true },
-      EOP_CURB: { name: "EOP / Curb (Gray)", color: "#94a3b8", visible: true },
-      BUILDING: { name: "Building (Purple)", color: "#a855f7", visible: true },
-      UTILITIES: { name: "Utilities / SUE (Blue)", color: "#0284c7", visible: true },
-      FIELD_SKETCHES: { name: "Field Sketches (Orange)", color: "#f97316", visible: true },
-      POINTS: { name: "Survey Points", color: "#ffffff", visible: true, showLabels: true }
+      BOUNDARY: { name: "Boundary (Red)", c3d: "V-PROP-LINE", color: "#ef4444", visible: true },
+      CENTERLINE: { name: "Centerline (Yellow)", c3d: "V-ROAD-CNTR", color: "#eab308", visible: true },
+      EOP_CURB: { name: "EOP / Curb (Gray)", c3d: "V-ROAD-CURB", color: "#94a3b8", visible: true },
+      BUILDING: { name: "Building (Purple)", c3d: "V-BLDG", color: "#a855f7", visible: true },
+      UTILITIES: { name: "Utilities / SUE (Blue)", c3d: "V-UTIL-WATR", color: "#0284c7", visible: true },
+      FIELD_SKETCHES: { name: "Fence / Sketches (Orange)", c3d: "V-SITE-FENC", color: "#f97316", visible: true },
+      POINTS: { name: "Survey Points", c3d: "V-NODE-PNT", color: "#ffffff", visible: true, showLabels: true }
     };
+    this.layerModalOpen = false;
 
     this.linework = [];
     this.touchPinchDist = null;
@@ -308,17 +310,21 @@ class CadEngine {
     } else if (this.activeTool === 'line') {
       this.activeVertices.push(vertex);
     } else if (this.activeTool === 'point') {
-      const code = prompt("Enter Survey Point Code (e.g. IP, REBAR, EP, CL, BM):", "IP FND");
-      if (code !== null) {
-        const desc = prompt("Enter Description / Notes:", "Survey Monument") || "";
-        window.pointManager.addPoint({
-          northing: targetN,
-          easting: targetE,
-          elevation: targetZ,
-          code: code.toUpperCase(),
-          desc
-        });
-        this.render();
+      if (window.app && typeof window.app.openQuickShotModal === 'function') {
+        window.app.openQuickShotModal(targetN, targetE, targetZ, 'canvas');
+      } else {
+        const code = prompt("Enter MAGNET Field Code (e.g. IP FND, EP1 B, CL1, BM):", "IP FND");
+        if (code !== null) {
+          const desc = prompt("Enter Description / Notes:", "Survey Monument") || "";
+          window.pointManager.addPoint({
+            northing: targetN,
+            easting: targetE,
+            elevation: targetZ,
+            code: code.toUpperCase(),
+            desc
+          });
+          this.render();
+        }
       }
     } else if (this.activeTool === 'measure') {
       this.activeVertices.push(vertex);
@@ -398,23 +404,93 @@ class CadEngine {
 
   sendLineworkToAim() {
     const count = this.linework.length;
-    const bndy = this.linework.filter(l => l.layer === 'BOUNDARY').length;
-    const road = this.linework.filter(l => l.layer === 'CENTERLINE' || l.layer === 'EOP_CURB').length;
+    const bndy = this.linework.filter(l => this.normalizeLayerKey(l.layer) === 'BOUNDARY').length;
+    const road = this.linework.filter(l => {
+      const k = this.normalizeLayerKey(l.layer);
+      return k === 'CENTERLINE' || k === 'EOP_CURB';
+    }).length;
 
     const html = `
       <div class="chat-cogo-badge">
-        <span class="badge-tag">📐 SURVEY LINEWORK SHARED</span>
-        <div>Total Elements: <b>${count}</b> (Boundary: ${bndy}, Road: ${road})</div>
-        <div class="badge-coords">Layers: BOUNDARY, CENTERLINE, EOP_CURB, UTILITIES. Ready for Civil 3D import.</div>
+        <span class="badge-tag">📐 MAGNET LINEWORK → CIVIL 3D</span>
+        <div>Total Figures: <b>${count}</b> (Boundary: ${bndy}, Road: ${road})</div>
+        <div class="badge-coords">Civil 3D Layers: V-PROP-LINE, V-ROAD-CNTR, V-ROAD-CURB, V-BLDG, V-UTIL-WATR</div>
         <span class="badge-link" onclick="window.app.switchTab('cad')">🔍 View on Survey Linework Canvas</span>
       </div>
     `;
 
     if (window.aimChat) {
-      window.aimChat.sendMessage(`Transmitted Survey Linework (${count} elements) to CAD Office`, html);
+      window.aimChat.sendMessage(`Transmitted MAGNET Field Linework (${count} figures) to Civil 3D Office`, html);
+      if (window.app && window.app.showToast) {
+        window.app.showToast(`Shared ${count} survey figures to Civil 3D Office via AIM!`);
+      }
       window.app.switchTab('aim');
-      alert("Survey linework shared to Office CAD via AIM!");
     }
+  }
+
+  normalizeLayerKey(layerName) {
+    if (!layerName) return 'BOUNDARY';
+    const up = String(layerName).trim().toUpperCase();
+    if (this.layers[up]) return up;
+    if (up === 'SKETCH' || up.includes('FENC') || up.includes('SKETCH')) return 'FIELD_SKETCHES';
+    if (up.includes('PROP') || up.includes('BND')) return 'BOUNDARY';
+    if (up.includes('CNTR') || up.includes('CENTER')) return 'CENTERLINE';
+    if (up.includes('CURB') || up.includes('EOP')) return 'EOP_CURB';
+    if (up.includes('BLDG') || up.includes('BUILD')) return 'BUILDING';
+    if (up.includes('UTIL') || up.includes('WATR') || up.includes('SSWR') || up.includes('STRM')) return 'UTILITIES';
+    if (up.includes('NODE') || up.includes('PNT') || up.includes('POINT')) return 'POINTS';
+    return 'BOUNDARY';
+  }
+
+  toggleLayerModal() {
+    this.layerModalOpen = !this.layerModalOpen;
+    this.renderLayerModal();
+  }
+
+  toggleLayerVisibility(key) {
+    if (this.layers[key]) {
+      this.layers[key].visible = !this.layers[key].visible;
+      this.renderLayerModal();
+      this.render();
+    }
+  }
+
+  renderLayerModal() {
+    const el = document.getElementById('cad-layer-modal');
+    if (!el) return;
+    if (!this.layerModalOpen) {
+      el.innerHTML = '';
+      return;
+    }
+
+    const ptsCount = window.pointManager ? window.pointManager.getAll().length : 0;
+    const rows = Object.keys(this.layers).map(key => {
+      const lyr = this.layers[key];
+      const count = key === 'POINTS'
+        ? ptsCount
+        : this.linework.filter(l => this.normalizeLayerKey(l.layer) === key).length;
+      return `
+        <label class="layer-item-row" style="cursor:pointer;">
+          <input type="checkbox" ${lyr.visible ? 'checked' : ''} onchange="window.cadEngine.toggleLayerVisibility('${key}')">
+          <span class="layer-color-badge" style="background:${lyr.color}"></span>
+          <span class="layer-name-label" title="${lyr.c3d}">${lyr.name} <small style="color:#64748b">(${lyr.c3d})</small></span>
+          <span class="layer-count-badge">${count}</span>
+        </label>
+      `;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="cad-layer-modal-dialog">
+        <div class="cad-layer-modal-header">
+          <span>🗂️ Civil 3D / MAGNET Layers</span>
+          <button class="btn-close" onclick="window.cadEngine.toggleLayerModal()">×</button>
+        </div>
+        <div class="cad-layer-list">${rows}</div>
+        <div class="cad-layer-modal-footer">
+          <button class="btn btn-xs btn-outline-warning" onclick="window.dxfManager.exportCivil3dFbk()">📤 Export Civil 3D .FBK</button>
+        </div>
+      </div>
+    `;
   }
 
   showMeasurePopup(inv) {
