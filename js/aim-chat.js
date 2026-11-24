@@ -1,5 +1,6 @@
-// Authentic AOL Instant Messenger (AIM) Live Chat Engine
+// Authentic AOL Instant Messenger (AIM) Live Chat Engine - 2-Person Direct IM Edition
 // Links Civil 3D Office CAD Operators and Topcon/Sokkia MAGNET Field Crew in Real-Time
+// Strictly restricted to a 1-on-1 direct conversation between two people at a time.
 class AimChat {
   constructor() {
     this.currentUser = {
@@ -48,13 +49,8 @@ class AimChat {
       this.buddies = initialData.buddies ? [...initialData.buddies] : [];
     }
 
-    // Migrate legacy screen names and ensure required buddies exist
-    const needsReset = this.buddies.some(b =>
-      b.screenName === "AutoCAD_Dave" || b.screenName === "SurveyBot" || b.screenName === "FieldCrew1_Mike"
-    );
-    if (needsReset && initialData.buddies) {
-      this.buddies = [...initialData.buddies];
-    } else if (initialData.buddies) {
+    // Ensure contacts exist
+    if (initialData && initialData.buddies) {
       initialData.buddies.forEach(initB => {
         if (!this.buddies.some(b => b.screenName === initB.screenName)) {
           this.buddies.push({ ...initB });
@@ -87,12 +83,13 @@ class AimChat {
         }
         this.currentUser = parsedUser;
       } catch (e) {
-        if (initialData.currentUser) this.currentUser = { ...initialData.currentUser };
+        if (initialData && initialData.currentUser) this.currentUser = { ...initialData.currentUser };
       }
-    } else if (initialData.currentUser) {
+    } else if (initialData && initialData.currentUser) {
       this.currentUser = { ...initialData.currentUser };
     }
 
+    // Set 2-person partner based on role
     this.activeBuddy = this.currentUser.role === 'cad' ? "TopconCrew_Mike" : "Civil3D_Dave";
     this.save();
     this.renderAim();
@@ -123,9 +120,11 @@ class AimChat {
     this.messages.push(msg);
     localStorage.setItem('survey_aim_messages', JSON.stringify(this.messages));
 
-    if (window.soundFX) window.soundFX.playImChime();
-    this.renderConversation();
-    this.updateBuddyBadge(msg.from);
+    // Only chime and update if this message is between the two active people
+    if (msg.from === this.activeBuddy && msg.to === this.currentUser.screenName) {
+      if (window.soundFX) window.soundFX.playImChime();
+      this.renderConversation();
+    }
   }
 
   save() {
@@ -167,7 +166,18 @@ class AimChat {
     this.renderAim();
   }
 
+  // Quick swap between Field Chief (Mike) and Civil 3D Drafter (Dave)
+  toggleUserRole() {
+    if (this.currentUser.role === 'field') {
+      this.switchUserRole('cad');
+    } else {
+      this.switchUserRole('field');
+    }
+  }
+
+  // Set the 2nd person in the 2-person session
   setActiveBuddy(screenName) {
+    if (screenName === this.currentUser.screenName) return;
     this.activeBuddy = screenName;
     const buddy = this.buddies.find(b => b.screenName === screenName);
     if (buddy) buddy.unread = 0;
@@ -175,15 +185,30 @@ class AimChat {
     this.renderAim();
   }
 
+  _getResolvedActiveBuddy() {
+    const eligible = this.getEligiblePartners();
+    let b = eligible.find(p => p.screenName === this.activeBuddy);
+    if (!b) b = eligible[0] || this.buddies[0];
+    return b;
+  }
+
+  // Return persons eligible to be the 2nd party (human survey staff only)
+  getEligiblePartners() {
+    return this.buddies.filter(b =>
+      b.screenName !== this.currentUser.screenName &&
+      b.role !== 'bot'
+    );
+  }
+
   updateBuddyBadge(screenName) {
     if (this.activeBuddy !== screenName) {
       const b = this.buddies.find(buddy => buddy.screenName === screenName);
       if (b) b.unread = (b.unread || 0) + 1;
       this.save();
-      this.renderBuddyList();
     }
   }
 
+  // Send message strictly from Person 1 (currentUser) to Person 2 (activeBuddy)
   sendMessage(text, customHtml = null) {
     if (!text && !customHtml) return;
 
@@ -229,7 +254,6 @@ class AimChat {
       this.save();
       this.renderAim();
       if (window.soundFX) window.soundFX.playDoorOpen();
-      this.postSystemUpdate(`${this.currentUser.alias} set Away Message: "${this.currentUser.statusMsg}"`);
     }
   }
 
@@ -244,7 +268,7 @@ class AimChat {
       el.className = 'aim-typing-row';
       log.appendChild(el);
     }
-    el.innerHTML = `<i>⌨️ ${screenName} is typing...</i>`;
+    el.innerHTML = `<i>⌨️ ${screenName.split('_')[0]} is typing...</i>`;
     log.scrollTop = log.scrollHeight;
 
     if (this._typingTimeout) clearTimeout(this._typingTimeout);
@@ -254,7 +278,7 @@ class AimChat {
     }, 2000);
   }
 
-  // Automated realistic Topcon / Sokkia / MAGNET Field / Civil 3D responses
+  // Automated realistic response strictly from Person 2 (partner) back to Person 1
   checkAutoReply(userText) {
     const buddy = this._getResolvedActiveBuddy();
     if (!buddy || buddy.screenName === this.currentUser.screenName) return;
@@ -273,18 +297,7 @@ class AimChat {
         network: "TopNET Live VRS"
       };
 
-      if (buddy.screenName === "MagnetBot") {
-        if (lower.includes("closure") || lower.includes("traverse") || lower.includes("error")) {
-          replyText = "🤖 MagnetBot QC: Traverse loop adjusted via Compass Rule. Linear error: 0.014 ft (1:28,400 — Class A Passed). Ready to push to Civil 3D Survey DB.";
-        } else if (lower.includes("rw5") || lower.includes("fbk") || lower.includes("dxf")) {
-          replyText = "🤖 MagnetBot Sync: MAGNET Field .RW5 observations translated cleanly to Civil 3D .FBK Survey Figures (V-PROP-LINE, V-ROAD-CNTR, V-ROAD-CURB, V-BLDG).";
-        } else if (lower.includes("point") || lower.includes("shot") || lower.includes("bm")) {
-          replyText = `🤖 MagnetBot: Point stored via ${equip.software || 'MAGNET Field v8.2'} (${equip.gps} • ${equip.network}). Coordinates match NAD83 Texas Central / NAVD88.`;
-        } else {
-          const cnt = window.pointManager ? window.pointManager.getAll().length : 36;
-          replyText = `🤖 MagnetBot: ${cnt} points verified in MAGNET Field DB. Feature codes CL1, EP1, BLDG1, FENCE mapped to Civil 3D layers.`;
-        }
-      } else if ((buddy.screenName === "Civil3D_Dave" || buddy.screenName === "Civil3D_Sarah") && this.currentUser.role === "field") {
+      if ((buddy.screenName === "Civil3D_Dave" || buddy.screenName === "Civil3D_Sarah") && this.currentUser.role === "field") {
         if (lower.includes("rw5") || lower.includes("fbk") || lower.includes("file") || lower.includes("export")) {
           replyText = "Got your MAGNET Field data! Importing the .FBK into Civil 3D 2026 Survey Database right now — survey figures are snapping to V-PROP-LINE and V-ROAD-CURB.";
         } else if (lower.includes("corner") || lower.includes("pin") || lower.includes("sw")) {
@@ -296,17 +309,19 @@ class AimChat {
         } else if (lower.includes("linework") || lower.includes("dxf")) {
           replyText = "Linework overlay came through cleanly! Civil 3D Figure Prefix DB matched your MAGNET Field codes.";
         } else {
-          replyText = "Copy that from Civil 3D Office! Updating the Survey Database and checklist now — keep those MAGNET Field shots coming.";
+          replyText = "Copy that Mike! Updating Civil 3D Survey Database now — keep those MAGNET Field shots coming.";
         }
       } else if (buddy.screenName === "TopconCrew_Mike" && this.currentUser.role === "cad") {
-        replyText = `Copy that Civil 3D Office! ${equip.tablet} running MAGNET Field v8.2 with ${equip.gps} (${equip.network} Fixed) & ${equip.totalStation} ready on CP1. Moving to next shot.`;
+        replyText = `Copy that Dave! ${equip.tablet} running MAGNET Field v8.2 with ${equip.gps} (${equip.network} Fixed) & ${equip.totalStation} ready on CP1. Moving to next shot.`;
       } else if (buddy.screenName === "Office_PM_Frank") {
         replyText = "Thanks for the update! Let me know once the Civil 3D .FBK and RPLS boundary check are ready for final sign-off.";
+      } else {
+        replyText = "Copy that from field! Synchronized in Civil 3D.";
       }
 
       if (replyText) {
         const botMsg = {
-          id: "bot-" + Date.now(),
+          id: "msg-" + Date.now(),
           from: buddy.screenName,
           to: this.currentUser.screenName,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -354,7 +369,7 @@ class AimChat {
     const lines = window.cadEngine ? window.cadEngine.linework : [];
     const html = `
       <div class="chat-cogo-badge">
-        <span class="badge-tag">📐 MAGNET → CIVIL 3D LINEWORK OVERLAY</span>
+        <span class="badge-tag">📐 MAGNET → CIVIL 3D LINEWORK</span>
         <div>Total Figures: <b>${lines.length}</b></div>
         <div>Civil 3D Layers: <b>V-PROP-LINE, V-ROAD-CNTR, V-ROAD-CURB, V-BLDG, V-UTIL-WATR</b></div>
         <span class="badge-link" onclick="window.app.switchTab('cad')">🔍 View on Linework Canvas</span>
@@ -363,7 +378,6 @@ class AimChat {
     this.sendMessage(`Shared Civil 3D Linework (${lines.length} figures)`, html);
   }
 
-  // Send an interactive downloadable Civil 3D .FBK or MAGNET Field .RW5 packet directly in AIM Chat
   sendSurveyFilePacket(format) {
     if (!window.dxfManager) return;
     if (format === 'fbk') {
@@ -372,7 +386,7 @@ class AimChat {
         <div class="chat-cogo-badge" style="border-color:#f59e0b; background:#fffbeb;">
           <span class="badge-tag" style="color:#b45309;">📤 CIVIL 3D FIELD BOOK (.FBK)</span>
           <div><b>${res.filename}</b></div>
-          <div class="badge-coords">${res.pointCount} Points • ${res.figureCount} Civil 3D Survey Figures</div>
+          <div class="badge-coords">${res.pointCount} Points • ${res.figureCount} Civil 3D Figures</div>
           <span class="badge-link" style="cursor:pointer; color:#b45309; font-weight:bold;" onclick="window.dxfManager.exportCivil3dFbk('${res.filename}')">📥 Download ${res.filename} for Civil 3D</span>
         </div>
       `;
@@ -399,7 +413,7 @@ class AimChat {
   postSystemUpdate(announcement) {
     const sysMsg = {
       id: "sys-" + Date.now(),
-      from: "MagnetBot",
+      from: this.activeBuddy,
       to: this.currentUser.screenName,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       text: `📢 <b>${announcement}</b>`
@@ -409,7 +423,6 @@ class AimChat {
     this.renderConversation();
   }
 
-  // Alias kept for compatibility with any caller calling postSystemMessage
   postSystemMessage(announcement) {
     return this.postSystemUpdate(announcement);
   }
@@ -426,190 +439,38 @@ class AimChat {
     this.sendMessage(`[SYSTEM ALERT] User was WARNED! Warning level increased to ${buddy.warningLevel}%.`);
   }
 
-  _getResolvedActiveBuddy() {
-    return this.buddies.find(b => b.screenName === this.activeBuddy)
-      || this.buddies.find(b => b.screenName !== this.currentUser.screenName)
-      || this.buddies[0];
-  }
-
-  renderAim() {
-    const container = document.getElementById('aim-container');
-    if (!container) return;
-
-    const buddy = this._getResolvedActiveBuddy();
-    if (!buddy) return;
-
-    container.innerHTML = `
-      <div class="aim-window-frame">
-        <!-- AIM Window Title Bar -->
-        <div class="aim-title-bar">
-          <div class="aim-title-left">
-            <span class="aim-running-man">🏃</span>
-            <span class="aim-title-text">AIM Field↔Civil 3D Link - ${buddy.alias}</span>
-          </div>
-          <div class="aim-window-controls">
-            <button class="aim-win-btn" title="Minimize">_</button>
-            <button class="aim-win-btn" title="Maximize">□</button>
-            <button class="aim-win-btn close" title="Close">✕</button>
-          </div>
-        </div>
-
-        <!-- AIM Identity Switcher Bar -->
-        <div class="aim-identity-bar">
-          <div class="aim-my-profile">
-            <span class="status-dot status-${this.currentUser.status}"></span>
-            <span>You: <b>${this.currentUser.alias}</b></span>
-            <button class="btn btn-xs btn-outline-secondary" onclick="window.aimChat.promptSetAway()" title="Set Away Message">Away</button>
-          </div>
-          <div class="aim-role-switch">
-            <span>Role:</span>
-            <button class="btn btn-xs ${this.currentUser.role === 'field' ? 'btn-warning active' : 'btn-outline-warning'}" onclick="window.aimChat.switchUserRole('field')">
-              👷 Field Chief
-            </button>
-            <button class="btn btn-xs ${this.currentUser.role === 'cad' ? 'btn-primary active' : 'btn-outline-primary'}" onclick="window.aimChat.switchUserRole('cad')">
-              🖥️ Civil 3D CAD
-            </button>
-          </div>
-        </div>
-
-        <!-- Main AIM Splitter: Buddy List on Left / Conversation on Right -->
-        <div class="aim-body-split">
-          <!-- BUDDY LIST PANE -->
-          <div class="aim-buddy-pane" id="aim-buddy-list">
-            ${this.getBuddyListHTML()}
-          </div>
-
-          <!-- DIRECT IM CHAT WINDOW -->
-          <div class="aim-chat-pane">
-            <!-- Buddy Profile & Warning Bar -->
-            <div class="aim-chat-header">
-              <div class="aim-buddy-info">
-                <span class="buddy-name">${buddy.alias}</span>
-                <span class="buddy-sub"><span class="status-dot status-${buddy.status}"></span> ${buddy.statusMsg || 'Available'}</span>
-              </div>
-              <div class="aim-warn-section">
-                <span class="warn-label">Warn: ${buddy.warningLevel || 0}%</span>
-                <button class="aim-warn-btn" onclick="window.aimChat.warnBuddy('${buddy.screenName}')">Warn</button>
-              </div>
-            </div>
-
-            <!-- Quick Survey Actions Bar -->
-            <div class="aim-survey-toolbar">
-              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.requestShotFromCrew('SW Lot Boundary Corner')">
-                🎯 Req Shot
-              </button>
-              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.promptSendPoint()">
-                📍 Send Pt
-              </button>
-              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendLineworkSummary()">
-                📏 Linework
-              </button>
-              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendSurveyFilePacket('rw5')" title="Send Topcon/Sokkia MAGNET Field .RW5 in Chat">
-                📤 .RW5
-              </button>
-              <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendSurveyFilePacket('fbk')" title="Send Autodesk Civil 3D .FBK in Chat">
-                📤 .FBK
-              </button>
-            </div>
-
-            <!-- Chat History Log -->
-            <div class="aim-msg-log" id="aim-message-log">
-              ${this.getConversationHTML(buddy)}
-            </div>
-
-            <!-- AIM Rich Formatting Toolbar -->
-            <div class="aim-format-toolbar">
-              <button class="fmt-btn ${this.isBold ? 'active' : ''}" onclick="window.aimChat.toggleFormat('bold')" title="Bold"><b>B</b></button>
-              <button class="fmt-btn ${this.isItalic ? 'active' : ''}" onclick="window.aimChat.toggleFormat('italic')" title="Italic"><i>I</i></button>
-              <button class="fmt-btn ${this.isUnderline ? 'active' : ''}" onclick="window.aimChat.toggleFormat('underline')" title="Underline"><u>U</u></button>
-              <select class="fmt-select" onchange="window.aimChat.setFontColor(this.value)">
-                <option value="#000000">Black</option>
-                <option value="#0000ff">Blue</option>
-                <option value="#ff0000">Red</option>
-                <option value="#008000">Green</option>
-                <option value="#800080">Purple</option>
-              </select>
-              <button class="fmt-btn" onclick="window.aimChat.insertEmoticon(':-)')">😊</button>
-              <button class="fmt-btn" onclick="window.aimChat.insertEmoticon(':-P')">😜</button>
-              <button class="fmt-btn" onclick="window.aimChat.insertEmoticon('B-)')">😎</button>
-            </div>
-
-            <!-- Input Box & Send Bar -->
-            <div class="aim-input-box">
-              <textarea id="aim-text-input" placeholder="Message Civil 3D Office / MAGNET Field crew... (Enter to Send)" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); window.aimChat.handleSend(); }"></textarea>
-              <div class="aim-send-row">
-                <span class="aim-tip">⚡ MAGNET Field ↔ Civil 3D Live BroadcastChannel</span>
-                <button class="aim-send-btn" onclick="window.aimChat.handleSend()">Send</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    this.scrollToBottom();
-  }
-
-  getBuddyListHTML() {
-    const cadBuddies = this.buddies.filter(b => b.role === 'cad' || b.role === 'office');
-    const fieldBuddies = this.buddies.filter(b => b.role === 'field');
-    const bots = this.buddies.filter(b => b.role === 'bot');
-
-    return `
-      <div class="buddy-group-title">▼ Civil 3D Office</div>
-      ${cadBuddies.map(b => this.renderBuddyItem(b)).join('')}
-
-      <div class="buddy-group-title mt-2">▼ Topcon/Sokkia Field</div>
-      ${fieldBuddies.map(b => this.renderBuddyItem(b)).join('')}
-
-      <div class="buddy-group-title mt-2">▼ MAGNET Sync & QC</div>
-      ${bots.map(b => this.renderBuddyItem(b)).join('')}
-    `;
-  }
-
-  renderBuddyItem(b) {
-    const isCurrent = this.currentUser.screenName === b.screenName;
-    const isActive = this.activeBuddy === b.screenName;
-
-    return `
-      <div class="buddy-item ${isActive ? 'active' : ''} ${isCurrent ? 'is-self' : ''}" onclick="window.aimChat.setActiveBuddy('${b.screenName}')">
-        <span class="status-dot status-${b.status}"></span>
-        <div class="buddy-text">
-          <div class="buddy-screenname">${b.alias} ${isCurrent ? '(You)' : ''}</div>
-          <div class="buddy-status-quote">${b.statusMsg || 'Online'}</div>
-        </div>
-        ${b.unread ? `<span class="unread-pill">${b.unread}</span>` : ''}
-      </div>
-    `;
-  }
-
+  // Strictly 2-Person Conversation Filtering: only messages between Person A and Person B
   getConversationHTML(buddy) {
+    const userA = this.currentUser.screenName;
+    const userB = buddy.screenName;
+
     const relevant = this.messages.filter(m => {
-      if (buddy.screenName === "MagnetBot" || buddy.screenName === "SurveyBot") {
-        return m.from === "MagnetBot" || m.from === "SurveyBot" || m.to === "MagnetBot" || m.to === "SurveyBot";
-      }
-      return (m.from === buddy.screenName && m.to === this.currentUser.screenName) ||
-        (m.from === this.currentUser.screenName && m.to === buddy.screenName) ||
-        (m.from === "MagnetBot") ||
-        (m.from === "SurveyBot");
+      return (m.from === userA && m.to === userB) ||
+             (m.from === userB && m.to === userA);
     });
 
     if (relevant.length === 0) {
       return `
         <div class="aim-conversation-empty">
-          <span>Started AIM session with <b>${buddy.alias}</b>.</span>
-          <p class="text-xs text-muted">Links Civil 3D Office & Topcon/Sokkia MAGNET Field Crew.</p>
+          <div class="aim-2p-intro-badge">
+            <span class="badge-title">🔒 Direct 2-Person Private IM</span>
+            <div class="badge-users"><b>${this.currentUser.alias.split(' ')[0]}</b> ↔ <b>${buddy.alias.split(' ')[0]}</b></div>
+          </div>
+          <p class="text-xs text-muted" style="margin-top: 8px;">
+            1-on-1 link between Topcon/Sokkia Field Chief &amp; Civil 3D Office.<br>
+            Send coordinates, shot requests, or linework.
+          </p>
         </div>
       `;
     }
 
     return relevant.map(m => {
       const isMe = m.from === this.currentUser.screenName;
-      const isBot = m.from === "MagnetBot" || m.from === "SurveyBot";
+      const authorShort = isMe ? this.currentUser.alias.split(' ')[0] : buddy.alias.split(' ')[0];
       return `
-        <div class="aim-msg-row ${isMe ? 'msg-me' : isBot ? 'msg-bot' : 'msg-them'}">
+        <div class="aim-msg-row ${isMe ? 'msg-me' : 'msg-them'}">
           <div class="msg-meta">
-            <span class="msg-author">${isMe ? this.currentUser.screenName : m.from}:</span>
+            <span class="msg-author">${authorShort}:</span>
             <span class="msg-timestamp">${m.time}</span>
           </div>
           <div class="msg-bubble">
@@ -618,6 +479,109 @@ class AimChat {
         </div>
       `;
     }).join('');
+  }
+
+  // Render the Dedicated 2-Person Instant Message Window for the 1/4 Screen
+  renderAim() {
+    const container = document.getElementById('aim-container');
+    if (!container) return;
+
+    const buddy = this._getResolvedActiveBuddy();
+    if (!buddy) return;
+
+    const eligiblePartners = this.getEligiblePartners();
+    const myShort = this.currentUser.alias.split(' ')[0];
+    const partnerShort = buddy.alias.split(' ')[0];
+
+    container.innerHTML = `
+      <div class="aim-window-frame">
+        <!-- AIM Window Title Bar -->
+        <div class="aim-title-bar">
+          <div class="aim-title-left">
+            <span class="aim-running-man">🏃</span>
+            <span class="aim-title-text">IM: ${myShort} ↔ ${partnerShort}</span>
+          </div>
+          <div class="aim-window-controls">
+            <span class="aim-badge-2p" title="Strictly 2-Person Direct Conversation">🔒 2-Person</span>
+            <button class="aim-win-btn" title="Minimize">_</button>
+            <button class="aim-win-btn" title="Maximize">□</button>
+          </div>
+        </div>
+
+        <!-- 2-Person Direct Session Bar (Swap role or switch partner) -->
+        <div class="aim-2p-session-bar">
+          <div class="aim-2p-pair">
+            <div class="aim-party-pill me" title="You: ${this.currentUser.alias}">
+              <span class="status-dot status-${this.currentUser.status}"></span>
+              <span>You: <b>${myShort}</b></span>
+              <button class="btn-swap-role" onclick="window.aimChat.toggleUserRole()" title="Swap between Field Chief & CAD Drafter">⇄</button>
+            </div>
+            <span class="aim-arrow" style="font-weight: bold; color: #0055ea;">↔</span>
+            <div class="aim-party-pill them" title="Conversing with (1 person at a time)">
+              <span class="status-dot status-${buddy.status}"></span>
+              <select id="aim-partner-select" class="partner-dropdown" onchange="window.aimChat.setActiveBuddy(this.value)" title="Choose conversation partner (strictly 2 people at a time)">
+                ${eligiblePartners.map(p => `
+                  <option value="${p.screenName}" ${p.screenName === buddy.screenName ? 'selected' : ''}>
+                    ${p.alias.split(' ')[0]} (${p.role === 'cad' ? 'CAD' : p.role === 'field' ? 'Field' : 'PM'})
+                  </option>
+                `).join('')}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Survey Actions (Compact) -->
+        <div class="aim-survey-toolbar compact">
+          <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.requestShotFromCrew('SW Lot Boundary Corner')" title="Request Survey Shot">
+            🎯 Req Shot
+          </button>
+          <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.promptSendPoint()" title="Send Point Coordinates">
+            📍 Send Pt
+          </button>
+          <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendLineworkSummary()" title="Send Linework Summary">
+            📏 Lines
+          </button>
+          <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendSurveyFilePacket('rw5')" title="Send MAGNET .RW5 Raw File">
+            📤 .RW5
+          </button>
+          <button class="btn btn-xs btn-outline-light" onclick="window.aimChat.sendSurveyFilePacket('fbk')" title="Send Civil 3D .FBK File">
+            📤 .FBK
+          </button>
+        </div>
+
+        <!-- Direct 2-Person Chat Log -->
+        <div class="aim-msg-log" id="aim-message-log">
+          ${this.getConversationHTML(buddy)}
+        </div>
+
+        <!-- AIM Formatting Toolbar (Compact) -->
+        <div class="aim-format-toolbar compact">
+          <button class="fmt-btn ${this.isBold ? 'active' : ''}" onclick="window.aimChat.toggleFormat('bold')" title="Bold"><b>B</b></button>
+          <button class="fmt-btn ${this.isItalic ? 'active' : ''}" onclick="window.aimChat.toggleFormat('italic')" title="Italic"><i>I</i></button>
+          <button class="fmt-btn ${this.isUnderline ? 'active' : ''}" onclick="window.aimChat.toggleFormat('underline')" title="Underline"><u>U</u></button>
+          <select class="fmt-select" onchange="window.aimChat.setFontColor(this.value)" title="Text Color">
+            <option value="#000000">Black</option>
+            <option value="#0000ff">Blue</option>
+            <option value="#ff0000">Red</option>
+            <option value="#008000">Green</option>
+          </select>
+          <button class="fmt-btn" onclick="window.aimChat.insertEmoticon(':-)')">😊</button>
+          <button class="fmt-btn" onclick="window.aimChat.insertEmoticon(':-P')">😜</button>
+          <button class="fmt-btn" onclick="window.aimChat.insertEmoticon('B-)')">😎</button>
+        </div>
+
+        <!-- Input Box & Send Bar -->
+        <div class="aim-input-box">
+          <textarea id="aim-text-input" placeholder="Direct IM to ${partnerShort}... (Enter to send)" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); window.aimChat.handleSend(); }"></textarea>
+          <div class="aim-send-row">
+            <span class="aim-tip">🔒 Direct 2-Person Link</span>
+            <button class="aim-send-btn" onclick="window.aimChat.handleSend()">Send</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.scrollToBottom();
   }
 
   handleSend() {
@@ -650,7 +614,7 @@ class AimChat {
   }
 
   promptSendPoint() {
-    const id = prompt("Enter Survey Point ID to send to Civil 3D Office (e.g. 10):", "10");
+    const id = prompt("Enter Survey Point ID to send to partner (e.g. 10):", "10");
     if (id) {
       this.sendPointToChat(Number(id));
     }
@@ -670,15 +634,10 @@ class AimChat {
       log.innerHTML = this.getConversationHTML(buddy);
       this.scrollToBottom();
     }
-    this.renderBuddyList();
   }
 
-  renderBuddyList() {
-    const list = document.getElementById('aim-buddy-list');
-    if (list) {
-      list.innerHTML = this.getBuddyListHTML();
-    }
-  }
+  // Kept for backward compatibility
+  renderBuddyList() {}
 
   scrollToBottom() {
     const log = document.getElementById('aim-message-log');
