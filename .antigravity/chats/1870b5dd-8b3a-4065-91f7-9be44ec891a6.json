@@ -304,6 +304,18 @@
       "created_at": "2026-11-24T13:40:32.462Z",
       "sender": "ios",
       "is_cancelled": false
+    },
+    {
+      "id": "090cab9a-dd97-481d-9b32-e53546349730",
+      "role": "user",
+      "content": "Can you simplify the overall look, feel, and functionality to be easily understood and used by just about anyone",
+      "status": "pending",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-11-24T20:42:08.615Z",
+      "sender": "ios",
+      "is_cancelled": false
     }
   ]
 }
