@@ -401,3 +401,105 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Topcon / Sokkia GNSS HUD Overlay
+   Styled to match the FC-6000 / SHC6000 instrument HUD display
+   ───────────────────────────────────────────────────────────────────────────── */
+.gnss-hud-overlay {
+  position: absolute;
+  bottom: 56px;        /* above toolbox buttons */
+  left: 10px;
+  z-index: 25;
+  background: rgba(10, 14, 26, 0.92);
+  border: 1px solid #334155;
+  border-left: 3px solid #f59e0b; /* Topcon safety yellow accent */
+  border-radius: 6px;
+  padding: 8px 10px;
+  min-width: 190px;
+  pointer-events: none;
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  font-size: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+}
+
+.gnss-hud-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  line-height: 1.4;
+}
+
+.gnss-hud-title {
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.gnss-brand {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.gnss-brand.topcon {
+  background: #f59e0b;
+  color: #000;
+}
+
+.gnss-brand.sokkia {
+  background: #64748b;
+  color: #fff;
+}
+
+.gnss-model {
+  font-size: 9px;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+.gnss-label {
+  color: #64748b;
+  font-size: 9px;
+  min-width: 44px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gnss-value {
+  color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.gnss-value.gnss-fixed {
+  color: #34d399;
+  font-weight: 700;
+}
+
+.gnss-value.gnss-float {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.gnss-value.gnss-autonomous {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* Rugged tablet mode: bump up the HUD slightly */
+.mode-tablet .gnss-hud-overlay {
+  bottom: 10px;
+  font-size: 11px;
+  min-width: 210px;
+  border-left-width: 4px;
+}
+
+/* CAD canvas: tablet mode adjustments */
+.mode-tablet .cad-viewport-layout {
+  border-radius: 4px;
+}
