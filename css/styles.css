@@ -130,7 +130,15 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.header-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-color);
+  margin: 0 2px;
 }
 
 /* Device Mock Frames */
@@ -553,15 +561,27 @@ body {
 /* ─────────────────────────────────────────────────────────────────────────────
    Topcon FC-6000 / Sokkia SHC6000 Rugged Tablet Styling
    ───────────────────────────────────────────────────────────────────────────── */
-.mode-tablet #device-wrapper {
+#device-wrapper.mode-tablet.brand-topcon {
   /* Topcon safety-yellow outer bumper / rubber surround */
-  outline: 10px solid #d97706;
-  outline-offset: 4px;
+  outline: 8px solid #d97706;
+  outline-offset: 2px;
   border-radius: 18px;
   box-shadow:
-    0 0 0 4px #000,
-    0 0 0 14px #d97706,
-    0 0 0 18px #000,
+    0 0 0 3px #000,
+    0 0 0 10px #d97706,
+    0 0 0 13px #000,
+    0 20px 60px rgba(0,0,0,0.6);
+}
+
+#device-wrapper.mode-tablet.brand-sokkia {
+  /* Sokkia gunmetal & steel-blue rugged surround */
+  outline: 8px solid #0284c7;
+  outline-offset: 2px;
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 3px #0f172a,
+    0 0 0 10px #475569,
+    0 0 0 13px #0284c7,
     0 20px 60px rgba(0,0,0,0.6);
 }
 
@@ -573,22 +593,212 @@ body {
 .mode-tablet .btn {
   font-size: 12px;
   padding: 6px 10px;
-  min-height: 36px;
+  min-height: 32px;
 }
 
-/* Topcon yellow accent strip at top of app bar in tablet mode */
-.mode-tablet .android-app-bar {
+/* Topcon yellow vs Sokkia blue accent strip at top of app bar in tablet mode */
+.mode-tablet.brand-topcon .android-app-bar {
   border-top: 3px solid #f59e0b;
 }
 
-/* Sokkia gunmetal tint on status bar in tablet mode */
+.mode-tablet.brand-sokkia .android-app-bar {
+  border-top: 3px solid #38bdf8;
+}
+
+/* Gunmetal tint on status bar in tablet mode */
 .mode-tablet .android-status-bar {
   background: rgba(30, 41, 59, 0.98);
   border-bottom: 2px solid #d97706;
+}
+
+.mode-tablet.brand-sokkia .android-status-bar {
+  border-bottom-color: #0284c7;
 }
 
 /* Make MAGNET Field code badges more readable on rugged screen */
 .mode-tablet .badge {
   font-size: 11px;
   padding: 3px 7px;
+}
+
+/* Hardware Chips on Jobs Overview Card */
+.job-hardware-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.hw-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.hw-chip.hw-topcon { border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; }
+.hw-chip.hw-magnet { border-color: rgba(56, 189, 248, 0.5); color: #38bdf8; }
+.hw-chip.hw-c3d    { border-color: rgba(16, 185, 129, 0.5); color: #34d399; }
+
+/* Modals (Equipment Kit & MAGNET Field Quick Shot) */
+.survey-modal-card {
+  width: 94%;
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-primary);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text-main);
+}
+
+.survey-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.survey-modal-header h3 {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.shot-coords-banner {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-primary);
+}
+
+.preset-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.modal-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.modal-input {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: var(--text-main);
+  font-size: 12px;
+  outline: none;
+}
+
+.modal-input:focus {
+  border-color: var(--accent-primary);
+}
+
+.modal-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+}
+
+@media (max-width: 480px) {
+  .modal-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quick-code-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.quick-code-chip {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.8);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quick-code-chip.active, .quick-code-chip:hover {
+  background: var(--accent-primary);
+  color: #0b0f19;
+  border-color: var(--accent-primary);
+}
+
+.modal-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.survey-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+/* Non-Blocking Toast Notifications */
+.toast-container {
+  position: absolute;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  width: 90%;
+  max-width: 380px;
+}
+
+.app-toast {
+  background: rgba(15, 23, 42, 0.96);
+  color: #f8fafc;
+  border: 1px solid var(--accent-primary);
+  border-left: 4px solid var(--accent-emerald);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  transition: opacity 0.25s ease;
+}
+
+.app-toast.fade-out {
+  opacity: 0;
 }
