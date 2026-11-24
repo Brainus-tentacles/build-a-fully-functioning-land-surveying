@@ -505,18 +505,23 @@ class CadEngine {
     if (el) {
       el.innerHTML = `
         <div class="measure-popup">
-          <div class="measure-header">📐 Inverse Calculation (COGO)</div>
-          <div class="measure-body">
-            <div class="measure-row"><span>Quadrant Bearing:</span> <b class="text-accent">${inv.bearing}</b></div>
-            <div class="measure-row"><span>Horizontal Distance:</span> <b>${inv.horizDist.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Slope Distance:</span> <b>${inv.slopeDist.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Delta North (ΔN):</span> <b>${inv.deltaN.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Delta East (ΔE):</span> <b>${inv.deltaE.toFixed(2)} ft</b></div>
-            <div class="measure-row"><span>Grade (%):</span> <b>${inv.grade.toFixed(2)}%</b></div>
+          <div class="measure-header">
+            <span>📐 Distance &amp; Direction</span>
+            <button class="btn-close-sm" onclick="document.getElementById('cad-measure-results').innerHTML=''">✕</button>
           </div>
-          <button class="btn btn-xs btn-primary mt-2 w-full" onclick="window.aimChat.sendInverseToChat('${inv.bearing}', ${inv.horizDist.toFixed(2)}, ${inv.deltaZ.toFixed(2)})">
-            💬 Post Inverse to AIM Chat
-          </button>
+          <div class="measure-body">
+            <div class="measure-main-val"><b>${inv.horizDist.toFixed(2)} ft</b> <small style="color:var(--text-muted); font-size:12px;">(${ (inv.horizDist / 3).toFixed(1) } yds)</small></div>
+            <div class="measure-row"><span>Quadrant Bearing:</span> <b class="text-accent">${inv.bearing}</b></div>
+            <div class="measure-row"><span>Slope Distance:</span> <span>${inv.slopeDist.toFixed(2)} ft</span></div>
+            <div class="measure-row"><span>Elevation Delta (ΔZ):</span> <span>${inv.deltaZ >= 0 ? '+' : ''}${inv.deltaZ.toFixed(2)} ft</span></div>
+            <div class="measure-row"><span>Grade / Slope:</span> <span>${inv.grade.toFixed(1)}%</span></div>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button class="btn btn-xs btn-outline-light" onclick="document.getElementById('cad-measure-results').innerHTML=''">Clear</button>
+            <button class="btn btn-xs btn-primary" style="flex:1;" onclick="window.aimChat.sendInverseToChat('${inv.bearing}', ${inv.horizDist.toFixed(2)}, ${inv.deltaZ.toFixed(2)})">
+              💬 Share in Chat
+            </button>
+          </div>
         </div>
       `;
     }
@@ -525,24 +530,48 @@ class CadEngine {
   inspectPoint(pt) {
     const el = document.getElementById('cad-inspector');
     if (el) {
+      let friendlyName = pt.desc || pt.code;
+      if (/IP|REBAR|PIN|CORNER|MON/i.test(pt.code)) friendlyName = "Property Corner / Boundary Pin";
+      else if (/EP|CURB|EOP/i.test(pt.code)) friendlyName = "Road Edge / Pavement Curb";
+      else if (/CL/i.test(pt.code)) friendlyName = "Road Centerline";
+      else if (/BLDG/i.test(pt.code)) friendlyName = "Building Footprint Corner";
+      else if (/BM/i.test(pt.code)) friendlyName = "Benchmark Elevation Control";
+      else if (/UTIL|WM|MH|SAN|WAT/i.test(pt.code)) friendlyName = "Utility Feature";
+
       el.innerHTML = `
         <div class="inspector-card">
           <div class="inspector-header">
-            <span class="badge ${pt.type || 'TOPO'}">PT #${pt.id}</span>
-            <span class="inspector-code">${pt.code}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="badge ${pt.type || 'TOPO'}">PT #${pt.id}</span>
+              <span class="inspector-code font-bold">${pt.code}</span>
+            </div>
+            <button class="btn-close-sm" onclick="document.getElementById('cad-inspector').innerHTML=''">✕</button>
           </div>
+          <div style="font-size:12px; color:var(--text-muted); margin: 3px 0 6px 0;">${friendlyName}</div>
           <div class="inspector-grid">
-            <div class="insp-item"><span>Northing:</span><b>${pt.northing.toFixed(3)}</b></div>
-            <div class="insp-item"><span>Easting:</span><b>${pt.easting.toFixed(3)}</b></div>
-            <div class="insp-item"><span>Elevation:</span><b>${pt.elevation.toFixed(3)}'</b></div>
-            <div class="insp-item"><span>Description:</span><span>${pt.desc || '-'}</span></div>
+            <div class="insp-item"><span>Northing (Y):</span><b>${pt.northing.toFixed(2)}'</b></div>
+            <div class="insp-item"><span>Easting (X):</span><b>${pt.easting.toFixed(2)}'</b></div>
+            <div class="insp-item"><span>Elevation (Z):</span><b>${pt.elevation.toFixed(2)}'</b></div>
+            <div class="insp-item"><span>Rod Height:</span><span>${pt.hr ? pt.hr.toFixed(2) + "'" : "6.56'"}</span></div>
           </div>
           <div class="inspector-actions">
-            <button class="btn btn-xs btn-primary" onclick="window.aimChat.sendPointToChat(${pt.id})">💬 Send to AIM</button>
+            <button class="btn btn-xs btn-primary" onclick="window.cadEngine.startMeasureFromPoint(${pt.id})">📐 Measure From Here</button>
             <button class="btn btn-xs btn-secondary" onclick="window.cadEngine.zoomToPoint(${pt.id})">🔍 Zoom</button>
+            <button class="btn btn-xs btn-outline-danger" onclick="window.app.deletePoint(${pt.id})">🗑️ Delete</button>
           </div>
         </div>
       `;
+    }
+  }
+
+  startMeasureFromPoint(ptId) {
+    const pt = window.pointManager.getById(ptId);
+    if (!pt) return;
+    this.setTool('measure');
+    this.measureStart = { northing: pt.northing, easting: pt.easting, elevation: pt.elevation, ptId: pt.id };
+    const hint = document.getElementById('cad-tool-instruction');
+    if (hint) {
+      hint.textContent = `Measuring from PT #${pt.id} (${pt.code}). Tap any second point to calculate distance and heading.`;
     }
   }
 
