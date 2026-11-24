@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>GeoSurvey & SUE: Field Notes & Live AIM CAD Communication</title>
-  <meta name="description" content="Land Surveying & SUE (Subsurface Utility Engineering) application replacing field notes, live AOL Instant Messenger linking CAD operators and field crew, jobs & checklist tracker, and simplistic SUE linework drawing with DXF upload/download.">
+  <title>GeoSurvey Pro: Land Surveying Field Notes & Live AIM CAD Link</title>
+  <meta name="description" content="Professional land surveying Android application replacing field notes, live AOL Instant Messenger linking CAD operators and field crew, jobs & checklist tracker, and simplistic linework drawing with DXF upload/download.">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,13 +20,13 @@
 </head>
 <body>
 
-  <!-- MASTER TOP BAR: Global Controls & SUE Linework Upload/Download -->
+  <!-- MASTER TOP BAR: Global Controls & Survey Linework Upload/Download -->
   <header class="master-header">
     <div class="brand-section">
-      <span class="app-logo">⚡</span>
+      <span class="app-logo">📐</span>
       <div>
-        <div class="brand-title">GeoSurvey SUE & Field Notes</div>
-        <div class="brand-sub">Live Office-Field AIM Chat • Digital Notes • SUE Linework</div>
+        <div class="brand-title">GeoSurvey Pro</div>
+        <div class="brand-sub">Land Surveying • Field Notes • Live AIM CAD Chat</div>
       </div>
     </div>
 
@@ -64,11 +64,11 @@
         <input type="file" id="file-csv-import" accept=".csv,.txt" style="display: none;">
       </label>
 
-      <button class="btn btn-xs btn-primary" onclick="window.dxfManager.downloadDxf('SUE_UTILITIES_OAK_RIDGE.dxf')" title="Download SUE DXF Linework">
+      <button class="btn btn-xs btn-primary" onclick="window.dxfManager.downloadDxf('SURVEY_OAK_RIDGE_LOT14.dxf')" title="Download Survey DXF Linework">
         📤 Download DXF
       </button>
 
-      <button class="btn btn-xs btn-secondary" onclick="window.dxfManager.exportCsv('SUE_POINTS_OAK_RIDGE.csv')" title="Download CSV PNEZD Coordinates">
+      <button class="btn btn-xs btn-secondary" onclick="window.dxfManager.exportCsv('SURVEY_POINTS_OAK_RIDGE.csv')" title="Download CSV PNEZD Coordinates">
         📤 Download CSV
       </button>
 
@@ -88,7 +88,7 @@
           <div class="status-left">
             <span class="android-clock">08:42</span>
             <span class="gnss-fixed-tag">● RTK FIXED (0.012')</span>
-            <span id="rtk-hud-coords" style="font-family: var(--font-mono); font-size: 10px; color: var(--accent-primary);">N: 10250.00 E: 10030.00 Z: 687.20</span>
+            <span id="rtk-hud-coords" style="font-family: var(--font-mono); font-size: 10px; color: var(--accent-primary);">N: 10245.80 E: 10185.35 Z: 688.15</span>
           </div>
           <div class="status-right">
             <span>5G</span>
@@ -97,11 +97,11 @@
           </div>
         </div>
 
-        <!-- ANDROID APP BAR (JOB HEADER & SUE QUICK ACTIONS) -->
+        <!-- ANDROID APP BAR (JOB HEADER & QUICK ACTIONS) -->
         <div class="android-app-bar">
           <div class="app-bar-title">
-            <h1 id="app-bar-job-name">#2026-104 Oak Ridge SUE & Boundary</h1>
-            <span>Subsurface Utility Engineering & Boundary Notes</span>
+            <h1 id="app-bar-job-name">#2026-104 Oak Ridge Estates</h1>
+            <span>Boundary & Topographic Survey • Travis County, TX</span>
           </div>
           <div class="app-bar-actions">
             <button class="btn btn-xs btn-outline-success" onclick="window.app.promptTakeRtkShot()" title="Record Current GPS/RTK Shot">
@@ -131,39 +131,36 @@
             <div id="jobs-container"></div>
           </section>
 
-          <!-- 4. SIMPLISTIC SUE LINEWORK & SKETCH CANVAS -->
+          <!-- 4. SIMPLISTIC SURVEY LINEWORK CANVAS (BOUNDARY, ROADS, UTILITIES & BUILDINGS) -->
           <section id="view-cad" class="app-view">
             <div class="cad-viewport-layout">
               <canvas id="cad-canvas"></canvas>
 
-              <!-- Floating Top Utility Color Bar (APWA Standard SUE Colors) -->
+              <!-- Floating Top Survey Feature Bar -->
               <div class="cad-floating-topbar">
                 <div class="sue-utility-bar">
-                  <button class="sue-util-btn active" onclick="window.cadEngine.setUtility('Water'); document.querySelectorAll('.sue-util-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    <span class="sue-util-dot" style="background: #0284c7;"></span> Water (Blue)
+                  <button class="survey-feat-btn sue-util-btn active" data-feat="BOUNDARY" onclick="window.cadEngine.setFeature('BOUNDARY')">
+                    <span class="sue-util-dot" style="background: #ef4444;"></span> Boundary (Red)
                   </button>
-                  <button class="sue-util-btn" onclick="window.cadEngine.setUtility('Gas'); document.querySelectorAll('.sue-util-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    <span class="sue-util-dot" style="background: #eab308;"></span> Gas (Yellow)
+                  <button class="survey-feat-btn sue-util-btn" data-feat="CENTERLINE" onclick="window.cadEngine.setFeature('CENTERLINE')">
+                    <span class="sue-util-dot" style="background: #eab308;"></span> Centerline (Yellow)
                   </button>
-                  <button class="sue-util-btn" onclick="window.cadEngine.setUtility('Electric'); document.querySelectorAll('.sue-util-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    <span class="sue-util-dot" style="background: #ef4444;"></span> Power (Red)
+                  <button class="survey-feat-btn sue-util-btn" data-feat="EOP_CURB" onclick="window.cadEngine.setFeature('EOP_CURB')">
+                    <span class="sue-util-dot" style="background: #94a3b8;"></span> EOP / Curb (Gray)
                   </button>
-                  <button class="sue-util-btn" onclick="window.cadEngine.setUtility('Telecom'); document.querySelectorAll('.sue-util-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    <span class="sue-util-dot" style="background: #f97316;"></span> Telecom (Orange)
+                  <button class="survey-feat-btn sue-util-btn" data-feat="BUILDING" onclick="window.cadEngine.setFeature('BUILDING')">
+                    <span class="sue-util-dot" style="background: #a855f7;"></span> Building (Purple)
                   </button>
-                  <button class="sue-util-btn" onclick="window.cadEngine.setUtility('Sewer'); document.querySelectorAll('.sue-util-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    <span class="sue-util-dot" style="background: #22c55e;"></span> Sewer (Green)
-                  </button>
-                  <button class="sue-util-btn" onclick="window.cadEngine.setUtility('Storm'); document.querySelectorAll('.sue-util-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    <span class="sue-util-dot" style="background: #06b6d4;"></span> Storm (Cyan)
+                  <button class="survey-feat-btn sue-util-btn" data-feat="UTILITIES" onclick="window.cadEngine.setFeature('UTILITIES')">
+                    <span class="sue-util-dot" style="background: #0284c7;"></span> Utilities (Blue)
                   </button>
                 </div>
 
                 <div class="cad-top-right">
-                  <button class="btn btn-xs btn-success font-bold" onclick="window.cadEngine.finishActiveDrawing()" title="Finish Current Utility Line">
+                  <button class="btn btn-xs btn-success font-bold" onclick="window.cadEngine.finishActiveDrawing()" title="Finish Current Linework">
                     ⚡ Finish Line
                   </button>
-                  <button class="btn btn-xs btn-primary font-bold" onclick="window.cadEngine.sendSueLineworkToAim()" title="Transmit SUE linework to Office CAD via AIM">
+                  <button class="btn btn-xs btn-primary font-bold" onclick="window.cadEngine.sendLineworkToAim()" title="Transmit Linework to Office CAD via AIM">
                     💬 Send to Office CAD
                   </button>
                   <button class="btn btn-xs btn-outline-light" onclick="window.cadEngine.fitExtents()" title="Fit Extents">
@@ -172,29 +169,29 @@
                 </div>
               </div>
 
-              <!-- Floating Left SUE Toolbox (Simplistic) -->
+              <!-- Floating Left Survey Toolbox (Simplistic) -->
               <div class="sue-toolbox">
-                <button class="sue-tool-btn active" data-tool="sue_line" onclick="window.cadEngine.setTool('sue_line')" title="Trace SUE Utility Line">
-                  〰️ Trace Utility
+                <button class="cad-tool-btn sue-tool-btn active" data-tool="line" onclick="window.cadEngine.setTool('line')" title="Draw Survey Line">
+                  〰️ Draw Line
                 </button>
-                <button class="sue-tool-btn" data-tool="sue_pothole" onclick="window.cadEngine.setTool('sue_pothole')" title="Log Level A Vacuum Test Hole / Pothole">
-                  🕳️ Add Test Hole
+                <button class="cad-tool-btn sue-tool-btn" data-tool="point" onclick="window.cadEngine.setTool('point')" title="Drop New Survey Point">
+                  📍 Add Point
                 </button>
-                <button class="sue-tool-btn" data-tool="measure" onclick="window.cadEngine.setTool('measure')" title="Measure Utility Clearance & Distance">
-                  📐 Clearance
+                <button class="cad-tool-btn sue-tool-btn" data-tool="measure" onclick="window.cadEngine.setTool('measure')" title="Measure Bearing & Distance (COGO Inverse)">
+                  📐 Inverse / Bearing
                 </button>
                 <div class="toolbox-divider"></div>
-                <button class="sue-tool-btn" data-tool="pan" onclick="window.cadEngine.setTool('pan')" title="Pan Site">
+                <button class="cad-tool-btn sue-tool-btn" data-tool="pan" onclick="window.cadEngine.setTool('pan')" title="Pan Site">
                   ✋ Pan
                 </button>
-                <button class="sue-tool-btn" data-tool="select" onclick="window.cadEngine.setTool('select')" title="Select & Inspect Point">
+                <button class="cad-tool-btn sue-tool-btn" data-tool="select" onclick="window.cadEngine.setTool('select')" title="Select & Inspect Point">
                   👆 Select
                 </button>
               </div>
 
               <!-- Bottom Tool Hint -->
-              <div class="sue-tool-hint" id="sue-tool-hint">
-                Tracing Water utility line. Tap points on canvas, then click 'Finish Line'.
+              <div class="sue-tool-hint" id="cad-tool-instruction">
+                Drawing Boundary line. Tap points on canvas, then click 'Finish Line'.
               </div>
 
               <!-- Inspector Card Container -->
@@ -210,9 +207,9 @@
             <div class="points-view-container">
               <div class="points-header-row">
                 <div class="search-input-wrap">
-                  <input type="text" id="points-search-input" placeholder="Search SUE points, potholes, valves, hydrants..." oninput="window.app.renderPointsTable()">
+                  <input type="text" id="points-search-input" placeholder="Search points, pins, monuments, benchmarks..." oninput="window.app.renderPointsTable()">
                 </div>
-                <span class="badge badge-primary" id="points-count-badge">42 Shots</span>
+                <span class="badge badge-primary" id="points-count-badge">36 Shots</span>
                 <button class="btn btn-xs btn-outline-success" onclick="window.pointManager.connectDeviceGps(pos => alert(`Connected Device GPS: Accuracy ${pos.accuracyFt.toFixed(1)} ft`), err => alert(err))">
                   🛰️ Sync Phone GPS
                 </button>
@@ -230,7 +227,7 @@
                       <th>NORTHING (Y)</th>
                       <th>EASTING (X)</th>
                       <th>ELEV (Z)</th>
-                      <th>DESCRIPTION / SUE DATA</th>
+                      <th>DESCRIPTION</th>
                       <th>ROD</th>
                       <th>ACTIONS</th>
                     </tr>
@@ -262,8 +259,8 @@
           </button>
 
           <button class="android-nav-item" data-tab="cad" onclick="window.app.switchTab('cad')">
-            <span class="nav-icon">⚡</span>
-            <span class="nav-label">SUE Linework</span>
+            <span class="nav-icon">📐</span>
+            <span class="nav-label">Linework</span>
           </button>
 
           <button class="android-nav-item" data-tab="points" onclick="window.app.switchTab('points')">
