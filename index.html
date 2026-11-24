@@ -75,6 +75,15 @@
       <button class="btn btn-xs btn-outline-info" onclick="window.dxfManager.exportGeoJson()" title="Download GeoJSON vector data">
         🗺️ GeoJSON
       </button>
+
+      <!-- Civil 3D & MAGNET Field Native Exports -->
+      <button class="btn btn-xs btn-outline-warning" onclick="window.dxfManager.exportCivil3dFbk()" title="Export Civil 3D Survey Database Field Book (.FBK) — importable by Civil 3D Survey Database Wizard">
+        📤 Civil 3D .FBK
+      </button>
+
+      <button class="btn btn-xs btn-outline-success" onclick="window.dxfManager.exportMagnetRaw()" title="Export Topcon / Sokkia MAGNET Field Raw File (.RW5) — importable by MAGNET Field + MAGNET Office">
+        📤 MAGNET .RW5
+      </button>
     </div>
   </header>
 
@@ -135,6 +144,47 @@
           <section id="view-cad" class="app-view">
             <div class="cad-viewport-layout">
               <canvas id="cad-canvas"></canvas>
+
+              <!-- TOPCON / SOKKIA GNSS HUD Overlay (top-left corner of canvas) -->
+              <div class="gnss-hud-overlay" id="gnss-hud">
+                <div class="gnss-hud-row gnss-hud-title">
+                  <span class="gnss-brand topcon">TOPCON</span>
+                  <span class="gnss-brand sokkia">SOKKIA</span>
+                  <span class="gnss-model">HiPer VR / iX-1200</span>
+                </div>
+                <div class="gnss-hud-row">
+                  <span class="gnss-label">STATUS</span>
+                  <span class="gnss-value gnss-fixed" id="hud-status">RTK FIXED</span>
+                </div>
+                <div class="gnss-hud-row">
+                  <span class="gnss-label">NETWORK</span>
+                  <span class="gnss-value" id="hud-network">TopNET Live VRS</span>
+                </div>
+                <div class="gnss-hud-row">
+                  <span class="gnss-label">SATS</span>
+                  <span class="gnss-value" id="hud-sats">24</span>
+                  <span class="gnss-label" style="margin-left:6px;">PDOP</span>
+                  <span class="gnss-value" id="hud-pdop">1.05</span>
+                </div>
+                <div class="gnss-hud-row">
+                  <span class="gnss-label">LINK</span>
+                  <span class="gnss-value" id="hud-link">LongLink BT ✔</span>
+                </div>
+                <div class="gnss-hud-row">
+                  <span class="gnss-label">DEVICE</span>
+                  <span class="gnss-value">FC-6000 / SHC6000</span>
+                </div>
+                <div class="gnss-hud-row">
+                  <span class="gnss-label">SW</span>
+                  <span class="gnss-value">MAGNET Field v8.2</span>
+                </div>
+                <div class="gnss-hud-row">
+                  <span class="gnss-label">HRMS</span>
+                  <span class="gnss-value gnss-fixed" id="hud-hrms">0.012 ft</span>
+                  <span class="gnss-label" style="margin-left:4px;">VRMS</span>
+                  <span class="gnss-value gnss-fixed" id="hud-vrms">0.021 ft</span>
+                </div>
+              </div>
 
               <!-- Floating Top Survey Feature Bar -->
               <div class="cad-floating-topbar">
