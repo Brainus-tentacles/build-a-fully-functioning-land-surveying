@@ -85,11 +85,140 @@
   gap: 5px;
 }
 
-/* Split Pane: Buddy List & Chat */
+/* Split Pane: Buddy List & Chat (Legacy / Compatibility) */
 .aim-body-split {
   flex: 1;
   display: flex;
   overflow: hidden;
+}
+
+/* 2-Person Direct Session Bar (Strictly 2 People) */
+.aim-2p-session-bar {
+  background: #f5f3e9;
+  border-bottom: 1px solid #d0ccc0;
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.aim-2p-pair {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.aim-party-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  border: 1px solid #999999;
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 10px;
+}
+
+.btn-swap-role {
+  background: #0055ea;
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  padding: 0 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.btn-swap-role:hover {
+  background: #2563eb;
+}
+
+.partner-dropdown {
+  background: #ffffff;
+  border: 1px solid #0055ea;
+  border-radius: 2px;
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: bold;
+  color: #0055ea;
+  cursor: pointer;
+  padding: 1px 2px;
+  max-width: 130px;
+}
+
+.aim-badge-2p {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
+.aim-survey-toolbar.compact {
+  background: #1e293b;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  overflow-x: auto;
+  border-bottom: 1px solid #0f172a;
+  flex-shrink: 0;
+}
+
+.aim-survey-toolbar.compact .btn {
+  padding: 1px 5px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.aim-format-toolbar.compact {
+  background: #ece9d8;
+  border-top: 1px solid #d0ccc0;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.aim-format-toolbar.compact .fmt-btn {
+  padding: 1px 4px;
+  font-size: 10px;
+  height: 18px;
+}
+
+.aim-format-toolbar.compact .fmt-select {
+  height: 18px;
+  font-size: 9px;
+}
+
+.aim-2p-intro-badge {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  padding: 8px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.aim-2p-intro-badge .badge-title {
+  color: #166534;
+  font-weight: bold;
+  font-size: 11px;
+  display: block;
+}
+
+.aim-2p-intro-badge .badge-users {
+  color: #0f172a;
+  font-size: 12px;
+  margin-top: 2px;
 }
 
 /* Left Pane: Buddy List */

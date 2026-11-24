@@ -124,28 +124,34 @@ class SurveyApp {
   }
 
   switchTab(tabName) {
-    this.currentTab = tabName;
+    const resolvedTab = (tabName === 'aim' || tabName === 'cad') ? 'cad' : tabName;
+    this.currentTab = resolvedTab;
 
     document.querySelectorAll('.android-nav-item').forEach(item => {
-      item.classList.toggle('active', item.dataset.tab === tabName);
+      const itemTab = item.dataset.tab;
+      const isActive = itemTab === resolvedTab || (resolvedTab === 'cad' && (itemTab === 'cad' || itemTab === 'aim'));
+      item.classList.toggle('active', isActive);
     });
 
     document.querySelectorAll('.app-view').forEach(view => {
-      view.classList.toggle('active', view.id === `view-${tabName}`);
+      view.classList.toggle('active', view.id === `view-${resolvedTab}`);
     });
 
-    if (tabName === 'cad' && window.cadEngine) {
-      setTimeout(() => {
-        window.cadEngine.resizeCanvas();
-        window.cadEngine.render();
-      }, 50);
-    } else if (tabName === 'jobs' && window.jobManager) {
+    if (resolvedTab === 'cad') {
+      if (window.cadEngine) {
+        setTimeout(() => {
+          window.cadEngine.resizeCanvas();
+          window.cadEngine.render();
+        }, 50);
+      }
+      if (window.aimChat) {
+        window.aimChat.renderAim();
+      }
+    } else if (resolvedTab === 'jobs' && window.jobManager) {
       window.jobManager.render();
-    } else if (tabName === 'fieldbook' && window.fieldBook) {
+    } else if (resolvedTab === 'fieldbook' && window.fieldBook) {
       window.fieldBook.renderFieldBook();
-    } else if (tabName === 'aim' && window.aimChat) {
-      window.aimChat.renderAim();
-    } else if (tabName === 'points') {
+    } else if (resolvedTab === 'points') {
       this.renderPointsTable();
     }
   }
@@ -161,6 +167,17 @@ class SurveyApp {
     document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.mode === mode);
     });
+
+    if (window.cadEngine) {
+      setTimeout(() => {
+        window.cadEngine.resizeCanvas();
+        window.cadEngine.render();
+      }, 100);
+    }
+    if (window.aimChat) {
+      window.aimChat.renderAim();
+    }
+  }
 
     setTimeout(() => {
       if (window.cadEngine) window.cadEngine.resizeCanvas();

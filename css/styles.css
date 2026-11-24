@@ -355,6 +355,56 @@ body {
   display: flex;
 }
 
+/* CAD & AIM Split Screen Layout (3/4 Canvas & 1/4 AIM 2-Person Chat) */
+.cad-aim-split-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background: #090d16;
+}
+
+/* Wide Viewports: Tablets, CAD Workstation, and Desktop (>= 768px): Horizontal 75% / 25% Split */
+.split-pane-cad {
+  flex: 0 0 75%;
+  width: 75%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-right: 2px solid #0055ea;
+}
+
+.split-pane-aim {
+  flex: 0 0 25%;
+  width: 25%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #ece9d8;
+}
+
+/* Phone Mode (440px wide): Vertical 75% Canvas Height / 25% AIM Height Split */
+#device-wrapper.mode-phone .cad-aim-split-container {
+  flex-direction: column;
+}
+
+#device-wrapper.mode-phone .split-pane-cad {
+  flex: 0 0 75%;
+  width: 100%;
+  height: 75%;
+  border-right: none;
+  border-bottom: 2px solid #0055ea;
+}
+
+#device-wrapper.mode-phone .split-pane-aim {
+  flex: 0 0 25%;
+  width: 100%;
+  height: 25%;
+}
+
 /* Android Bottom Navigation Bar */
 .android-bottom-nav {
   height: var(--android-nav-h);
