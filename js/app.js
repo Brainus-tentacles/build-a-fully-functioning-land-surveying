@@ -234,6 +234,58 @@ class SurveyApp {
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     document.querySelectorAll('.android-clock').forEach(el => el.textContent = timeStr);
   }
+
+  // ─── Topcon / Sokkia GNSS HUD live update ────────────────────────────────
+  startGnssHudTick() {
+    // Simulate realistic RTK HUD readings (Topcon HiPer VR on TopNET Live VRS)
+    const statusEl  = document.getElementById('hud-status');
+    const pdopEl    = document.getElementById('hud-pdop');
+    const satsEl    = document.getElementById('hud-sats');
+    const hrmsEl    = document.getElementById('hud-hrms');
+    const vrmsEl    = document.getElementById('hud-vrms');
+    const networkEl = document.getElementById('hud-network');
+    const linkEl    = document.getElementById('hud-link');
+
+    const updateHud = () => {
+      // Realistic jitter for a fixed RTK solution
+      const pdop  = (0.95 + Math.random() * 0.3).toFixed(2);
+      const sats  = 22 + Math.floor(Math.random() * 5);
+      const hrms  = (0.008 + Math.random() * 0.012).toFixed(3);
+      const vrms  = (0.015 + Math.random() * 0.018).toFixed(3);
+
+      // Occasionally simulate brief float
+      const isFixed  = Math.random() > 0.06;
+      const statusTxt = isFixed ? 'RTK FIXED' : 'RTK FLOAT';
+
+      if (statusEl)  { statusEl.textContent = statusTxt; statusEl.className = `gnss-value ${isFixed ? 'gnss-fixed' : 'gnss-float'}`; }
+      if (pdopEl)    pdopEl.textContent = pdop;
+      if (satsEl)    satsEl.textContent = String(sats);
+      if (hrmsEl)    { hrmsEl.textContent = `${hrms} ft`; hrmsEl.className = `gnss-value ${isFixed ? 'gnss-fixed' : 'gnss-float'}`; }
+      if (vrmsEl)    { vrmsEl.textContent = `${vrms} ft`; vrmsEl.className = `gnss-value ${isFixed ? 'gnss-fixed' : 'gnss-float'}`; }
+
+      // Blink network label to show active data stream
+      if (networkEl) networkEl.style.opacity = (Math.random() > 0.15) ? '1' : '0.6';
+      if (linkEl)    linkEl.textContent = isFixed ? 'LongLink BT ✔' : 'LongLink BT…';
+
+      // Also update the RTK coords HUD in the status bar
+      if (window.pointManager) {
+        const pts = window.pointManager.getAll();
+        if (pts.length > 0) {
+          const last = pts[pts.length - 1];
+          const coordEl = document.getElementById('rtk-hud-coords');
+          if (coordEl) {
+            const nJitter = last.northing + (Math.random() - 0.5) * 0.008;
+            const eJitter = last.easting  + (Math.random() - 0.5) * 0.008;
+            const zJitter = last.elevation + (Math.random() - 0.5) * 0.004;
+            coordEl.textContent = `N: ${nJitter.toFixed(2)} E: ${eJitter.toFixed(2)} Z: ${zJitter.toFixed(2)}`;
+          }
+        }
+      }
+    };
+
+    updateHud(); // immediate first update
+    setInterval(updateHud, 2500); // update every 2.5 s
+  }
 }
 
 window.app = new SurveyApp();
