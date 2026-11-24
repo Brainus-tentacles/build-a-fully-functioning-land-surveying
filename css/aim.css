@@ -1,0 +1,430 @@
+/* Authentic AOL Instant Messenger (AIM) 90s/2000s Classic Style */
+.aim-window-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ece9d8; /* Classic Windows XP / 2000 dialog background */
+  color: #000000;
+  font-family: Tahoma, "MS Sans Serif", Arial, sans-serif;
+  overflow: hidden;
+  border: 2px solid #0055ea;
+}
+
+/* AIM Blue Title Bar */
+.aim-title-bar {
+  background: linear-gradient(90deg, #0055ea 0%, #3a93ff 100%);
+  color: #ffffff;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.aim-title-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.2px;
+}
+
+.aim-running-man {
+  font-size: 16px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
+.aim-window-controls {
+  display: flex;
+  gap: 3px;
+}
+
+.aim-win-btn {
+  width: 17px;
+  height: 17px;
+  background: #d8d4c8;
+  border: 1px solid #ffffff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.aim-win-btn.close {
+  background: #e81123;
+  color: #ffffff;
+  border-color: #f1707a;
+}
+
+/* AIM Identity Switcher Bar */
+.aim-identity-bar {
+  background: #f5f3e9;
+  border-bottom: 1px solid #d0ccc0;
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.aim-my-profile {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.aim-role-switch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Split Pane: Buddy List & Chat */
+.aim-body-split {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Left Pane: Buddy List */
+.aim-buddy-pane {
+  width: 170px;
+  background: #ffffff;
+  border-right: 2px solid #808080;
+  overflow-y: auto;
+  padding: 6px 4px;
+}
+
+.buddy-group-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: #000080;
+  padding: 3px 4px;
+  user-select: none;
+}
+
+.buddy-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+  position: relative;
+}
+
+.buddy-item:hover {
+  background: #e5efff;
+}
+
+.buddy-item.active {
+  background: #316ac5;
+  color: #ffffff;
+}
+
+.buddy-item.active .buddy-status-quote {
+  color: #dbeafe;
+}
+
+.buddy-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.buddy-screenname {
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.buddy-status-quote {
+  font-size: 9px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unread-pill {
+  background: #e11d48;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 1px 5px;
+}
+
+/* Status Dots */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot.status-online { background: #22c55e; border: 1px solid #15803d; }
+.status-dot.status-away { background: #eab308; border: 1px solid #a16207; }
+.status-dot.status-busy { background: #ef4444; border: 1px solid #b91c1c; }
+.status-dot.status-offline { background: #94a3b8; border: 1px solid #64748b; }
+
+/* Right Pane: Active IM Chat */
+.aim-chat-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ece9d8;
+  overflow: hidden;
+}
+
+.aim-chat-header {
+  background: #ffffff;
+  padding: 6px 10px;
+  border-bottom: 1px solid #999999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aim-buddy-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.buddy-name {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.buddy-sub {
+  font-size: 10px;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aim-warn-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.warn-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: #b91c1c;
+}
+
+.aim-warn-btn {
+  background: #ece9d8;
+  border: 1px solid #ffffff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.aim-warn-btn:active {
+  border: 1px solid #808080;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+/* Quick Survey Toolbar */
+.aim-survey-toolbar {
+  background: #2a3a5a;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-bottom: 1px solid #1a253a;
+}
+
+/* Message Log View */
+.aim-msg-log {
+  flex: 1;
+  background: #ffffff;
+  margin: 6px;
+  border: 2px inset #ffffff;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.aim-conversation-empty {
+  text-align: center;
+  color: #666666;
+  margin-top: 40px;
+}
+
+.aim-msg-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.msg-author {
+  font-weight: bold;
+}
+
+.msg-me .msg-author { color: #0000ff; }
+.msg-them .msg-author { color: #cc0000; }
+.msg-bot .msg-author { color: #059669; }
+
+.msg-timestamp {
+  color: #888888;
+}
+
+.msg-bubble {
+  word-break: break-word;
+}
+
+/* Formatting Toolbar */
+.aim-format-toolbar {
+  background: #ece9d8;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-top: 1px solid #ffffff;
+  border-bottom: 1px solid #808080;
+}
+
+.fmt-btn {
+  width: 22px;
+  height: 20px;
+  background: #ece9d8;
+  border: 1px solid #ffffff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fmt-btn.active {
+  background: #d4d0c8;
+  border: 1px solid #808080;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+.fmt-select {
+  font-size: 10px;
+  padding: 1px;
+  border: 1px solid #808080;
+}
+
+/* Input Box */
+.aim-input-box {
+  background: #ece9d8;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aim-input-box textarea {
+  width: 100%;
+  height: 48px;
+  background: #ffffff;
+  border: 2px inset #ffffff;
+  padding: 4px 6px;
+  font-family: inherit;
+  font-size: 12px;
+  resize: none;
+  outline: none;
+}
+
+.aim-send-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aim-tip {
+  font-size: 9px;
+  color: #666666;
+}
+
+.aim-send-btn {
+  background: #ece9d8;
+  border: 2px outset #ffffff;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 3px 14px;
+  cursor: pointer;
+}
+
+.aim-send-btn:active {
+  border-style: inset;
+}
+
+/* Badges inserted into chat */
+.chat-point-badge {
+  background: #f0fdf4;
+  border: 1px solid #22c55e;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin: 4px 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chat-point-badge:hover {
+  background: #dcfce7;
+  border-color: #16a34a;
+}
+
+.chat-cogo-badge {
+  background: #f0f9ff;
+  border: 1px solid #38bdf8;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin: 4px 0;
+}
+
+.badge-tag {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  color: #0369a1;
+  text-transform: uppercase;
+}
+
+.badge-coords {
+  font-family: monospace;
+  font-size: 10px;
+  color: #334155;
+  margin: 2px 0;
+}
+
+.badge-link {
+  font-size: 9px;
+  color: #0284c7;
+  text-decoration: underline;
+}
