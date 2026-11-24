@@ -419,10 +419,28 @@ body {
 .btn-secondary { background: var(--bg-tertiary); color: var(--text-main); }
 .btn-secondary:hover { background: #475569; }
 
+.btn-success { background: var(--accent-emerald); color: #052e16; }
+.btn-success:hover { background: #059669; color: #ffffff; }
+
+.btn-warning { background: var(--accent-amber); color: #1f1300; }
+.btn-warning:hover { background: #d97706; color: #ffffff; }
+
 .btn-outline-primary {
   background: transparent;
   border: 1px solid var(--accent-primary);
   color: var(--accent-primary);
+}
+
+.btn-outline-info {
+  background: transparent;
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  color: var(--text-muted);
 }
 
 .btn-outline-warning {

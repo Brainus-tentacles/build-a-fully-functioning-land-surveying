@@ -345,7 +345,7 @@ class CadEngine {
       const feat = this.features[this.currentFeature] || this.features.BOUNDARY;
       const newLine = {
         id: "line-" + Date.now(),
-        layer: this.currentFeature,
+        layer: feat.c3d || this.currentFeature,
         name: `${feat.name} Linework`,
         color: feat.color,
         lineWidth: feat.lineWidth,
@@ -356,9 +356,10 @@ class CadEngine {
 
       this.linework.push(newLine);
       this.save();
-      window.soundFX.playShotBeep();
+      if (window.soundFX) window.soundFX.playShotBeep();
       this.activeVertices = [];
       this.render();
+      this.renderLayerModal();
     }
   }
 
@@ -582,7 +583,8 @@ class CadEngine {
   updateHUD() {
     const el = document.getElementById('cad-coord-hud');
     if (el) {
-      el.innerHTML = `N: <b>${this.mouseWorldN.toFixed(2)}</b> E: <b>${this.mouseWorldE.toFixed(2)}</b> &nbsp; Drawing: <b class="text-accent">${this.features[this.currentFeature]?.name || 'Boundary'}</b>`;
+      const snapTag = this.snappedPoint ? ` • SNAP #${this.snappedPoint.id}` : '';
+      el.innerHTML = `N: <b>${this.mouseWorldN.toFixed(2)}</b> E: <b>${this.mouseWorldE.toFixed(2)}</b>${snapTag}`;
     }
   }
 
