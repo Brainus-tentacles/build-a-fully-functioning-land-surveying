@@ -74,6 +74,10 @@ class PointManager {
     return this.points.find(p => p.id === Number(id) || p.id === String(id));
   }
 
+  getPointById(id) {
+    return this.getById(id);
+  }
+
   getNextId() {
     if (this.points.length === 0) return 1;
     const maxId = Math.max(...this.points.map(p => Number(p.id) || 0));

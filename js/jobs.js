@@ -200,6 +200,11 @@ class JobManager {
     const doneTasks = checklist.filter(t => t.done).length;
     const pendingTasks = totalTasks - doneTasks;
 
+    const checklistCountEl = document.getElementById('header-checklist-count');
+    if (checklistCountEl) {
+      checklistCountEl.textContent = `${doneTasks}/${totalTasks}`;
+    }
+
     // Filter checklist
     let filteredTasks = checklist;
     if (this.currentCategoryFilter !== "all") {

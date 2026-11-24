@@ -371,12 +371,12 @@ class CadEngine {
   setFeature(featureName) {
     if (this.features[featureName]) {
       this.currentFeature = featureName;
-      document.querySelectorAll('.survey-feat-btn').forEach(btn => {
+      document.querySelectorAll('.survey-feat-btn, .feat-chip, .sue-util-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.feat === featureName);
       });
       const hint = document.getElementById('cad-tool-instruction');
-      if (hint) {
-        hint.textContent = `Drawing ${this.features[featureName].name}. Tap points to connect line, then tap 'Finish Line'.`;
+      if (hint && this.activeTool === 'line') {
+        hint.textContent = `Drawing ${this.features[featureName].name}. Tap or click points to connect, then click 'Finish'.`;
       }
     }
   }
@@ -386,18 +386,24 @@ class CadEngine {
     this.activeTool = tool;
     this.canvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
 
-    document.querySelectorAll('.cad-tool-btn').forEach(btn => {
+    document.querySelectorAll('.cad-tool-btn, .map-tool-btn, .sue-tool-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tool === tool);
     });
+
+    const finishBtn = document.getElementById('btn-finish-drawing');
+    if (finishBtn) finishBtn.style.display = tool === 'line' ? 'inline-flex' : 'none';
+
+    const featBar = document.getElementById('map-feature-bar');
+    if (featBar) featBar.style.display = tool === 'line' ? 'flex' : 'none';
 
     const hint = document.getElementById('cad-tool-instruction');
     if (hint) {
       const map = {
-        line: `Drawing ${this.features[this.currentFeature].name}. Tap points to connect, then click 'Finish Line'.`,
-        point: `Tap anywhere on canvas to set a new coordinate point.`,
-        measure: `Tap two points to calculate Quadrant Bearing & Horizontal Distance (COGO).`,
-        pan: `Drag to pan across the survey site.`,
-        select: `Tap any point to inspect coordinate attributes.`
+        select: "Click any survey marker or boundary line to inspect its details.",
+        measure: "Click any two points on the map to calculate distance and heading angle.",
+        line: `Drawing ${this.features[this.currentFeature]?.name || 'Line'}. Click points to connect, then click 'Finish'.`,
+        point: "Click anywhere on the map to place a new coordinate point.",
+        pan: "Click and drag to pan across the survey site."
       };
       hint.textContent = map[tool] || "";
     }
