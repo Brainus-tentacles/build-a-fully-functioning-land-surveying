@@ -20,6 +20,26 @@ class JobManager {
       this.jobs = initialJobs ? [...initialJobs] : [];
     }
 
+    // Migrate legacy jobs that lack Topcon/Sokkia/MAGNET/Civil3D hardware specs
+    if (initialJobs && this.jobs.length > 0) {
+      this.jobs = this.jobs.map(job => {
+        if (!job.hardware) {
+          const match = initialJobs.find(ij => ij.id === job.id || ij.number === job.number);
+          return {
+            ...job,
+            hardware: match?.hardware || {
+              tablet: "Topcon FC-6000 Rugged Field Tablet",
+              software: "MAGNET Field v8.2",
+              gpsRover: "Topcon HiPer VR GNSS (TopNET Live VRS)",
+              totalStation: "Sokkia iX-1200 Robotic Total Station",
+              cadOffice: "Autodesk Civil 3D 2026"
+            }
+          };
+        }
+        return job;
+      });
+    }
+
     const savedJobId = localStorage.getItem('survey_current_job_id');
     if (savedJobId && this.jobs.some(j => j.id === savedJobId)) {
       this.currentJobId = savedJobId;
@@ -54,7 +74,8 @@ class JobManager {
     this.currentJobId = jobId;
     this.save();
     this.render();
-    window.soundFX.playShotBeep();
+    if (window.app && window.app.syncActiveJobHeader) window.app.syncActiveJobHeader();
+    if (window.soundFX) window.soundFX.playShotBeep();
   }
 
   // Toggle checklist task status
@@ -120,6 +141,7 @@ class JobManager {
   }
 
   createJob(jobData) {
+    const equip = (window.app && window.app.equipmentProfile) ? window.app.equipmentProfile : null;
     const newJob = {
       id: "JOB-" + Date.now(),
       number: jobData.number || "2026-" + Math.floor(100 + Math.random() * 900),
@@ -130,19 +152,25 @@ class JobManager {
       dateCreated: new Date().toISOString().split('T')[0],
       status: "In Progress",
       partyChief: jobData.partyChief || "Field Crew Chief",
-      cadOperator: jobData.cadOperator || "AutoCAD Office Drafter",
-      instrument: jobData.instrument || "Robotic Total Station & GNSS",
+      cadOperator: jobData.cadOperator || "Civil 3D Office Drafter",
+      hardware: jobData.hardware || {
+        tablet: equip ? equip.tablet : "Topcon FC-6000 Rugged Field Tablet",
+        software: equip ? equip.software : "MAGNET Field v8.2",
+        gpsRover: equip ? `${equip.gps} (${equip.network})` : "Topcon HiPer VR GNSS",
+        totalStation: equip ? equip.totalStation : "Sokkia iX-1200 Robotic",
+        cadOffice: equip ? equip.cadOffice : "Autodesk Civil 3D 2026"
+      },
       weather: "70°F, Clear",
       progress: 0,
       checklist: [
-        { id: "c1", category: "Pre-Field", title: "Retrieve deed records and subdivision plat", done: false, assignedTo: "CAD Office", notes: "" },
-        { id: "c2", category: "Pre-Field", title: "Setup coordinate project and control points", done: false, assignedTo: "CAD Office", notes: "" },
-        { id: "c3", category: "Field Operations", title: "Recover existing boundary iron pins", done: false, assignedTo: "Field Crew", notes: "" },
-        { id: "c4", category: "Field Operations", title: "Topographic shot collection and breaklines", done: false, assignedTo: "Field Crew", notes: "" },
+        { id: "c1", category: "Pre-Field", title: "Create Civil 3D Survey DB & Coordinate System", done: false, assignedTo: "Civil 3D Office", notes: "" },
+        { id: "c2", category: "Pre-Field", title: "Export control points to MAGNET Field (.csv / .rw5)", done: false, assignedTo: "Civil 3D Office", notes: "" },
+        { id: "c3", category: "Field Operations", title: "Recover existing boundary iron pins & control", done: false, assignedTo: "Field Crew", notes: "" },
+        { id: "c4", category: "Field Operations", title: "Collect MAGNET Field coded topo & breaklines", done: false, assignedTo: "Field Crew", notes: "" },
         { id: "c5", category: "Field Operations", title: "Utility invert and rim elevation dips", done: false, assignedTo: "Field Crew", notes: "" },
-        { id: "c6", category: "Office CAD", title: "Traverse balance adjustment (Compass Rule)", done: false, assignedTo: "CAD Office", notes: "" },
-        { id: "c7", category: "Office CAD", title: "Linework generation and boundary drafting", done: false, assignedTo: "CAD Office", notes: "" },
-        { id: "c8", category: "Deliverables & QA", title: "Surveyor Certification & Seal", done: false, assignedTo: "CAD Office", notes: "" }
+        { id: "c6", category: "Office CAD", title: "Import MAGNET .RW5 / .FBK & balance traverse", done: false, assignedTo: "Civil 3D Office", notes: "" },
+        { id: "c7", category: "Office CAD", title: "Civil 3D Field-to-Finish figure generation", done: false, assignedTo: "Civil 3D Office", notes: "" },
+        { id: "c8", category: "Deliverables & QA", title: "RPLS Review, Seal & Civil 3D DWG/DXF Delivery", done: false, assignedTo: "Civil 3D Office", notes: "" }
       ]
     };
 
@@ -150,7 +178,8 @@ class JobManager {
     this.currentJobId = newJob.id;
     this.save();
     this.render();
-    window.soundFX.playDoorOpen();
+    if (window.app && window.app.syncActiveJobHeader) window.app.syncActiveJobHeader();
+    if (window.soundFX) window.soundFX.playDoorOpen();
   }
 
   setFilter(category, status) {
