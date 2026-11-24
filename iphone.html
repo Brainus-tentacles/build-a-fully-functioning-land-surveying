@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" class="iphone-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>GeoSurvey Pro - iPhone Edition</title>
+  <meta name="description" content="Land Surveying iOS Application for Apple iPhone: MAGNET Field and Civil 3D CAD split-screen link with 2-person direct chat, survey linework, and digital field book.">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GeoSurvey Pro">
+  <meta name="format-detection" content="telephone=no">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-192.png">
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/aim.css">
+  <link rel="stylesheet" href="css/cad.css">
+  <link rel="stylesheet" href="css/fieldbook.css">
+  <link rel="stylesheet" href="css/platforms.css">
+
+  <style>
+    body {
+      background: #06080d;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+    }
+    .iphone-app-portal-bar {
+      width: 100%;
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Suite Navigation Banner -->
+  <header class="iphone-app-portal-bar">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img src="assets/logo.png" alt="Logo" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--accent-primary);">
+      <span style="font-size: 13px; font-weight: 700; color: #ffffff;">GeoSurvey Suite</span>
+      <span style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: 700;">🍎 iPhone App</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <a href="android.html" class="btn btn-xs btn-outline-light" title="Switch to Android App">🤖 Android</a>
+      <a href="desktop.html" class="btn btn-xs btn-outline-light" title="Switch to Computer Program">🖥️ Computer</a>
+      <a href="index.html" class="btn btn-xs btn-primary" title="Return to Suite Hub">🌐 Hub</a>
+    </div>
+  </header>
+
+  <!-- IPHONE 16 PRO DEVICE CHASSIS -->
+  <main class="device-outer-container" style="padding: 10px 0;">
+    <div id="device-wrapper" class="mode-iphone">
+
+      <!-- Dynamic Island with interactive GNSS RTK lock -->
+      <div class="iphone-dynamic-island" onclick="window.app.openEquipmentModal()" title="Dynamic Island: Tap to configure GNSS & Total Station">
+        <div class="island-sensor-dot"></div>
+        <div class="island-rtk-indicator">
+          <div class="island-pulse-dot"></div>
+          <span>RTK FIXED</span>
+        </div>
+      </div>
+
+      <div class="device-screen" style="border-radius: 44px;">
+
+        <!-- iOS SYSTEM STATUS BAR -->
+        <div class="ios-status-bar">
+          <span class="ios-time" id="ios-clock">9:41</span>
+          <div class="ios-status-icons">
+            <span>5G</span>
+            <span>📶</span>
+            <div class="ios-battery">
+              <div class="ios-battery-level"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iOS NAVIGATION HEADER BAR -->
+        <div class="ios-nav-header">
+          <div class="ios-title-wrap">
+            <img src="assets/logo.png" alt="JSI Kissimmee Logo" class="ios-app-icon">
+            <div class="ios-nav-title">
+              <h1 id="app-bar-job-name">#2026-104 Oak Ridge Estates</h1>
+              <span id="app-bar-job-sub">MAGNET Field v8.2 • HiPer VR Fixed</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button class="btn btn-xs btn-outline-warning" onclick="window.app.openEquipmentModal()" title="Topcon/Sokkia Gear Kit">
+              ⚙️ Kit
+            </button>
+            <button class="btn btn-xs btn-outline-success" onclick="window.app.promptTakeRtkShot()" title="Take RTK Shot on iPhone">
+              🎯 Shot
+            </button>
+          </div>
+        </div>
+
+        <!-- MAIN APP CONTENT VIEWPORT -->
+        <div class="app-content-viewport">
+
+          <!-- 1. SPLIT SCREEN: CAD CANVAS (3/4 SCREEN) & AIM 2-PERSON CHAT (1/4 SCREEN) -->
+          <section id="view-cad" class="app-view active">
+            <div class="cad-aim-split-container">
+              <!-- CAD CANVAS VIEWPORT (3/4 SCREEN) -->
+              <div class="split-pane-cad">
+                <div class="cad-viewport-layout">
+                  <canvas id="cad-canvas"></canvas>
+
+                  <!-- GNSS HUD OVERLAY -->
+                  <div class="gnss-hud-overlay" id="gnss-hud">
+                    <div class="gnss-hud-row gnss-hud-title" style="pointer-events:auto; cursor:pointer;" onclick="window.app.openEquipmentModal()" title="Click to switch gear">
+                      <span class="gnss-brand topcon" id="hud-brand-topcon">TOPCON</span>
+                      <span class="gnss-brand sokkia" id="hud-brand-sokkia">SOKKIA</span>
+                      <span class="gnss-model" id="hud-model">HiPer VR / iX-1200</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">STATUS</span>
+                      <span class="gnss-value gnss-fixed" id="hud-status">RTK FIXED</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">DEVICE</span>
+                      <span class="gnss-value" id="hud-device">iPhone 16 Pro (iOS)</span>
+                    </div>
+                    <div class="gnss-hud-row">
+                      <span class="gnss-label">HRMS</span>
+                      <span class="gnss-value gnss-fixed" id="hud-hrms">0.011 ft</span>
+                      <span class="gnss-label" style="margin-left:4px; min-width:30px;">VRMS</span>
+                      <span class="gnss-value gnss-fixed" id="hud-vrms">0.019 ft</span>
+                    </div>
+                  </div>
+
+                  <!-- Floating Survey Top Bar -->
+                  <div class="cad-floating-topbar">
+                    <div class="sue-utility-bar">
+                      <button class="survey-feat-btn sue-util-btn active" data-feat="BOUNDARY" onclick="window.cadEngine.setFeature('BOUNDARY')">
+                        <span class="sue-util-dot" style="background: #ef4444;"></span> Boundary
+                      </button>
+                      <button class="survey-feat-btn sue-util-btn" data-feat="CENTERLINE" onclick="window.cadEngine.setFeature('CENTERLINE')">
+                        <span class="sue-util-dot" style="background: #eab308;"></span> Centerline
+                      </button>
+                      <button class="survey-feat-btn sue-util-btn" data-feat="EOP_CURB" onclick="window.cadEngine.setFeature('EOP_CURB')">
+                        <span class="sue-util-dot" style="background: #94a3b8;"></span> Curb
+                      </button>
+                    </div>
+
+                    <div class="cad-top-right">
+                      <div id="cad-coord-hud" class="cad-coord-badge">N: <b>10250.00</b> E: <b>10250.00</b></div>
+                      <button class="btn btn-xs btn-success font-bold" onclick="window.cadEngine.finishActiveDrawing()" title="Finish Linework">
+                        ⚡ Finish
+                      </button>
+                      <button class="btn btn-xs btn-primary font-bold" onclick="window.cadEngine.sendLineworkToAim()" title="Send Linework to AIM">
+                        💬 Send CAD
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Left Survey Toolbox -->
+                  <div class="sue-toolbox">
+                    <button class="cad-tool-btn sue-tool-btn active" data-tool="line" onclick="window.cadEngine.setTool('line')" title="Draw Line">
+                      〰️ Draw
+                    </button>
+                    <button class="cad-tool-btn sue-tool-btn" data-tool="point" onclick="window.cadEngine.setTool('point')" title="Add Point">
+                      📍 Point
+                    </button>
+                    <button class="cad-tool-btn sue-tool-btn" data-tool="pan" onclick="window.cadEngine.setTool('pan')" title="Pan Site">
+                      ✋ Pan
+                    </button>
+                  </div>
+
+                  <!-- Inspector Card Container -->
+                  <div class="cad-inspector-wrapper" id="cad-inspector"></div>
+                  <!-- Measure Results Card Container -->
+                  <div id="cad-measure-results"></div>
+                  <!-- Civil 3D Layers Modal Container -->
+                  <div id="cad-layer-modal"></div>
+                </div>
+              </div>
+
+              <!-- AIM CHAT VIEWPORT (1/4 SCREEN - 2-PERSON DIRECT IM) -->
+              <div class="split-pane-aim">
+                <div id="aim-container" style="height: 100%;"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. DIGITAL FIELD NOTES REPLACEMENT VIEW -->
+          <section id="view-fieldbook" class="app-view">
+            <div id="fieldbook-container"></div>
+          </section>
+
+          <!-- 3. JOBS & CHECKLIST TRACKER VIEW -->
+          <section id="view-jobs" class="app-view">
+            <div id="jobs-container"></div>
+          </section>
+
+          <!-- 4. SURVEY POINTS DATABASE VIEW -->
+          <section id="view-points" class="app-view">
+            <div class="points-view-container">
+              <div class="points-header-row">
+                <div class="search-input-wrap">
+                  <input type="text" id="points-search-input" placeholder="Search points, codes, pins..." oninput="window.app.renderPointsTable()">
+                </div>
+                <span class="badge badge-primary" id="points-count-badge">36 Shots</span>
+                <button class="btn btn-xs btn-outline-success" onclick="window.pointManager.connectDeviceGps(pos => window.app.showToast('iPhone GPS: Accuracy ' + pos.accuracyFt.toFixed(1) + ' ft'), err => window.app.showToast(err))">
+                  🛰️ iOS GPS
+                </button>
+                <button class="btn btn-xs btn-primary" onclick="window.app.promptTakeRtkShot()">
+                  + Shot
+                </button>
+              </div>
+              <div class="points-table-wrapper">
+                <table class="survey-table">
+                  <thead>
+                    <tr>
+                      <th>PT #</th>
+                      <th>CODE</th>
+                      <th>NORTHING</th>
+                      <th>EASTING</th>
+                      <th>ELEV</th>
+                      <th>DESC</th>
+                      <th>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="points-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- TOAST CONTAINER -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- iOS CUPERTINO TAB BAR -->
+        <nav class="ios-tab-bar">
+          <button class="ios-tab-item active" data-tab="cad" onclick="window.app.switchTab('cad')">
+            <span class="ios-tab-icon">📐</span>
+            <span class="ios-tab-label">CAD &amp; AIM</span>
+          </button>
+
+          <button class="ios-tab-item" data-tab="fieldbook" onclick="window.app.switchTab('fieldbook')">
+            <span class="ios-tab-icon">📒</span>
+            <span class="ios-tab-label">Field Notes</span>
+          </button>
+
+          <button class="ios-tab-item" data-tab="jobs" onclick="window.app.switchTab('jobs')">
+            <span class="ios-tab-icon">📋</span>
+            <span class="ios-tab-label">Checklist</span>
+          </button>
+
+          <button class="ios-tab-item" data-tab="points" onclick="window.app.switchTab('points')">
+            <span class="ios-tab-icon">📍</span>
+            <span class="ios-tab-label">Points</span>
+          </button>
+        </nav>
+
+        <!-- iOS HOME INDICATOR BAR -->
+        <div class="ios-home-bar">
+          <div class="ios-home-indicator"></div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL ROOT -->
+  <div id="modal-root"></div>
+
+  <!-- Scripts -->
+  <script src="js/sample-data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/points.js"></script>
+  <script src="js/cad-engine.js"></script>
+  <script src="js/dxf.js"></script>
+  <script src="js/fieldbook.js"></script>
+  <script src="js/jobs.js"></script>
+  <script src="js/aim-chat.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      window.app.deviceMode = 'iphone';
+      window.app.init();
+
+      // iOS Clock updater
+      const updateIosClock = () => {
+        const now = new Date();
+        const el = document.getElementById('ios-clock');
+        if (el) el.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      };
+      updateIosClock();
+      setInterval(updateIosClock, 1000);
+
+      // Unlock iOS Web Audio on touch
+      window.addEventListener('touchstart', () => {
+        if (window.soundFX) window.soundFX.init();
+      }, { once: true });
+    });
+  </script>
+</body>
+</html>
