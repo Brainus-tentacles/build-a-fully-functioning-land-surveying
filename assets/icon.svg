@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <!-- Total Station Tripod Legs -->
+  <line x1="256" y1="230" x2="130" y2="440" stroke="#f59e0b" stroke-width="20" stroke-linecap="round"/>
+  <line x1="256" y1="230" x2="382" y2="440" stroke="#f59e0b" stroke-width="20" stroke-linecap="round"/>
+  <line x1="256" y1="230" x2="256" y2="450" stroke="#d97706" stroke-width="16" stroke-linecap="round"/>
+  <line x1="170" y1="360" x2="342" y2="360" stroke="#cbd5e1" stroke-width="8"/>
+  <!-- Tribrach & Instrument Body -->
+  <rect x="220" y="210" width="72" height="24" rx="6" fill="#64748b"/>
+  <path d="M216 120 L296 120 L286 210 L226 210 Z" fill="url(#accent)"/>
+  <!-- Optical Telescope Barrel -->
+  <rect x="176" y="140" width="160" height="34" rx="8" fill="#e2e8f0"/>
+  <circle cx="176" cy="157" r="22" fill="#0284c7" stroke="#ffffff" stroke-width="4"/>
+  <!-- Crosshair in telescope -->
+  <line x1="164" y1="157" x2="188" y2="157" stroke="#ffffff" stroke-width="3"/>
+  <line x1="176" y1="145" x2="176" y2="169" stroke="#ffffff" stroke-width="3"/>
+  <!-- Laser Beam -->
+  <line x1="154" y1="157" x2="40" y2="157" stroke="#ef4444" stroke-width="6" stroke-dasharray="12 6"/>
+  <!-- Survey Prism Target -->
+  <polygon points="40,135 15,157 40,179 65,157" fill="#fbbf24" stroke="#d97706" stroke-width="4"/>
+</svg>
