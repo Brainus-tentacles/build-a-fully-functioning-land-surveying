@@ -244,6 +244,12 @@ window.SAMPLE_DATA = {
       { station: "TP-2", bs: 3.890, hi: 693.382, fs: 3.260, elev: 689.492, remarks: "Turning Pin in firm gravel" },
       { station: "BM-1", bs: null, hi: null, fs: 7.886, elev: 685.496, remarks: "Closing on BM-1. Error = -0.004 ft. OK!" }
     ],
+    monuments: [
+      { corner: "Lot 14 NW Corner", physicalDesc: "Found 5/8\" Iron Rod flush with grade", northing: 10450.00, easting: 10050.00, elevation: 690.80, comparison: "N 00°00'00\" E 400.00' (Matches record)", status: "Recovered" },
+      { corner: "Lot 14 NE Corner", physicalDesc: "Found 5/8\" Iron Rod w/ illegible plastic cap", northing: 10450.00, easting: 10550.00, elevation: 692.10, comparison: "N 90°00'00\" E 500.00' (Matches record)", status: "Recovered" },
+      { corner: "Lot 14 SE Corner", physicalDesc: "Found 1/2\" Iron Rod in tree root", northing: 10050.00, easting: 10550.00, elevation: 686.40, comparison: "S 00°00'00\" W 400.00' (Matches record)", status: "Recovered" },
+      { corner: "Lot 14 SW Corner", physicalDesc: "Found 1/2\" Iron Rod (Water meter 2.1' W in ROW)", northing: 10050.00, easting: 10050.00, elevation: 685.20, comparison: "S 90°00'00\" W 500.00' (Conflict cleared)", status: "Recovered" }
+    ],
     remarks: "Established boundary control with Sokkia iX robotic on CP1 and CP2, verified with Topcon HiPer VR GNSS on TopNET Live VRS. Set 5/8\" rebar with Topcon yellow caps stamped RPLS 5421 where monuments were missing. Boundary corners match 1984 subdivision plat within 0.12'. Water meter vault found 2.1' west of SW iron pin in road ROW. Invert dips on sanitary sewer and storm catch basin completed. Transmitted MAGNET Field raw observations to Civil 3D office."
   },
 

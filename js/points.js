@@ -4,21 +4,37 @@ class PointManager {
     this.points = [];
     this.rtkStatus = {
       active: true,
-      solution: "FIXED", // FIXED, FLOAT, DGPS, AUTONOMOUS
-      satellites: 21,
-      pdop: 1.1,
+      solution: "FIXED", // FIXED, FLOAT, DGPS, AUTONOMOUS, LOCKED (TS)
+      sensorMode: "GNSS_RTK", // GNSS_RTK or ROBOTIC_TS
+      satellites: 24,
+      pdop: 1.05,
       hdop: 0.6,
       vdop: 0.9,
-      hrms: 0.012, // ft
-      vrms: 0.022, // ft
+      hrms: 0.011, // ft
+      vrms: 0.019, // ft
       baseDistance: 1245.8, // ft
       curN: 10245.80,
       curE: 10185.35,
       curZ: 688.15,
-      rodHeight: 6.562, // 2.000m = 6.562 ft
-      antennaType: "R12i Internal Tilt"
+      rodHeight: 6.562, // 2.000m Topcon/Sokkia rover pole = 6.562 ft
+      prismConstantMm: -30,
+      antennaType: "Topcon HiPer VR (TILT)",
+      network: "TopNET Live VRS"
     };
     this.listeners = [];
+  }
+
+  setEquipmentProfile(profile) {
+    if (!profile) return;
+    this.rtkStatus.sensorMode = profile.sensorMode || "GNSS_RTK";
+    this.rtkStatus.antennaType = profile.sensorMode === "ROBOTIC_TS"
+      ? `${profile.totalStation || "Sokkia iX-1200"} (Prism ${profile.prismConstMm ?? -30}mm)`
+      : `${profile.gps || "Topcon HiPer VR"} (TILT)`;
+    this.rtkStatus.rodHeight = Number(profile.rodHeight) || (profile.sensorMode === "ROBOTIC_TS" ? 5.000 : 6.562);
+    this.rtkStatus.prismConstantMm = profile.prismConstMm ?? -30;
+    this.rtkStatus.network = profile.sensorMode === "ROBOTIC_TS"
+      ? "LongLink BT Prism Lock"
+      : (profile.network || "TopNET Live VRS");
   }
 
   init(initialPoints) {
@@ -203,8 +219,10 @@ class PointManager {
       this.rtkStatus.curE += jitterE;
       this.rtkStatus.curZ += jitterZ;
 
-      this.rtkStatus.hrms = 0.009 + Math.random() * 0.006;
-      this.rtkStatus.vrms = 0.016 + Math.random() * 0.008;
+      this.rtkStatus.hrms = 0.008 + Math.random() * 0.008;
+      this.rtkStatus.vrms = 0.014 + Math.random() * 0.010;
+      this.rtkStatus.pdop = 0.95 + Math.random() * 0.30;
+      this.rtkStatus.satellites = 22 + Math.floor(Math.random() * 5);
 
       const badge = document.getElementById('rtk-hud-coords');
       if (badge) {
@@ -240,15 +258,17 @@ class PointManager {
     );
   }
 
-  // Rapid shot from RTK Rover
-  takeRtkShot(code, desc = "") {
+  // Rapid shot from RTK Rover / Robotic Total Station
+  takeRtkShot(code, desc = "", rodHeight = null) {
+    const hrVal = rodHeight !== null && !isNaN(Number(rodHeight)) ? Number(rodHeight) : this.rtkStatus.rodHeight;
+    const modeTag = this.rtkStatus.sensorMode === "ROBOTIC_TS" ? "TS LOCK" : `RTK ${this.rtkStatus.solution}`;
     const pt = this.addPoint({
       northing: this.rtkStatus.curN,
       easting: this.rtkStatus.curE,
       elevation: this.rtkStatus.curZ,
       code: code || "GPS",
-      desc: desc || `RTK ${this.rtkStatus.solution} HRMS:${this.rtkStatus.hrms.toFixed(3)}ft`,
-      hr: this.rtkStatus.rodHeight
+      desc: desc || `${modeTag} (${this.rtkStatus.antennaType}) HRMS:${this.rtkStatus.hrms.toFixed(3)}ft`,
+      hr: hrVal
     });
     return pt;
   }
