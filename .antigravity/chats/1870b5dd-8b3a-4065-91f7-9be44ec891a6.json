@@ -328,6 +328,18 @@
       "created_at": "2026-11-24T20:57:06.731Z",
       "sender": "macOS",
       "is_cancelled": false
+    },
+    {
+      "id": "229bb3fc-80c7-4367-9ae9-fc2455e05b40",
+      "role": "user",
+      "content": "let's see it",
+      "status": "pending",
+      "model": "gemini-4-hydrogen-xhigh",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-11-24T21:09:47.753Z",
+      "sender": "ios",
+      "is_cancelled": false
     }
   ]
 }
