@@ -174,12 +174,49 @@ class AimChat {
     this.checkAutoReply(text);
   }
 
+  promptSetAway() {
+    const msg = prompt("Enter your Custom Away Message:", this.currentUser.statusMsg || "Away: Cutting traverse line");
+    if (msg !== null) {
+      this.currentUser.statusMsg = msg.trim() || "Away";
+      this.currentUser.status = "away";
+      this.save();
+      this.renderAim();
+      window.soundFX.playDoorOpen();
+      this.postSystemUpdate(`${this.currentUser.alias} set Away Message: "${this.currentUser.statusMsg}"`);
+    }
+  }
+
+  showTypingIndicator(screenName) {
+    const log = document.getElementById('aim-message-log');
+    if (!log) return;
+
+    let el = document.getElementById('aim-typing-indicator');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'aim-typing-indicator';
+      el.className = 'aim-typing-row';
+      log.appendChild(el);
+    }
+    el.innerHTML = `<i>⌨️ ${screenName} is typing...</i>`;
+    log.scrollTop = log.scrollHeight;
+
+    if (this._typingTimeout) clearTimeout(this._typingTimeout);
+    this._typingTimeout = setTimeout(() => {
+      const existing = document.getElementById('aim-typing-indicator');
+      if (existing) existing.remove();
+    }, 2000);
+  }
+
   // Automated realistic survey bot & CAD responses when running single-player
   checkAutoReply(userText) {
     const buddy = this.buddies.find(b => b.screenName === this.activeBuddy);
     if (!buddy) return;
 
-    // Simulate CAD Operator or SurveyBot replying
+    // Show typing indicator after a slight delay
+    setTimeout(() => {
+      this.showTypingIndicator(buddy.screenName);
+    }, 600);
+
     setTimeout(() => {
       let replyText = "";
       const lower = (userText || "").toLowerCase();
@@ -219,7 +256,7 @@ class AimChat {
         window.soundFX.playImChime();
         this.renderConversation();
       }
-    }, 1200);
+    }, 1600);
   }
 
   // Quick action: Send survey point coordinate badge to chat
@@ -249,6 +286,20 @@ class AimChat {
       </div>
     `;
     this.sendMessage(`Inverse: ${bearing} ${horizDist}'`, html);
+  }
+
+  // Quick action: Send CAD Linework summary to chat
+  sendLineworkSummary() {
+    const lines = window.cadEngine ? window.cadEngine.linework : [];
+    const html = `
+      <div class="chat-cogo-badge">
+        <span class="badge-tag">📐 CAD LINEWORK OVERLAY</span>
+        <div>Total Elements: <b>${lines.length}</b></div>
+        <div>Active Layers: <b>BOUNDARY, CENTERLINE, EOP_CURB, UTILITIES</b></div>
+        <span class="badge-link" onclick="window.app.switchTab('cad')">🔍 View on CAD Linework Canvas</span>
+      </div>
+    `;
+    this.sendMessage(`Shared CAD Linework (${lines.length} elements)`, html);
   }
 
   // Quick action: Request shot from field crew
