@@ -130,13 +130,18 @@ class SurveyApp {
   }
 
   switchTab(tabName) {
-    const resolvedTab = (tabName === 'aim' || tabName === 'cad') ? 'cad' : tabName;
+    const validTabs = ['cad', 'points', 'fieldbook', 'jobs', 'aim'];
+    const resolvedTab = validTabs.includes(tabName) ? tabName : 'cad';
     this.currentTab = resolvedTab;
 
     document.querySelectorAll('.android-nav-item').forEach(item => {
       const itemTab = item.dataset.tab;
-      const isActive = itemTab === resolvedTab || (resolvedTab === 'cad' && (itemTab === 'cad' || itemTab === 'aim'));
-      item.classList.toggle('active', isActive);
+      item.classList.toggle('active', itemTab === resolvedTab);
+    });
+
+    document.querySelectorAll('.nav-tab-btn').forEach(tab => {
+      const tabKey = tab.dataset.tab;
+      tab.classList.toggle('active', tabKey === resolvedTab);
     });
 
     document.querySelectorAll('.app-view').forEach(view => {
@@ -150,6 +155,7 @@ class SurveyApp {
           window.cadEngine.render();
         }, 50);
       }
+    } else if (resolvedTab === 'aim') {
       if (window.aimChat) {
         window.aimChat.renderAim();
       }
@@ -228,7 +234,7 @@ class SurveyApp {
     const frame = document.getElementById('device-wrapper');
     if (!frame) return;
 
-    frame.classList.remove('mode-phone', 'mode-iphone', 'mode-tablet', 'mode-cad-station', 'mode-desktop-app');
+    frame.classList.remove('mode-responsive', 'mode-phone', 'mode-iphone', 'mode-tablet', 'mode-cad-station', 'mode-desktop-app');
     frame.classList.add(`mode-${mode}`);
 
     document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
