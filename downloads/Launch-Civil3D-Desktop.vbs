@@ -1,19 +1,17 @@
 ' GeoSurvey Civil 3D Desktop Workstation - Silent Windows App Runner
-Dim WshShell, fso, appCmd, port
+Dim WshShell, fso, currentDir, htmlPath, appCmd
 Set WshShell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
-port = "8082"
+currentDir = fso.GetParentFolderName(WScript.ScriptFullName)
+htmlPath = fso.BuildPath(currentDir, "GeoSurvey-Civil3D-Standalone.html")
 
-' Check for Chrome or Edge in App Mode
+' Check for Chrome or Edge in App Mode (launches as borderless software window)
 If fso.FileExists(WshShell.ExpandEnvironmentStrings("%ProgramFiles%\Google\Chrome\Application\chrome.exe")) Then
-    appCmd = """" & WshShell.ExpandEnvironmentStrings("%ProgramFiles%\Google\Chrome\Application\chrome.exe") & """ --app=http://localhost:" & port & "/"
+    appCmd = """" & WshShell.ExpandEnvironmentStrings("%ProgramFiles%\Google\Chrome\Application\chrome.exe") & """ --app=""" & htmlPath & """"
 ElseIf fso.FileExists(WshShell.ExpandEnvironmentStrings("%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe")) Then
-    appCmd = """" & WshShell.ExpandEnvironmentStrings("%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe") & """ --app=http://localhost:" & port & "/"
+    appCmd = """" & WshShell.ExpandEnvironmentStrings("%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe") & """ --app=""" & htmlPath & """"
 Else
-    appCmd = "http://localhost:" & port & "/"
+    appCmd = """" & htmlPath & """"
 End If
 
-' Start background server and open app window silently (windowStyle 0 = hidden)
-WshShell.Run "cmd /c python -m http.server " & port & " || py -m http.server " & port, 0, False
-WScript.Sleep 800
 WshShell.Run appCmd, 1, False
