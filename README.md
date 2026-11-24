@@ -1,6 +1,11 @@
 # GeoSurvey Pro: Topcon & Sokkia MAGNET Field • Civil 3D CAD Link
 
-A functioning land surveying Android & rugged-tablet web application built specifically for crews running **Topcon** and **Sokkia** field tablets, GNSS rovers, and robotic total stations with **MAGNET Field**, paired with **Autodesk Civil 3D** in the office.
+A functioning cross-platform land surveying software ecosystem consisting of three dedicated entities built for field crews and CAD drafters:
+
+1. 🤖 **[Android App (`android.html`)](file:///home/agent/workspace/android.html)**: Field controller edition designed for Topcon FC-6000 / FC-6400 and Sokkia SHC6000 tablets running MAGNET Field v8.2 with Material 3 styling and GNSS RTK HUD.
+2. 🍎 **[iPhone App (`iphone.html`)](file:///home/agent/workspace/iphone.html)**: iOS edition designed for Apple iPhone 16/15 Pro with Dynamic Island, Apple Human Interface Guidelines, Cupertino tab navigation, and touch-optimized surveying.
+3. 🖥️ **[Computer Program (`desktop.html`)](file:///home/agent/workspace/desktop.html)**: Autodesk Civil 3D 2026 Office Workstation desktop software with Windows titlebar, classic menubar, survey ribbon, AutoCAD command line prompt, and docked live AIM Field link.
+4. 🌐 **[Suite Hub (`index.html`)](file:///home/agent/workspace/index.html)**: Integrated master portal that allows toggling between all three entities in real time with shared synchronization.
 
 ---
 
