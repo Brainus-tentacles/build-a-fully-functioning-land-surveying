@@ -547,3 +547,46 @@ body {
   justify-content: center;
   z-index: 9999;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Topcon FC-6000 / Sokkia SHC6000 Rugged Tablet Styling
+   ───────────────────────────────────────────────────────────────────────────── */
+.mode-tablet #device-wrapper {
+  /* Topcon safety-yellow outer bumper / rubber surround */
+  outline: 10px solid #d97706;
+  outline-offset: 4px;
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 4px #000,
+    0 0 0 14px #d97706,
+    0 0 0 18px #000,
+    0 20px 60px rgba(0,0,0,0.6);
+}
+
+/* Rugged tablet mode: larger text for use with gloves */
+.mode-tablet .android-bottom-nav .nav-label {
+  font-size: 11px;
+}
+
+.mode-tablet .btn {
+  font-size: 12px;
+  padding: 6px 10px;
+  min-height: 36px;
+}
+
+/* Topcon yellow accent strip at top of app bar in tablet mode */
+.mode-tablet .android-app-bar {
+  border-top: 3px solid #f59e0b;
+}
+
+/* Sokkia gunmetal tint on status bar in tablet mode */
+.mode-tablet .android-status-bar {
+  background: rgba(30, 41, 59, 0.98);
+  border-bottom: 2px solid #d97706;
+}
+
+/* Make MAGNET Field code badges more readable on rugged screen */
+.mode-tablet .badge {
+  font-size: 11px;
+  padding: 3px 7px;
+}

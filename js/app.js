@@ -34,6 +34,9 @@ class SurveyApp {
     this.updateClock();
     setInterval(() => this.updateClock(), 1000);
 
+    // Start Topcon / Sokkia GNSS HUD live readout
+    this.startGnssHudTick();
+
     // Switch to initial tab: Live AIM Chat linking Office & Field
     this.switchTab('aim');
   }
