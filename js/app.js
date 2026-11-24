@@ -1,8 +1,9 @@
 // Main Application Controller, Topcon/Sokkia Equipment Profiles & Device Viewport Switcher
 class SurveyApp {
   constructor() {
-    this.currentTab = 'aim'; // 'aim', 'fieldbook', 'jobs', 'cad', 'points'
-    this.deviceMode = 'phone'; // 'phone', 'tablet', 'cad-station'
+    this.currentTab = 'cad'; // 'cad', 'points', 'fieldbook', 'jobs', 'aim'
+    this.deviceMode = 'responsive'; // 'responsive', 'phone', 'tablet', 'cad-station'
+    this.pointsFilter = 'all';
     this.sunlightMode = false;
     this.equipmentProfile = {
       brandPreset: 'topcon', // 'topcon', 'sokkia', 'mixed'
@@ -59,8 +60,8 @@ class SurveyApp {
     // Start Topcon / Sokkia GNSS & Robotic TS HUD live readout
     this.startGnssHudTick();
 
-    // Switch to initial tab: Live AIM Chat linking Civil 3D Office & Field Crew
-    this.switchTab('aim');
+    // Switch to initial tab: Survey Map
+    this.switchTab('cad');
   }
 
   loadEquipmentProfile() {
