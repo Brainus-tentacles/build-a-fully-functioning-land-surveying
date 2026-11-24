@@ -405,21 +405,48 @@ class SurveyApp {
     e.target.value = "";
   }
 
+  setPointsFilter(filter) {
+    this.pointsFilter = filter;
+    document.querySelectorAll('.pts-filter-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    this.renderPointsTable();
+  }
+
   renderPointsTable() {
     const tbody = document.getElementById('points-table-body');
     const countEl = document.getElementById('points-count-badge');
+    const headerPtsCount = document.getElementById('header-points-count');
     if (!tbody || !window.pointManager) return;
 
     const points = window.pointManager.getAll();
     if (countEl) countEl.textContent = `${points.length} Shots`;
+    if (headerPtsCount) headerPtsCount.textContent = String(points.length);
 
     const filterVal = (document.getElementById('points-search-input')?.value || "").toLowerCase();
+    const cat = this.pointsFilter || 'all';
 
-    const filtered = points.filter(p =>
-      String(p.id).includes(filterVal) ||
-      (p.code || "").toLowerCase().includes(filterVal) ||
-      (p.desc || "").toLowerCase().includes(filterVal)
-    );
+    const filtered = points.filter(p => {
+      if (cat === 'pins') {
+        const isPin = ['BNDY', 'CTRL', 'BM'].includes(p.type) || /IP|PIN|REBAR|MON|CORNER|BM|CP/i.test(p.code);
+        if (!isPin) return false;
+      } else if (cat === 'curbs') {
+        const isRoad = p.type === 'ROAD' || /CL|EP|CURB|ROAD/i.test(p.code);
+        if (!isRoad) return false;
+      } else if (cat === 'buildings') {
+        const isBldg = p.type === 'BLDG' || /BLDG|HOUSE|FFE/i.test(p.code);
+        if (!isBldg) return false;
+      } else if (cat === 'utilities') {
+        const isUtil = p.type === 'UTIL' || /MH|CB|WM|WV|FH|UTIL/i.test(p.code);
+        if (!isUtil) return false;
+      }
+
+      return (
+        String(p.id).includes(filterVal) ||
+        (p.code || "").toLowerCase().includes(filterVal) ||
+        (p.desc || "").toLowerCase().includes(filterVal)
+      );
+    });
 
     tbody.innerHTML = filtered.map(p => `
       <tr class="point-row">
@@ -431,12 +458,255 @@ class SurveyApp {
         <td class="text-sm text-muted">${p.desc || '-'}</td>
         <td class="text-sm">${(p.hr || 5.0).toFixed(2)}'</td>
         <td>
-          <button class="btn btn-xs btn-outline-info" onclick="window.cadEngine.zoomToPoint(${p.id}); window.app.switchTab('cad');" title="Zoom on Canvas">🔍</button>
-          <button class="btn btn-xs btn-outline-primary" onclick="window.aimChat.sendPointToChat(${p.id}); window.app.switchTab('aim');" title="Send to AIM">💬</button>
+          <button class="btn btn-xs btn-outline-info" onclick="window.cadEngine.zoomToPoint(${p.id}); window.app.switchTab('cad');" title="Zoom on Map">🔍 Map</button>
+          <button class="btn btn-xs btn-outline-primary" onclick="window.aimChat.sendPointToChat(${p.id}); window.app.switchTab('aim');" title="Share in Chat">💬 Chat</button>
           <button class="btn btn-xs btn-outline-danger" onclick="window.app.deletePoint(${p.id})" title="Delete Point">🗑️</button>
         </td>
       </tr>
     `).join('');
+  }
+
+  toggleGpsDetailsPopover() {
+    const popover = document.getElementById('popover-gps-details');
+    if (!popover) return;
+    const isVisible = popover.style.display === 'block';
+    popover.style.display = isVisible ? 'none' : 'block';
+  }
+
+  openImportExportModal() {
+    const root = document.getElementById('modal-root');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
+        <div class="survey-modal-card modal-lg">
+          <div class="survey-modal-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:24px;">📁</span>
+              <div>
+                <h3 style="margin:0;">Import &amp; Export Survey Data</h3>
+                <span class="text-xs text-muted">AutoCAD Civil 3D • Topcon &amp; Sokkia MAGNET Field • CSV / GIS</span>
+              </div>
+            </div>
+            <button class="btn-close" onclick="window.app.closeModal()">×</button>
+          </div>
+
+          <div class="io-modal-grid">
+            <!-- Left: Import -->
+            <div class="io-card">
+              <div class="io-card-header">
+                <span class="io-card-icon">📥</span>
+                <div>
+                  <h4 style="margin:0;">Import into Map</h4>
+                  <p class="text-xs text-muted" style="margin:2px 0 0 0;">Upload files from your computer or data collector</p>
+                </div>
+              </div>
+              <div class="io-action-list">
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">📄</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Points Spreadsheet (.CSV / .TXT)</div>
+                    <div class="io-btn-sub">PNEZD format coordinates from Excel or GPS</div>
+                  </div>
+                  <input type="file" accept=".csv,.txt" onchange="window.app.handleCsvFileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">📐</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">CAD Drawing Linework (.DXF)</div>
+                    <div class="io-btn-sub">AutoCAD / Civil 3D layers, boundaries, curbs</div>
+                  </div>
+                  <input type="file" accept=".dxf" onchange="window.app.handleDxfFileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">📟</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">MAGNET Field Raw (.RW5 / .RAW)</div>
+                    <div class="io-btn-sub">Topcon &amp; Sokkia field controller observations</div>
+                  </div>
+                  <input type="file" accept=".rw5,.raw" onchange="window.app.handleRw5FileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+
+                <label class="io-action-btn">
+                  <span class="io-btn-icon">🏛️</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Civil 3D Field Book (.FBK)</div>
+                    <div class="io-btn-sub">Autodesk Civil 3D Survey Database raw book</div>
+                  </div>
+                  <input type="file" accept=".fbk" onchange="window.app.handleFbkFileSelect(event); window.app.closeModal();" style="display:none;">
+                </label>
+              </div>
+            </div>
+
+            <!-- Right: Export -->
+            <div class="io-card">
+              <div class="io-card-header">
+                <span class="io-card-icon">📤</span>
+                <div>
+                  <h4 style="margin:0;">Export from Map</h4>
+                  <p class="text-xs text-muted" style="margin:2px 0 0 0;">Download ready-to-use survey deliverables</p>
+                </div>
+              </div>
+              <div class="io-action-list">
+                <button class="io-action-btn" onclick="window.dxfManager.downloadDxf(); window.app.closeModal();">
+                  <span class="io-btn-icon">📐</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">AutoCAD / Civil 3D (.DXF)</div>
+                    <div class="io-btn-sub">NCS layered boundary, road, curb &amp; building CAD drawing</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportCsv(); window.app.closeModal();">
+                  <span class="io-btn-icon">📊</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Points Spreadsheet (.CSV)</div>
+                    <div class="io-btn-sub">Point #, Northing, Easting, Elevation &amp; Code table</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportGeoJson(); window.app.closeModal();">
+                  <span class="io-btn-icon">🗺️</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">GIS Map Data (.GeoJSON)</div>
+                    <div class="io-btn-sub">Standard vector geometry for GIS, Google Earth &amp; web maps</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportCivil3dFbk(); window.app.closeModal();">
+                  <span class="io-btn-icon">🏛️</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">Civil 3D Survey Field Book (.FBK)</div>
+                    <div class="io-btn-sub">Survey database figures with BEG/CONT/END linework</div>
+                  </div>
+                </button>
+
+                <button class="io-action-btn" onclick="window.dxfManager.exportMagnetRaw(); window.app.closeModal();">
+                  <span class="io-btn-icon">💾</span>
+                  <div class="io-btn-text">
+                    <div class="io-btn-title">MAGNET Field Raw (.RW5)</div>
+                    <div class="io-btn-sub">Topcon &amp; Sokkia field raw records for data collectors</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standalone links & Download Center -->
+          <div class="io-footer-bar">
+            <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span><b>📦 Standalone Testing Apps:</b></span>
+              <a href="downloads.html" class="btn btn-xs btn-outline-warning">Download Center</a>
+              <a href="desktop.html" class="btn btn-xs btn-outline-light">Civil 3D PC App</a>
+              <a href="android.html" class="btn btn-xs btn-outline-light">Android App</a>
+              <a href="iphone.html" class="btn btn-xs btn-outline-light">iPhone App</a>
+              <button class="btn btn-xs btn-outline-primary" onclick="window.app.promptAppInstall()">📲 Install App</button>
+            </div>
+            <button class="btn btn-xs btn-secondary" onclick="window.app.closeModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  openHowToUseModal() {
+    const root = document.getElementById('modal-root');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) window.app.closeModal()">
+        <div class="survey-modal-card" style="max-width: 640px;">
+          <div class="survey-modal-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:24px;">❓</span>
+              <div>
+                <h3 style="margin:0;">How to Use GeoSurvey</h3>
+                <span class="text-xs text-muted">A friendly guide to land surveying and mapping with this app</span>
+              </div>
+            </div>
+            <button class="btn-close" onclick="window.app.closeModal()">×</button>
+          </div>
+
+          <div class="guide-steps-container">
+            <div class="guide-step-card">
+              <div class="guide-num">1</div>
+              <div class="guide-text">
+                <b>🗺️ View the Map &amp; Boundaries</b>
+                <p>Drag the canvas to pan; use your mouse wheel or pinch to zoom. Click any survey point (like corner pins) or boundary line to see coordinates and elevations.</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">2</div>
+              <div class="guide-text">
+                <b>📐 Measure Distance &amp; Angles</b>
+                <p>Click <b>Measure</b> on the map toolbar, then click two survey points. The app instantly shows the exact horizontal distance in feet and the heading angle (bearing).</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">3</div>
+              <div class="guide-text">
+                <b>➕ Add Survey Points &amp; Draw Lines</b>
+                <p>Click <b>+ Add Point</b> at the top or tap anywhere on the canvas to record property pins, curbs, or trees. Click <b>Draw Line</b> to connect points into boundaries or roads.</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">4</div>
+              <div class="guide-text">
+                <b>📒 Field Notes &amp; Checklist</b>
+                <p>Check the <b>Field Notes</b> tab for elevation leveling checks and monument recovery logs. Use the <b>Checklist</b> tab to track what's completed and what's left to do.</p>
+              </div>
+            </div>
+
+            <div class="guide-step-card">
+              <div class="guide-num">5</div>
+              <div class="guide-text">
+                <b>📁 Save &amp; Export Anywhere</b>
+                <p>Click <b>Import &amp; Export</b> to download an AutoCAD/Civil 3D drawing (.DXF), an Excel spreadsheet (.CSV), or GIS map (.GeoJSON).</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-footer-bar">
+            <button class="btn btn-xs btn-outline-warning" onclick="window.app.resetSampleData()">
+              ↺ Reset to Sample Property
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="window.app.closeModal()">
+              Explore GeoSurvey
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  resetSampleData() {
+    if (confirm('Reset project back to original Oak Ridge Estates sample data? Any unsaved edits will be replaced.')) {
+      localStorage.removeItem('survey_points');
+      localStorage.removeItem('survey_linework');
+      localStorage.removeItem('survey_field_notes');
+      localStorage.removeItem('survey_jobs');
+      localStorage.removeItem('survey_aim_messages');
+      localStorage.removeItem('survey_aim_buddies');
+      
+      window.pointManager.init(window.SAMPLE_DATA.points);
+      window.cadEngine.init(window.SAMPLE_DATA.linework);
+      window.jobManager.init(window.SAMPLE_DATA.jobs);
+      window.fieldBook.init(window.SAMPLE_DATA.fieldNotes);
+      window.aimChat.init(window.SAMPLE_DATA.aim);
+      
+      this.renderPointsTable();
+      this.syncActiveJobHeader();
+      this.closeModal();
+      this.showToast('✅ Reset to Oak Ridge Estates sample property!');
+      if (this.currentTab === 'cad' && window.cadEngine) {
+        window.cadEngine.fitExtents();
+        window.cadEngine.render();
+      }
+    }
   }
 
   deletePoint(id) {
