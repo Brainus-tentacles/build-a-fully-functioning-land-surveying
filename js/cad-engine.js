@@ -707,11 +707,11 @@ class CadEngine {
   // ─────────────────────────────────────────────────────────────────────────────
   static magnetCodeToLayer(code) {
     if (!code) return 'BOUNDARY';
-    // Strip begin/end suffix tokens, then isolate the base code word
-    const c = code.trim().toUpperCase()
-      .replace(/\s*[BE]\s*$/, '')  // strip trailing B / E command
-      .replace(/[+\-]$/, '')       // strip trailing + / -
-      .split(/\s+/)[0];            // first word only
+    // Split the raw code into tokens: first token is feature name, rest are MAGNET B/E/C commands
+    const upper = code.trim().toUpperCase().replace(/[+\-]$/, '');
+    const tokens = upper.split(/\s+/);
+    // The feature code is always the FIRST token
+    const c = tokens[0];
 
     if (/^(EP|EOP|ETP|FL|CURB|GUTTR)/.test(c)) return 'EOP_CURB';
     if (/^(CL\d*|TC\d*|TS\d*|CNTR|CNTRL)/.test(c)) return 'CENTERLINE';
