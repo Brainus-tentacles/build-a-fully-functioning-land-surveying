@@ -1,0 +1,502 @@
+/* Digital Survey Field Book & Transit Notes Theme */
+.fieldbook-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #141c2e;
+  overflow-y: auto;
+}
+
+.fieldbook-topbar {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fb-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fb-badge {
+  background: #f59e0b;
+  color: #000;
+  font-weight: 800;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.fb-page {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.fb-title h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.fb-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Classic 2-Page Yellow Grid Book Spread */
+.fieldbook-spread {
+  display: flex;
+  flex: 1;
+  padding: 10px;
+  gap: 10px;
+  min-height: 480px;
+}
+
+@media (max-width: 768px) {
+  .fieldbook-spread {
+    flex-direction: column;
+  }
+}
+
+.fieldbook-page {
+  flex: 1;
+  background: #fffef2; /* Authentic yellow transit field book paper */
+  color: #1e293b;
+  border-radius: 6px;
+  border: 1px solid #d4cca6;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05), 0 4px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #ef4444; /* red header rule */
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.page-title-left, .page-title-right {
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+.page-header-row input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dotted #64748b;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 11px;
+  color: #0f172a;
+}
+
+/* Left Page Table */
+.fb-table-container {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #4f8cc944;
+  border-radius: 4px;
+}
+
+.fb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.fb-table th {
+  background: #f1ebd0;
+  color: #334155;
+  padding: 5px 6px;
+  border: 1px solid #cfc79e;
+  font-size: 10px;
+  text-align: center;
+}
+
+.fb-table td {
+  border: 1px solid #e5dfb8;
+  padding: 4px 6px;
+  height: 26px;
+}
+
+.fb-cell {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #0f172a;
+  outline: none;
+}
+
+.fb-cell-readonly {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #0f172a;
+}
+
+.fb-del-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.fb-table-controls {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+
+.level-closure-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+.closure-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Right Page Meta & Sketches */
+.fb-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.fb-meta-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.fb-meta-group label {
+  font-size: 9px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.fb-meta-group input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #94a3b8;
+  font-size: 11px;
+  font-family: inherit;
+  color: #0f172a;
+  padding: 2px 0;
+  outline: none;
+}
+
+.fb-sketch-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.fb-sketch-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  font-weight: bold;
+  color: #475569;
+}
+
+#fb-sketch-canvas {
+  width: 100%;
+  height: 200px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  cursor: crosshair;
+}
+
+.fb-remarks-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.fb-remarks-group label {
+  font-size: 9px;
+  font-weight: bold;
+  color: #475569;
+}
+
+.fb-remarks-group textarea {
+  width: 100%;
+  background: #fffef9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 6px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #0f172a;
+  resize: vertical;
+}
+
+/* Job Manager & Checklist Layout */
+.jobs-layout {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.job-card-hero {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.job-hero-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.job-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.job-datum-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.job-switcher-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-select-sm {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  outline: none;
+}
+
+.job-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.job-details-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 6px 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.job-details-row b {
+  color: var(--text-main);
+}
+
+.job-progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.bg-primary { background: var(--accent-primary); }
+.bg-success { background: var(--accent-emerald); }
+
+/* Checklist Filters */
+.checklist-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checklist-filters {
+  display: flex;
+  gap: 4px;
+}
+
+.filter-chip {
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-chip.active {
+  background: var(--accent-primary);
+  color: #0b0f19;
+  border-color: var(--accent-primary);
+}
+
+.checklist-cat-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-select-xs {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+/* Checklist Items */
+.checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  transition: all 0.15s ease;
+}
+
+.checklist-item.is-done {
+  opacity: 0.75;
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.check-toggle input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  accent-color: var(--accent-emerald);
+}
+
+.check-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.check-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.check-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.check-title.line-through {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.check-badges {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cat-badge {
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cat-prefield { background: #3b82f622; color: #60a5fa; }
+.cat-fieldoperations { background: #f59e0b22; color: #fbbf24; }
+.cat-officecad { background: #a855f722; color: #c084fc; }
+.cat-deliverablesqa { background: #10b98122; color: #34d399; }
+
+.assignee-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.badge-cad { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+.badge-field { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+.check-notes {
+  font-size: 11px;
+  color: var(--text-muted);
+}
